@@ -24,6 +24,7 @@ public class User {
     private String phoneNumber;
     @NotNull
     private Boolean emailVerified = false;
+    private String verificationCode;
     @JsonIgnore
     private String password;
     @NotNull

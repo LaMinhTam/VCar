@@ -27,3 +27,16 @@ app:
     allowedOrigins: http://localhost:3000,http://localhost:8080,https://localhost:3000
     oauth2:
       authorizedRedirectUris: http://localhost:3000/oauth2/redirect,https://localhost:3000/oauth2/redirect
+
+mail:
+  host: smtp.gmail.com
+  port: 587
+  username: ${MAIL_USERNAME:laminhtam5523@gmail.com}
+  password: ${MAIL_PASSWORD:zwyk itwy csoe opwd}
+  sender: ${MAIL_SENDER:VCar}
+  properties:
+    mail:
+      smtp:
+        auth: true
+        starttls:
+          enable: true
