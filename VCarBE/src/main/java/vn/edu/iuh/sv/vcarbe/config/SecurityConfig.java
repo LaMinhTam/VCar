@@ -88,10 +88,10 @@ public class SecurityConfig {
                 )
                 .authenticationProvider(authenticationProvider())
                 .authorizeHttpRequests(auth -> auth
-//                        .requestMatchers("/auth/signup", "/auth/login", "/oauth2/**")
-//                        .permitAll()
+                        .requestMatchers("/auth/signup", "/auth/login", "/oauth2/**")
+                        .permitAll()
                         .anyRequest()
-                        .permitAll())
+                        .authenticated())
                 .oauth2Login(oauth2Login -> oauth2Login
                         .authorizationEndpoint(authorizationEndpoint -> authorizationEndpoint
                                 .baseUri("/oauth2/authorize")
