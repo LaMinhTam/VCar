@@ -5,9 +5,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import vn.edu.iuh.sv.vcarbe.dto.CarDTO;
 import vn.edu.iuh.sv.vcarbe.entity.Car;
 import vn.edu.iuh.sv.vcarbe.entity.Province;
-import vn.edu.iuh.sv.vcarbe.entity.User;
 import vn.edu.iuh.sv.vcarbe.security.UserPrincipal;
 import vn.edu.iuh.sv.vcarbe.service.CarService;
 
@@ -21,15 +21,15 @@ public class CarController {
     private CarService carService;
 
     @PostMapping
-    public ResponseEntity<Car> createCar(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody Car car) {
+    public ResponseEntity<CarDTO> createCar(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody Car car) {
         car.setOwner(userPrincipal.getId().toHexString());
-        Car createdCar = carService.createCar(car);
+        CarDTO createdCar = carService.createCar(car);
         return ResponseEntity.ok(createdCar);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Car> updateCar(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable ObjectId id, @RequestBody Car car) {
-        Car updatedCar = carService.updateCar(userPrincipal, id, car);
+    public ResponseEntity<CarDTO> updateCar(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable ObjectId id, @RequestBody Car car) {
+        CarDTO updatedCar = carService.updateCar(userPrincipal, id, car);
         return ResponseEntity.ok(updatedCar);
     }
 
@@ -40,14 +40,14 @@ public class CarController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Car> findCarById(@PathVariable ObjectId id) {
-        Car car = carService.findCarById(id);
+    public ResponseEntity<CarDTO> findCarById(@PathVariable ObjectId id) {
+        CarDTO car = carService.findCarById(id);
         return ResponseEntity.ok(car);
     }
 
     @GetMapping
-    public ResponseEntity<List<Car>> findAllCars() {
-        List<Car> cars = carService.findAllCars();
+    public ResponseEntity<List<CarDTO>> findAllCars() {
+        List<CarDTO> cars = carService.findAllCars();
         return ResponseEntity.ok(cars);
     }
 
@@ -58,8 +58,8 @@ public class CarController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<Car>> search(@RequestParam String query, @RequestParam Province province) {
-        List<Car> cars = carService.search(query, province);
+    public ResponseEntity<List<CarDTO>> search(@RequestParam String query, @RequestParam Province province) {
+        List<CarDTO> cars = carService.search(query, province);
         return ResponseEntity.ok(cars);
     }
 }
