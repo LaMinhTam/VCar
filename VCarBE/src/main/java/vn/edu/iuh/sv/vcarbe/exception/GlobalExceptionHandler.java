@@ -11,8 +11,8 @@ import vn.edu.iuh.sv.vcarbe.dto.ApiResponse;
 public class GlobalExceptionHandler {
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
-    @ExceptionHandler({VerificationCodeNotFoundException.class})
-    public ResponseEntity<ApiResponse> handleExceptionA(VerificationCodeNotFoundException e) {
+    @ExceptionHandler({AppException.class})
+    public ResponseEntity<ApiResponse> handleExceptionA(AppException e) {
         return ResponseEntity.status(e.getCode()).body(new ApiResponse(e.getCode(), e.getMessage(), null));
     }
 

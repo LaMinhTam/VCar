@@ -10,6 +10,8 @@ import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.MongoId;
 
+import java.util.Objects;
+
 @Document(collection = "users")
 @Data
 @AllArgsConstructor
@@ -30,4 +32,21 @@ public class User {
     @NotNull
     private AuthProvider provider;
     private String providerId;
+
+    public User(ObjectId id) {
+        this.id = id;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return Objects.equals(id, user.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 }

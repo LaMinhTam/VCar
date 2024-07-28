@@ -1,4 +1,4 @@
-package vn.edu.iuh.sv.vcarbe.service;
+package vn.edu.iuh.sv.vcarbe.service.impl;
 
 import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,10 +13,11 @@ import vn.edu.iuh.sv.vcarbe.entity.AuthProvider;
 import vn.edu.iuh.sv.vcarbe.entity.User;
 import vn.edu.iuh.sv.vcarbe.exception.BadRequestException;
 import vn.edu.iuh.sv.vcarbe.exception.InternalServerErrorException;
-import vn.edu.iuh.sv.vcarbe.exception.VerificationCodeNotFoundException;
+import vn.edu.iuh.sv.vcarbe.exception.AppException;
 import vn.edu.iuh.sv.vcarbe.repository.UserRepository;
 import vn.edu.iuh.sv.vcarbe.security.TokenProvider;
 import vn.edu.iuh.sv.vcarbe.security.UserPrincipal;
+import vn.edu.iuh.sv.vcarbe.service.Authservice;
 import vn.edu.iuh.sv.vcarbe.util.MailSenderHelper;
 
 import java.io.UnsupportedEncodingException;
@@ -95,7 +96,7 @@ public class AuthServiceImpl implements Authservice {
             user.setVerificationCode(null);
             userRepository.save(user);
         } else {
-            throw new VerificationCodeNotFoundException(400, "Invalid verification code");
+            throw new AppException(400, "Invalid verification code");
         }
     }
 

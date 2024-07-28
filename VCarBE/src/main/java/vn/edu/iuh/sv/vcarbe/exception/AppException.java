@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class VerificationCodeNotFoundException extends RuntimeException {
+public class AppException extends RuntimeException {
     private int code;
     private String message;
 }
