@@ -17,12 +17,12 @@ import java.util.List;
 public class Car {
     @MongoId
     private ObjectId id;
-    private String owner;
+    private ObjectId owner;
     private String brand;
     private String model;
     private int year;
     private CarStatus status;
-    private String imageUrl;
+    private List<String> imageUrl;
     private Province province;
     private String location;
     private double dailyRate;

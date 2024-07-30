@@ -17,7 +17,7 @@ public class CarDTO {
     private String model;
     private int year;
     private CarStatus status;
-    private String imageUrl;
+    private List<String> imageUrl;
     private Province province;
     private String location;
     private double dailyRate;

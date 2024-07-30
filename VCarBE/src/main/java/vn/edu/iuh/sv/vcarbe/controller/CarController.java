@@ -22,7 +22,7 @@ public class CarController {
 
     @PostMapping
     public ResponseEntity<CarDTO> createCar(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody Car car) {
-        car.setOwner(userPrincipal.getId().toHexString());
+        car.setOwner(userPrincipal.getId());
         CarDTO createdCar = carService.createCar(car);
         return ResponseEntity.ok(createdCar);
     }

@@ -40,8 +40,7 @@ public class CarRepositoryCustomImpl implements CarRepositoryCustom {
     private List<Bson> buildPipeline(Bson filter) {
         return Arrays.asList(
                 Aggregates.match(filter),
-                Aggregates.addFields(new Field<>("ownerObjectId", new Document("$toObjectId", "$owner._id"))), // Convert owner string to ObjectId
-                Aggregates.lookup("users", "ownerObjectId", "_id", "ownerDetails"),
+                Aggregates.lookup("users", "owner", "_id", "ownerDetails"),
                 Aggregates.unwind("$ownerDetails"),
                 Aggregates.project(Projections.fields(
                         Projections.computed("id", "$_id"), // Rename _id to id
