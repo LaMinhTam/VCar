@@ -31,12 +31,12 @@ public class UserPrincipal implements OAuth2User, UserDetails {
     public static UserPrincipal create(User user) {
         List<GrantedAuthority> authorities = Collections.
                 singletonList(new SimpleGrantedAuthority("ROLE_USER"));
-
+        boolean isVerify = user.getEmailVerified() && user.getCarLicense() != null;
         return new UserPrincipal(
                 user.getId(),
                 user.getEmail(),
                 user.getPassword(),
-                user.getEmailVerified(),
+                isVerify,
                 authorities
         );
     }
@@ -53,6 +53,10 @@ public class UserPrincipal implements OAuth2User, UserDetails {
 
     public String getEmail() {
         return email;
+    }
+
+    public boolean isVerify() {
+        return isVerify;
     }
 
     @Override
@@ -82,7 +86,7 @@ public class UserPrincipal implements OAuth2User, UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return isVerify;
+        return true;
     }
 
     @Override

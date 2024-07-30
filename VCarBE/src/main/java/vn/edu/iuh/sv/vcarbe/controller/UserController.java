@@ -1,26 +1,38 @@
 package vn.edu.iuh.sv.vcarbe.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import vn.edu.iuh.sv.vcarbe.entity.User;
-import vn.edu.iuh.sv.vcarbe.exception.ResourceNotFoundException;
-import vn.edu.iuh.sv.vcarbe.repository.UserRepository;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import vn.edu.iuh.sv.vcarbe.dto.ApiResponse;
+import vn.edu.iuh.sv.vcarbe.dto.UpdateCarLicenseDTO;
+import vn.edu.iuh.sv.vcarbe.dto.UpdateUserDTO;
+import vn.edu.iuh.sv.vcarbe.dto.UserDTO;
 import vn.edu.iuh.sv.vcarbe.security.CurrentUser;
 import vn.edu.iuh.sv.vcarbe.security.UserPrincipal;
+import vn.edu.iuh.sv.vcarbe.service.UserService;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/users")
 public class UserController {
 
     @Autowired
-    private UserRepository userRepository;
+    private UserService userService;
 
-    @GetMapping("/user/me")
-    public User getCurrentUser(@CurrentUser UserPrincipal userPrincipal) {
-        return userRepository.findById(userPrincipal.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("User", "id", userPrincipal.getId()));
+    @GetMapping("/me")
+    public ResponseEntity<ApiResponse> getCurrentUser(@CurrentUser UserPrincipal userPrincipal) {
+        UserDTO user = userService.getUserById(userPrincipal.getId());
+        return ResponseEntity.ok(new ApiResponse(200, "User retrieved successfully", user));
+    }
+
+    @PutMapping("/update")
+    public ResponseEntity<ApiResponse> updateUser(@CurrentUser UserPrincipal userPrincipal, @RequestBody UpdateUserDTO updateUserDTO) {
+        UserDTO updatedUser = userService.updateUser(userPrincipal.getId(), updateUserDTO);
+        return ResponseEntity.ok(new ApiResponse(200, "User retrieved successfully", updatedUser));
+    }
+
+    @PutMapping("/update-license")
+    public ResponseEntity<ApiResponse> updateCarLicense(@CurrentUser UserPrincipal userPrincipal, @RequestBody UpdateCarLicenseDTO updateCarLicenseDTO) {
+        UserDTO updatedUser = userService.updateCarLicense(userPrincipal.getId(), updateCarLicenseDTO);
+        return ResponseEntity.ok(new ApiResponse(200, "User retrieved successfully", updatedUser));
     }
 }

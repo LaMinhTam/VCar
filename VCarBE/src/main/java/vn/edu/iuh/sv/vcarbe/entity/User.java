@@ -32,6 +32,7 @@ public class User {
     @NotNull
     private AuthProvider provider;
     private String providerId;
+    private CarLicense carLicense;
 
     public User(ObjectId id) {
         this.id = id;

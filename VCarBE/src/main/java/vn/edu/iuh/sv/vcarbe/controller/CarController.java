@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import vn.edu.iuh.sv.vcarbe.dto.ApiResponse;
 import vn.edu.iuh.sv.vcarbe.dto.CarDTO;
 import vn.edu.iuh.sv.vcarbe.entity.Car;
 import vn.edu.iuh.sv.vcarbe.entity.Province;
@@ -21,10 +22,13 @@ public class CarController {
     private CarService carService;
 
     @PostMapping
-    public ResponseEntity<CarDTO> createCar(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody Car car) {
+    public ResponseEntity<ApiResponse> createCar(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody Car car) {
+        if(!userPrincipal.isVerify()) {
+            return ResponseEntity.badRequest().body(new ApiResponse(400, "You must verify your email and car license first", null));
+        }
         car.setOwner(userPrincipal.getId());
         CarDTO createdCar = carService.createCar(car);
-        return ResponseEntity.ok(createdCar);
+        return ResponseEntity.ok(new ApiResponse(200, "Car created successfully", createdCar));
     }
 
     @PutMapping("/{id}")
