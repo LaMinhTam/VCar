@@ -61,6 +61,7 @@ public class RentalContractServiceImpl implements RentalContractService {
         setOrganizationDetails(rentalContract, rentRequest);
         setRentalDetails(rentalContract, rentRequest);
         setPricingDetails(rentalContract, car);
+        setCarDetails(rentalContract, car);
         calculateTotalRentalValue(rentalContract);
 
         RentalContract savedRentalContract = rentalContractRepository.save(rentalContract);
@@ -107,6 +108,17 @@ public class RentalContractServiceImpl implements RentalContractService {
         rentalContract.setMileageLimitPerDay(car.getMileageLimitPerDay());
         rentalContract.setExtraMileageCharge(car.getExtraMileageCharge());
         rentalContract.setExtraHourlyCharge(car.getExtraHourlyCharge());
+    }
+
+    private void setCarDetails(RentalContract rentalContract, CarModel car) {
+        rentalContract.setVehicleLicensePlate(car.getLicensePlate());
+        rentalContract.setVehicleBrand(car.getBrand());
+        rentalContract.setVehicleManufacturingYear(car.getYear());
+        rentalContract.setVehicleColor(car.getColor());
+        rentalContract.setVehicleRegistrationNumber(car.getRegistrationNumber());
+        rentalContract.setVehicleRegistrationDate(car.getRegistrationDate());
+        rentalContract.setVehicleRegistrationLocation(car.getRegistrationLocation());
+        rentalContract.setVehicleOwnerName(car.getOwner().getDisplayName());
     }
 
     @Override
