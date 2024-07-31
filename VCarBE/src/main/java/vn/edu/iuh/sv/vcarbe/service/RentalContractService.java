@@ -4,7 +4,6 @@ import org.bson.types.ObjectId;
 import vn.edu.iuh.sv.vcarbe.dto.ApprovalRequest;
 import vn.edu.iuh.sv.vcarbe.dto.RentRequest;
 import vn.edu.iuh.sv.vcarbe.dto.RentalContractDTO;
-import vn.edu.iuh.sv.vcarbe.entity.RentalContract;
 
 import java.util.List;
 
@@ -17,7 +16,7 @@ public interface RentalContractService {
 
     List<RentalContractDTO> getRentalContractForLessee(ObjectId id, boolean sortDescending, int page, int size);
 
-    RentalContract approveRentalContract(ApprovalRequest approvalRequest);
+    RentalContractDTO approveRentalContract(ApprovalRequest approvalRequest);
 
-    RentalContract rejectRentalContract(ApprovalRequest approvalRequest);
+    RentalContractDTO rejectRentalContract(ApprovalRequest approvalRequest);
 }

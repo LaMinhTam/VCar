@@ -132,19 +132,21 @@ public class RentalContractServiceImpl implements RentalContractService {
     }
 
     @Override
-    public RentalContract approveRentalContract(ApprovalRequest approvalRequest) {
+    public RentalContractDTO approveRentalContract(ApprovalRequest approvalRequest) {
         RentalContract rentalContract = getRentalContractFromRepository(approvalRequest.rentalContractId());
         rentalContract.setIsApproved(true);
         rentalContract.setActionTime(new Date());
-        return rentalContractRepository.save(rentalContract);
+        RentalContract savedRentalContract =  rentalContractRepository.save(rentalContract);
+        return modelMapper.map(savedRentalContract, RentalContractDTO.class);
     }
 
     @Override
-    public RentalContract rejectRentalContract(ApprovalRequest approvalRequest) {
+    public RentalContractDTO rejectRentalContract(ApprovalRequest approvalRequest) {
         RentalContract rentalContract = getRentalContractFromRepository(approvalRequest.rentalContractId());
         rentalContract.setIsApproved(false);
         rentalContract.setActionTime(new Date());
-        return rentalContractRepository.save(rentalContract);
+        RentalContract savedRentalContract =  rentalContractRepository.save(rentalContract);
+        return modelMapper.map(savedRentalContract, RentalContractDTO.class);
     }
 
     public RentalContract getRentalContractFromRepository(ObjectId id) {

@@ -9,7 +9,6 @@ import vn.edu.iuh.sv.vcarbe.dto.ApiResponse;
 import vn.edu.iuh.sv.vcarbe.dto.ApprovalRequest;
 import vn.edu.iuh.sv.vcarbe.dto.RentRequest;
 import vn.edu.iuh.sv.vcarbe.dto.RentalContractDTO;
-import vn.edu.iuh.sv.vcarbe.entity.RentalContract;
 import vn.edu.iuh.sv.vcarbe.security.CurrentUser;
 import vn.edu.iuh.sv.vcarbe.security.UserPrincipal;
 import vn.edu.iuh.sv.vcarbe.service.RentalContractService;
@@ -34,15 +33,15 @@ public class RentalContractController {
     }
 
     @PostMapping("/approve")
-    public ResponseEntity<RentalContract> approveRentalContract(@Valid @RequestBody ApprovalRequest approvalRequest) {
-        RentalContract updatedContract = rentalContractService.approveRentalContract(approvalRequest);
-        return ResponseEntity.ok(updatedContract);
+    public ResponseEntity<ApiResponse> approveRentalContract(@Valid @RequestBody ApprovalRequest approvalRequest) {
+        RentalContractDTO updatedContract = rentalContractService.approveRentalContract(approvalRequest);
+        return ResponseEntity.ok(new ApiResponse(200, "Rental contract approved successfully", updatedContract));
     }
 
     @PostMapping("/reject")
-    public ResponseEntity<RentalContract> rejectRentalContract(@Valid @RequestBody ApprovalRequest approvalRequest) {
-        RentalContract updatedContract = rentalContractService.rejectRentalContract(approvalRequest);
-        return ResponseEntity.ok(updatedContract);
+    public ResponseEntity<ApiResponse> rejectRentalContract(@Valid @RequestBody ApprovalRequest approvalRequest) {
+        RentalContractDTO updatedContract = rentalContractService.rejectRentalContract(approvalRequest);
+        return ResponseEntity.ok(new ApiResponse(200, "Rental contract rejected successfully", updatedContract));
     }
 
     @GetMapping("/{id}")
