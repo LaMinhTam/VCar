@@ -12,9 +12,9 @@ public interface RentalContractService {
 
     RentalContractDTO getRentalContract(ObjectId id);
 
-    List<RentalContractDTO> getRentalContractForLessor(ObjectId id, boolean sortDescending, int page, int size);
+    List<RentalContractDTO> getRentalContractForLessor(ObjectId id, String sortField, boolean sortDescending, boolean sortByApproved, int page, int size);
 
-    List<RentalContractDTO> getRentalContractForLessee(ObjectId id, boolean sortDescending, int page, int size);
+    List<RentalContractDTO> getRentalContractForLessee(ObjectId id, String sortField, boolean sortDescending, boolean sortByApproved, int page, int size);
 
     RentalContractDTO approveRentalContract(ApprovalRequest approvalRequest);
 

@@ -51,14 +51,30 @@ public class RentalContractController {
     }
 
     @GetMapping("/lessor")
-    public ResponseEntity<ApiResponse> getRentalContractForLessor(@CurrentUser UserPrincipal userPrincipal, @RequestParam(defaultValue = "false") boolean isSortDescending, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
-        List<RentalContractDTO> rentalContracts = rentalContractService.getRentalContractForLessor(userPrincipal.getId(), isSortDescending, page, size);
+    public ResponseEntity<ApiResponse> getRentalContractForLessor(
+            @CurrentUser UserPrincipal userPrincipal,
+            @RequestParam(defaultValue = "createdAt") String sortField,
+            @RequestParam(defaultValue = "false") boolean sortDescending,
+            @RequestParam(defaultValue = "false") boolean isApproved,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        List<RentalContractDTO> rentalContracts = rentalContractService.getRentalContractForLessor(
+                userPrincipal.getId(), sortField, sortDescending, isApproved, page, size);
         return ResponseEntity.ok(new ApiResponse(200, "success", rentalContracts));
     }
 
     @GetMapping("/lessee")
-    public ResponseEntity<ApiResponse> getRentalContractForLessee(@CurrentUser UserPrincipal userPrincipal, @RequestParam(defaultValue = "false") boolean isSortDescending, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
-        List<RentalContractDTO> rentalContracts = rentalContractService.getRentalContractForLessee(userPrincipal.getId(), isSortDescending, page, size);
+    public ResponseEntity<ApiResponse> getRentalContractForLessee(
+            @CurrentUser UserPrincipal userPrincipal,
+            @RequestParam(defaultValue = "createdAt") String sortField,
+            @RequestParam(defaultValue = "false") boolean sortDescending,
+            @RequestParam(defaultValue = "false") boolean isApproved,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        List<RentalContractDTO> rentalContracts = rentalContractService.getRentalContractForLessee(
+                userPrincipal.getId(), sortField, sortDescending, isApproved, page, size);
         return ResponseEntity.ok(new ApiResponse(200, "success", rentalContracts));
     }
+
 }

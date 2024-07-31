@@ -128,19 +128,37 @@ public class RentalContractServiceImpl implements RentalContractService {
     }
 
     @Override
-    public List<RentalContractDTO> getRentalContractForLessor(ObjectId id, boolean sortDescending, int page, int size) {
-        Sort sort = sortDescending ? Sort.by(Sort.Order.desc("createdAt")) : Sort.by(Sort.Order.asc("createdAt"));
+    public List<RentalContractDTO> getRentalContractForLessor(
+            ObjectId id, String sortField, boolean sortDescending, boolean isApproved, int page, int size) {
+        Sort sort = sortDescending ? Sort.by(Sort.Order.desc(sortField)) : Sort.by(Sort.Order.asc(sortField));
         Pageable pageable = PageRequest.of(page, size, sort);
-        Page<RentalContract> rentalContracts = rentalContractRepository.findByOwner(id, pageable);
-        return modelMapper.map(rentalContracts.getContent(), new TypeToken<List<RentalContractDTO>>() {}.getType());
+
+        Page<RentalContract> rentalContracts;
+        if (isApproved) {
+            rentalContracts = rentalContractRepository.findByOwnerAndIsApproved(id, true, pageable);
+        } else {
+            rentalContracts = rentalContractRepository.findByOwner(id, pageable);
+        }
+
+        return modelMapper.map(rentalContracts.getContent(), new TypeToken<List<RentalContractDTO>>() {
+        }.getType());
     }
 
     @Override
-    public List<RentalContractDTO> getRentalContractForLessee(ObjectId id, boolean sortDescending, int page, int size) {
-        Sort sort = sortDescending ? Sort.by(Sort.Order.desc("createdAt")) : Sort.by(Sort.Order.asc("createdAt"));
+    public List<RentalContractDTO> getRentalContractForLessee(
+            ObjectId id, String sortField, boolean sortDescending, boolean isApproved, int page, int size) {
+        Sort sort = sortDescending ? Sort.by(Sort.Order.desc(sortField)) : Sort.by(Sort.Order.asc(sortField));
         Pageable pageable = PageRequest.of(page, size, sort);
-        Page<RentalContract> rentalContracts = rentalContractRepository.findByLessee(id, pageable);
-        return modelMapper.map(rentalContracts.getContent(), new TypeToken<List<RentalContractDTO>>() {}.getType());
+
+        Page<RentalContract> rentalContracts;
+        if (isApproved) {
+            rentalContracts = rentalContractRepository.findByLesseeAndIsApproved(id, true, pageable);
+        } else {
+            rentalContracts = rentalContractRepository.findByLessee(id, pageable);
+        }
+
+        return modelMapper.map(rentalContracts.getContent(), new TypeToken<List<RentalContractDTO>>() {
+        }.getType());
     }
 
     @Override
@@ -148,7 +166,7 @@ public class RentalContractServiceImpl implements RentalContractService {
         RentalContract rentalContract = getRentalContractFromRepository(approvalRequest.rentalContractId());
         rentalContract.setIsApproved(true);
         rentalContract.setActionTime(new Date());
-        RentalContract savedRentalContract =  rentalContractRepository.save(rentalContract);
+        RentalContract savedRentalContract = rentalContractRepository.save(rentalContract);
         return modelMapper.map(savedRentalContract, RentalContractDTO.class);
     }
 
@@ -157,7 +175,7 @@ public class RentalContractServiceImpl implements RentalContractService {
         RentalContract rentalContract = getRentalContractFromRepository(approvalRequest.rentalContractId());
         rentalContract.setIsApproved(false);
         rentalContract.setActionTime(new Date());
-        RentalContract savedRentalContract =  rentalContractRepository.save(rentalContract);
+        RentalContract savedRentalContract = rentalContractRepository.save(rentalContract);
         return modelMapper.map(savedRentalContract, RentalContractDTO.class);
     }
 

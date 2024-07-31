@@ -7,7 +7,12 @@ import vn.edu.iuh.sv.vcarbe.entity.RentalContract;
 import org.bson.types.ObjectId;
 
 public interface RentalContractRepository extends MongoRepository<RentalContract, ObjectId> {
+
     Page<RentalContract> findByOwner(ObjectId owner, Pageable pageable);
 
+    Page<RentalContract> findByOwnerAndIsApproved(ObjectId owner, boolean isApproved, Pageable pageable);
+
     Page<RentalContract> findByLessee(ObjectId lessee, Pageable pageable);
+
+    Page<RentalContract> findByLesseeAndIsApproved(ObjectId lessee, boolean isApproved, Pageable pageable);
 }
