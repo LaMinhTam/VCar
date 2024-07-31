@@ -24,7 +24,7 @@ public class CarController {
     @PostMapping
     public ResponseEntity<ApiResponse> createCar(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody Car car) {
         if(!userPrincipal.isVerify()) {
-            return ResponseEntity.badRequest().body(new ApiResponse(400, "You must verify your email and car license first", null));
+            return ResponseEntity.badRequest().body(new ApiResponse(400, "You must verify your email, car license, citizen identification first", null));
         }
         car.setOwner(userPrincipal.getId());
         CarDTO createdCar = carService.createCar(car);

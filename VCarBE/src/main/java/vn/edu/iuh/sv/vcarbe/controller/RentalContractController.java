@@ -23,11 +23,14 @@ public class RentalContractController {
     private RentalContractService rentalContractService;
 
     @PostMapping("/rent")
-    public ResponseEntity<RentalContractDTO> createRentalContract(
+    public ResponseEntity<ApiResponse> createRentalContract(
             @RequestBody RentRequest rentRequest,
             @CurrentUser UserPrincipal userPrincipal) {
+        if (!userPrincipal.isVerify()) {
+            return ResponseEntity.badRequest().body(new ApiResponse(400, "You must verify your email, car license, citizen identification first", null));
+        }
         RentalContractDTO createdContract = rentalContractService.createRentalContract(rentRequest, userPrincipal.getId());
-        return ResponseEntity.ok(createdContract);
+        return ResponseEntity.ok(new ApiResponse(200, "Rental contract created successfully", createdContract));
     }
 
     @PostMapping("/approve")

@@ -21,12 +21,12 @@ public class RentalContract {
     private Date createdAt;
 
     // Car lessee (Party A)
-    private String renterIdentityNumber;
-    private String renterIssuedDate;
-    private String renterIssuedLocation;
-    private String renterPermanentAddress;
-    private String renterContactAddress;
-    private String renterPhoneNumber;
+    private String lessorIdentityNumber;
+    private String lessorIssuedDate;
+    private String lessorIssuedLocation;
+    private String lessorPermanentAddress;
+    private String lessorContactAddress;
+    private String lessorPhoneNumber;
 
     // Car lessee (Party B)
     private String lesseeIdentityNumber;

@@ -11,9 +11,11 @@ import vn.edu.iuh.sv.vcarbe.dto.CarModel;
 import vn.edu.iuh.sv.vcarbe.dto.RentRequest;
 import vn.edu.iuh.sv.vcarbe.dto.RentalContractDTO;
 import vn.edu.iuh.sv.vcarbe.entity.RentalContract;
+import vn.edu.iuh.sv.vcarbe.entity.User;
 import vn.edu.iuh.sv.vcarbe.exception.AppException;
 import vn.edu.iuh.sv.vcarbe.repository.CarRepository;
 import vn.edu.iuh.sv.vcarbe.repository.RentalContractRepository;
+import vn.edu.iuh.sv.vcarbe.repository.UserRepository;
 import vn.edu.iuh.sv.vcarbe.service.RentalContractService;
 
 import java.util.Calendar;
@@ -27,36 +29,66 @@ public class RentalContractServiceImpl implements RentalContractService {
     @Autowired
     private CarRepository carRepository;
     @Autowired
+    private UserRepository userRepository;
+    @Autowired
     private ModelMapper modelMapper;
 
     @Override
-    public RentalContractDTO createRentalContract(RentRequest rentRequest, ObjectId lessee) {
+    public RentalContractDTO createRentalContract(RentRequest rentRequest, ObjectId lesseeId) {
+        // Fetch car details
         CarModel car = carRepository.findByIdCustom(rentRequest.carId());
         if (car == null) {
             throw new AppException(404, "Car not found with id " + rentRequest.carId());
         }
 
+        User lessorUser = userRepository.findById(new ObjectId(car.getOwner().getId()))
+                .orElseThrow(() -> new AppException(404, "Lessor not found with id " + car.getOwner().getId()));
+
+        User lesseeUser = userRepository.findById(lesseeId)
+                .orElseThrow(() -> new AppException(404, "Lessee not found with id " + lesseeId));
+
         RentalContract rentalContract = new RentalContract();
         rentalContract.setCarId(new ObjectId(car.getId()));
         rentalContract.setOwner(new ObjectId(car.getOwner().getId()));
-        rentalContract.setLessee(lessee);
+        rentalContract.setLessee(lesseeUser.getId());
         rentalContract.setCreatedAt(new Date());
-        // Set individual lessee details if provided
-        rentalContract.setLesseeIdentityNumber(rentRequest.lesseeIdentityNumber());
-        rentalContract.setLesseePassportNumber(rentRequest.lesseePassportNumber());
-        rentalContract.setLesseeLicenseNumber(rentRequest.lesseeLicenseNumber());
-        rentalContract.setLesseePermanentAddress(rentRequest.lesseePermanentAddress());
-        rentalContract.setLesseeContactAddress(rentRequest.lesseeContactAddress());
-        rentalContract.setLesseePhoneNumber(rentRequest.lesseePhoneNumber());
 
-        // Set organization lessee details if provided
+        populateUserDetails(rentalContract, lessorUser, true);
+        populateUserDetails(rentalContract, lesseeUser, false);
+        setOrganizationDetails(rentalContract, rentRequest);
+        setRentalDetails(rentalContract, rentRequest);
+        setPricingDetails(rentalContract, car);
+        calculateTotalRentalValue(rentalContract);
+
+        RentalContract savedRentalContract = rentalContractRepository.save(rentalContract);
+        return modelMapper.map(savedRentalContract, RentalContractDTO.class);
+    }
+
+    private void populateUserDetails(RentalContract rentalContract, User user, boolean isLessor) {
+        if (isLessor) {
+            rentalContract.setLessorIdentityNumber(user.getCitizenIdentification().getCitizenIdentificationNumber());
+            rentalContract.setLessorPermanentAddress(user.getCitizenIdentification().getPermanentAddress());
+            rentalContract.setLessorContactAddress(user.getCitizenIdentification().getContactAddress());
+            rentalContract.setLessorPhoneNumber(user.getPhoneNumber());
+        } else {
+            rentalContract.setLesseeIdentityNumber(user.getCitizenIdentification().getCitizenIdentificationNumber());
+            rentalContract.setLesseePassportNumber(user.getCitizenIdentification().getPassportNumber());
+            rentalContract.setLesseeLicenseNumber(user.getCarLicense().getId());
+            rentalContract.setLesseePermanentAddress(user.getCitizenIdentification().getPermanentAddress());
+            rentalContract.setLesseeContactAddress(user.getCitizenIdentification().getContactAddress());
+            rentalContract.setLesseePhoneNumber(user.getPhoneNumber());
+        }
+    }
+
+    private void setOrganizationDetails(RentalContract rentalContract, RentRequest rentRequest) {
         rentalContract.setOrganizationRegistrationNumber(rentRequest.organizationRegistrationNumber());
         rentalContract.setOrganizationHeadquarters(rentRequest.organizationHeadquarters());
         rentalContract.setLegalRepresentativeName(rentRequest.legalRepresentativeName());
         rentalContract.setLegalRepresentativePosition(rentRequest.legalRepresentativePosition());
         rentalContract.setOrganizationPhoneNumber(rentRequest.organizationPhoneNumber());
+    }
 
-        // Set rental details
+    private void setRentalDetails(RentalContract rentalContract, RentRequest rentRequest) {
         rentalContract.setRentalStartDate(rentRequest.rentalStartDate());
         rentalContract.setRentalStartHour(rentRequest.rentalStartHour());
         rentalContract.setRentalStartMinute(rentRequest.rentalStartMinute());
@@ -64,17 +96,14 @@ public class RentalContractServiceImpl implements RentalContractService {
         rentalContract.setRentalEndHour(rentRequest.rentalEndHour());
         rentalContract.setRentalEndMinute(rentRequest.rentalEndMinute());
         rentalContract.setVehicleHandOverLocation(rentRequest.vehicleHandOverLocation());
+    }
 
-        // Set pricing details from car
+    // Helper method to set pricing details
+    private void setPricingDetails(RentalContract rentalContract, CarModel car) {
         rentalContract.setRentalPricePerDay(car.getDailyRate());
         rentalContract.setMileageLimitPerDay(car.getMileageLimitPerDay());
         rentalContract.setExtraMileageCharge(car.getExtraMileageCharge());
         rentalContract.setExtraHourlyCharge(car.getExtraHourlyCharge());
-
-        calculateTotalRentalValue(rentalContract);
-
-        RentalContract savedRentalContract = rentalContractRepository.save(rentalContract);
-        return modelMapper.map(savedRentalContract, RentalContractDTO.class);
     }
 
     @Override

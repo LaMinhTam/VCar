@@ -10,6 +10,7 @@ import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.MongoId;
 
+import java.util.Date;
 import java.util.Objects;
 
 @Document(collection = "users")
@@ -33,6 +34,7 @@ public class User {
     private AuthProvider provider;
     private String providerId;
     private CarLicense carLicense;
+    private CitizenIdentification citizenIdentification;
 
     public User(ObjectId id) {
         this.id = id;
