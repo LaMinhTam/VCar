@@ -13,5 +13,5 @@ import java.util.Optional;
 
 @Repository
 public interface CarRepository extends MongoRepository<Car, ObjectId>, CarRepositoryCustom {
-    Optional<Car> findByOwnerAndId(String owner, ObjectId id);
+    Optional<Car> findByOwnerAndId(ObjectId owner, ObjectId id);
 }

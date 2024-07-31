@@ -1,48 +1,37 @@
-package vn.edu.iuh.sv.vcarbe.entity;
+package vn.edu.iuh.sv.vcarbe.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.bson.types.ObjectId;
-import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.MongoId;
+import vn.edu.iuh.sv.vcarbe.entity.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
-@Document(collection = "cars")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Car {
-    @MongoId
-    private ObjectId id;
-    private ObjectId owner;
+public class CarModel {
+    private String id;
+    private UserDTO owner;
+    private String brand;
+    private String model;
+    private int year;
     private CarStatus status;
     private List<String> imageUrl;
     private Province province;
     private String location;
-
-    // Car information
-    private String brand;
-    private String model;
-    private int year;
+    private double dailyRate;
     private int seats;
     private Transmission transmission;
     private Fuel fuel;
     private double fuelConsumption;
     private String description;
+    private List<Feature> features;
     private String color;
-    private List<Feature> features = new ArrayList<>();
-
-    // Registration information
     private String licensePlate;
     private String registrationNumber;
     private String registrationDate;
     private String registrationLocation;
-
-    // Rental information
-    private double dailyRate;
     private int mileageLimitPerDay;
     private double extraMileageCharge;
     private double extraHourlyCharge;

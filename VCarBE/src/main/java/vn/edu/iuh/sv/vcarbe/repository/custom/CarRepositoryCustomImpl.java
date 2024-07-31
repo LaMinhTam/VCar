@@ -12,6 +12,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import vn.edu.iuh.sv.vcarbe.dto.CarDTO;
+import vn.edu.iuh.sv.vcarbe.dto.CarModel;
 import vn.edu.iuh.sv.vcarbe.dto.UserDTO;
 import vn.edu.iuh.sv.vcarbe.entity.*;
 
@@ -44,7 +45,7 @@ public class CarRepositoryCustomImpl implements CarRepositoryCustom {
                 Aggregates.unwind("$ownerDetails"),
                 Aggregates.project(Projections.fields(
                         Projections.computed("id", "$_id"), // Rename _id to id
-                        Projections.include("brand", "model", "year", "status", "imageUrl", "province", "location", "dailyRate", "seats", "transmission", "fuel", "fuelConsumption", "description", "features"),
+                        Projections.include("brand", "model", "year", "status", "imageUrl", "province", "location", "dailyRate", "seats", "transmission", "fuel", "fuelConsumption", "description", "features", "color", "licensePlate", "registrationNumber", "registrationDate", "registrationLocation", "mileageLimitPerDay", "extraMileageCharge", "extraHourlyCharge"),
                         Projections.computed("owner.id", "$ownerDetails._id"), // Rename owner._id to owner.id
                         Projections.computed("owner.email", "$ownerDetails.email"),
                         Projections.computed("owner.displayName", "$ownerDetails.displayName"),
@@ -107,7 +108,7 @@ public class CarRepositoryCustomImpl implements CarRepositoryCustom {
     }
 
     @Override
-    public CarDTO findByIdCustom(ObjectId id) {
+    public CarModel findByIdCustom(ObjectId id) {
         MongoCollection<Document> collection = getCarCollection();
 
         Bson idFilter = Filters.eq("_id", id);
@@ -119,7 +120,7 @@ public class CarRepositoryCustomImpl implements CarRepositoryCustom {
             return null;
         }
 
-        CarDTO carDTO = modelMapper.map(result, CarDTO.class);
+        CarModel carDTO = modelMapper.map(result, CarModel.class);
         Document ownerDetails = (Document) result.get("owner");
         if (ownerDetails != null) {
             UserDTO userDTO = modelMapper.map(ownerDetails, UserDTO.class);

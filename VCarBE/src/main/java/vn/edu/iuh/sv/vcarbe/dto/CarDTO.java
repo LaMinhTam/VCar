@@ -27,4 +27,9 @@ public class CarDTO {
     private double fuelConsumption;
     private String description;
     private List<Feature> features;
+    private String color;
+    private String licensePlate;
+    private String registrationNumber;
+    private String registrationDate;
+    private String registrationLocation;
 }
