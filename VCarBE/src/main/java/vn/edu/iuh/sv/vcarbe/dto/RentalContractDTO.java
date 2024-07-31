@@ -13,9 +13,9 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 public class RentalContractDTO {
-    private ObjectId id;
-    private ObjectId owner;
-    private ObjectId lessee;
+    private String id;
+    private String owner;
+    private String lessee;
     private Date createdAt;
 
     // Car lessee (Party A)
@@ -42,7 +42,7 @@ public class RentalContractDTO {
     private String organizationPhoneNumber;
 
     // Car rental information
-    private ObjectId carId;
+    private String carId;
     private String vehicleLicensePlate;
     private String vehicleBrand;
     private int vehicleManufacturingYear;

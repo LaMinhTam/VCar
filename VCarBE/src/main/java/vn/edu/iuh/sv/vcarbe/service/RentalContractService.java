@@ -13,9 +13,9 @@ public interface RentalContractService {
 
     RentalContractDTO getRentalContract(ObjectId id);
 
-    List<RentalContractDTO> getRentalContractForLessor(ObjectId id, boolean sortDescending);
+    List<RentalContractDTO> getRentalContractForLessor(ObjectId id, boolean sortDescending, int page, int size);
 
-    List<RentalContractDTO> getRentalContractForLessee(ObjectId id, boolean sortDescending);
+    List<RentalContractDTO> getRentalContractForLessee(ObjectId id, boolean sortDescending, int page, int size);
 
     RentalContract approveRentalContract(ApprovalRequest approvalRequest);
 

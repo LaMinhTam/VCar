@@ -4,6 +4,9 @@ import org.bson.types.ObjectId;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import vn.edu.iuh.sv.vcarbe.dto.ApprovalRequest;
@@ -113,25 +116,19 @@ public class RentalContractServiceImpl implements RentalContractService {
     }
 
     @Override
-    public List<RentalContractDTO> getRentalContractForLessor(ObjectId id, boolean sortDescending) {
-        Sort sort = Sort.by(Sort.Order.desc("createAt"));
-        if (!sortDescending) {
-            sort = Sort.by(Sort.Order.asc("createAt"));
-        }
-        List<RentalContract> rentalContracts = rentalContractRepository.findByOwner(id, sort);
-        return modelMapper.map(rentalContracts, new TypeToken<List<RentalContractDTO>>() {
-        }.getType());
+    public List<RentalContractDTO> getRentalContractForLessor(ObjectId id, boolean sortDescending, int page, int size) {
+        Sort sort = sortDescending ? Sort.by(Sort.Order.desc("createdAt")) : Sort.by(Sort.Order.asc("createdAt"));
+        Pageable pageable = PageRequest.of(page, size, sort);
+        Page<RentalContract> rentalContracts = rentalContractRepository.findByOwner(id, pageable);
+        return modelMapper.map(rentalContracts.getContent(), new TypeToken<List<RentalContractDTO>>() {}.getType());
     }
 
     @Override
-    public List<RentalContractDTO> getRentalContractForLessee(ObjectId id, boolean sortDescending) {
-        Sort sort = Sort.by(Sort.Order.desc("createAt"));
-        if (!sortDescending) {
-            sort = Sort.by(Sort.Order.asc("createAt"));
-        }
-        List<RentalContract> rentalContracts = rentalContractRepository.findByLessee(id, sort);
-        return modelMapper.map(rentalContracts, new TypeToken<List<RentalContractDTO>>() {
-        }.getType());
+    public List<RentalContractDTO> getRentalContractForLessee(ObjectId id, boolean sortDescending, int page, int size) {
+        Sort sort = sortDescending ? Sort.by(Sort.Order.desc("createdAt")) : Sort.by(Sort.Order.asc("createdAt"));
+        Pageable pageable = PageRequest.of(page, size, sort);
+        Page<RentalContract> rentalContracts = rentalContractRepository.findByLessee(id, pageable);
+        return modelMapper.map(rentalContracts.getContent(), new TypeToken<List<RentalContractDTO>>() {}.getType());
     }
 
     @Override

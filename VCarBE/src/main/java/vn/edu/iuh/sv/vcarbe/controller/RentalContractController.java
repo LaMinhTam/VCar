@@ -52,14 +52,14 @@ public class RentalContractController {
     }
 
     @GetMapping("/lessor")
-    public ResponseEntity<ApiResponse> getRentalContractForLessor(@CurrentUser UserPrincipal userPrincipal, @RequestParam(defaultValue = "false") boolean isSortDescending) {
-        List<RentalContractDTO> rentalContracts = rentalContractService.getRentalContractForLessor(userPrincipal.getId(), isSortDescending);
+    public ResponseEntity<ApiResponse> getRentalContractForLessor(@CurrentUser UserPrincipal userPrincipal, @RequestParam(defaultValue = "false") boolean isSortDescending, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+        List<RentalContractDTO> rentalContracts = rentalContractService.getRentalContractForLessor(userPrincipal.getId(), isSortDescending, page, size);
         return ResponseEntity.ok(new ApiResponse(200, "success", rentalContracts));
     }
 
     @GetMapping("/lessee")
-    public ResponseEntity<ApiResponse> getRentalContractForLessee(@CurrentUser UserPrincipal userPrincipal, @RequestParam(defaultValue = "false") boolean isSortDescending) {
-        List<RentalContractDTO> rentalContracts = rentalContractService.getRentalContractForLessee(userPrincipal.getId(), isSortDescending);
+    public ResponseEntity<ApiResponse> getRentalContractForLessee(@CurrentUser UserPrincipal userPrincipal, @RequestParam(defaultValue = "false") boolean isSortDescending, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+        List<RentalContractDTO> rentalContracts = rentalContractService.getRentalContractForLessee(userPrincipal.getId(), isSortDescending, page, size);
         return ResponseEntity.ok(new ApiResponse(200, "success", rentalContracts));
     }
 }
