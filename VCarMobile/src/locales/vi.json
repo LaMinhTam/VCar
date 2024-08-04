@@ -1,0 +1,28 @@
+{
+  "translation": {
+    "common.language": "Chọn ngôn ngữ",
+    "common.language.vietnamese": "Tiếng Việt",
+    "common.language.english": "Tiếng Anh",
+
+    "auth.login.title": "Chào mừng bạn đến với VCar!",
+    "auth.login.desc": "Nhập tài khoản VCar của bạn để tiếp tục.",
+    "auth.login.email": "Email",
+    "auth.login.password": "Mật khẩu",
+    "auth.login.forgot_password": "Quên mật khẩu?",
+    "auth.login": "Đăng nhập",
+    "auth.login.oauth2": "Hoặc đăng nhập với",
+    "auth.login.register": "Chưa có tài khoản VCar?",
+
+    "auth.register": "Đăng ký",
+    "auth.register.title": "Rất vui được gặp bạn!",
+    "auth.register.desc": "Đây là lần đầu tiên bạn sử dụng VCar.",
+    "auth.register.name": "Họ và tên",
+    "auth.register.email": "Email",
+    "auth.register.password": "Mật khẩu",
+    "auth.register.oauth2": "Hoặc đăng ký với",
+    "auth.register.login": "Đã có tài khoản VCar?",
+    "auth.register.verify_code": "Xác thực mã",
+    "auth.register.verify_code.desc": "Chúng tôi đã gửi mã xác thực đến email của bạn.",
+    "auth.register.verify_code.resend": "Gửi lại"
+  }
+}
