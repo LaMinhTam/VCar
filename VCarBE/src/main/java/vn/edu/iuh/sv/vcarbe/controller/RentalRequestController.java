@@ -47,7 +47,7 @@ public class RentalRequestController {
             @CurrentUser UserPrincipal userPrincipal,
             @RequestParam(defaultValue = "createdAt") String sortField,
             @RequestParam(defaultValue = "false") boolean sortDescending,
-            @RequestParam RentRequestStatus status,
+            @RequestParam(required = false) RentRequestStatus status,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         List<RentalRequestDTO> rentalRequests = rentalRequestService.getRentalRequestForLessor(
@@ -60,7 +60,7 @@ public class RentalRequestController {
             @CurrentUser UserPrincipal userPrincipal,
             @RequestParam(defaultValue = "createdAt") String sortField,
             @RequestParam(defaultValue = "false") boolean sortDescending,
-            @RequestParam RentRequestStatus status,
+            @RequestParam(required = false) RentRequestStatus status,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         List<RentalRequestDTO> rentalRequests = rentalRequestService.getRentalRequestForLessee(

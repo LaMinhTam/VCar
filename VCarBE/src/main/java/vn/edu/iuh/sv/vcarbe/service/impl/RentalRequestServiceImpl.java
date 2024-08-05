@@ -71,22 +71,34 @@ public class RentalRequestServiceImpl implements RentalRequestService {
         rentalRequestRepository.save(rentalRequest);
         return rentalRequest;
     }
-
     @Override
     public List<RentalRequestDTO> getRentalRequestForLessor(ObjectId id, String sortField, boolean sortDescending, RentRequestStatus status, int page, int size) {
         Sort sort = sortDescending ? Sort.by(Sort.Order.desc(sortField)) : Sort.by(Sort.Order.asc(sortField));
         Pageable pageable = PageRequest.of(page, size, sort);
-        Page<RentalRequest> rentalRequests = rentalRequestRepository.findByLessorIdAndStatus(id, status, pageable);
-        return modelMapper.map(rentalRequests.getContent(), new TypeToken<List<RentalRequestDTO>>() {
-        }.getType());
+
+        Page<RentalRequest> rentalRequests;
+        if (status != null) {
+            rentalRequests = rentalRequestRepository.findByLessorIdAndStatus(id, status, pageable);
+        } else {
+            rentalRequests = rentalRequestRepository.findByLessorId(id, pageable);
+        }
+
+        return modelMapper.map(rentalRequests.getContent(), new TypeToken<List<RentalRequestDTO>>() {}.getType());
     }
 
     @Override
     public List<RentalRequestDTO> getRentalRequestForLessee(ObjectId id, String sortField, boolean sortDescending, RentRequestStatus status, int page, int size) {
         Sort sort = sortDescending ? Sort.by(Sort.Order.desc(sortField)) : Sort.by(Sort.Order.asc(sortField));
         Pageable pageable = PageRequest.of(page, size, sort);
-        Page<RentalRequest> rentalRequests = rentalRequestRepository.findByLesseeIdAndStatus(id, status, pageable);
-        return modelMapper.map(rentalRequests.getContent(), new TypeToken<List<RentalRequestDTO>>() {
-        }.getType());
+
+        Page<RentalRequest> rentalRequests;
+        if (status != null) {
+            rentalRequests = rentalRequestRepository.findByLesseeIdAndStatus(id, status, pageable);
+        } else {
+            rentalRequests = rentalRequestRepository.findByLesseeId(id, pageable);
+        }
+
+        return modelMapper.map(rentalRequests.getContent(), new TypeToken<List<RentalRequestDTO>>() {}.getType());
     }
+
 }
