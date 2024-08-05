@@ -9,14 +9,9 @@ import org.bson.types.ObjectId;
 import java.util.Optional;
 
 public interface RentalContractRepository extends MongoRepository<RentalContract, ObjectId> {
+    Page<RentalContract> findByLessorId(ObjectId owner, Pageable pageable);
 
-    Page<RentalContract> findByOwner(ObjectId owner, Pageable pageable);
+    Page<RentalContract> findByLesseeId(ObjectId lessee, Pageable pageable);
 
-    Page<RentalContract> findByOwnerAndIsApproved(ObjectId owner, boolean isApproved, Pageable pageable);
-
-    Page<RentalContract> findByLessee(ObjectId lessee, Pageable pageable);
-
-    Page<RentalContract> findByLesseeAndIsApproved(ObjectId lessee, boolean isApproved, Pageable pageable);
-
-    Optional<RentalContract> findByLesseeAndId(ObjectId lessee, ObjectId id);
+    Optional<RentalContract> findByLesseeIdAndId(ObjectId lessee, ObjectId id);
 }

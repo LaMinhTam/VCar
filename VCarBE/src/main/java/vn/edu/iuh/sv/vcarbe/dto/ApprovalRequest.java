@@ -2,5 +2,5 @@ package vn.edu.iuh.sv.vcarbe.dto;
 
 import org.bson.types.ObjectId;
 
-public record ApprovalRequest(ObjectId rentalContractId) {
+public record ApprovalRequest(ObjectId requestId) {
 }

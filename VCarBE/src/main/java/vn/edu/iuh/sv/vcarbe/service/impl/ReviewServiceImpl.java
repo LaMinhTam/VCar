@@ -26,18 +26,18 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     public Review addReview(UserPrincipal userPrincipal, ReviewRequest reviewRequest) {
-        RentalContract rentalContract = rentalContractRepository.findByLesseeAndId(userPrincipal.getId(), reviewRequest.getRentalContractId())
+        RentalContract rentalContract = rentalContractRepository.findByLesseeIdAndId(userPrincipal.getId(), reviewRequest.getRentalContractId())
                 .orElseThrow(() -> new AppException(404, "Rental contract not found"));
 
         Review review = new Review();
         review.setRentalContractId(reviewRequest.getRentalContractId());
         review.setCarId(rentalContract.getCarId());
-        review.setLesseeId(rentalContract.getLessee());
-        review.setLessorId(rentalContract.getOwner());
+        review.setLesseeId(rentalContract.getLesseeId());
+        review.setLessorId(rentalContract.getLessorId());
         review.setRating(reviewRequest.getRating());
         review.setComment(reviewRequest.getComment());
 
-        if (userPrincipal.getId().equals(rentalContract.getOwner())) {
+        if (userPrincipal.getId().equals(rentalContract.getLessorId())) {
             review.setReviewType(ReviewType.LESSEE_REVIEW);
         } else {
             review.setReviewType(ReviewType.CAR_REVIEW);

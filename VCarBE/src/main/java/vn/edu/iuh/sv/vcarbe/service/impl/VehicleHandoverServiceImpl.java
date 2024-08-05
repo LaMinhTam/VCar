@@ -28,12 +28,12 @@ public class VehicleHandoverServiceImpl implements VehicleHandoverService {
     public VehicleHandoverDocumentDTO createVehicleHandover(UserPrincipal userPrincipal, VehicleHandoverRequest request) {
         RentalContract rentalContract = rentalContractRepository.findById(request.getRentalContractId())
                 .orElseThrow(() -> new AppException(404, "Rental contract not found with id " + request.getRentalContractId()));
-        if (!rentalContract.getOwner().equals(userPrincipal.getId())) {
+        if (!rentalContract.getLessorId().equals(userPrincipal.getId())) {
             throw new AppException(403, "You are not authorized to create vehicle handover document for this contract");
         }
         VehicleHandoverDocument document = new VehicleHandoverDocument();
-        document.setLesseeId(rentalContract.getLessee());
-        document.setLessorId(rentalContract.getOwner());
+        document.setLesseeId(rentalContract.getLesseeId());
+        document.setLessorId(rentalContract.getLessorId());
         document.setRentalContractId(request.getRentalContractId());
         document.setHandoverDate(request.getHandoverDate());
         document.setHandoverHour(request.getHandoverHour());

@@ -2,25 +2,23 @@ package vn.edu.iuh.sv.vcarbe.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import vn.edu.iuh.sv.vcarbe.dto.SignRequest;
 
+import java.util.Calendar;
 import java.util.Date;
 
 @Document(collection = "rental_contracts")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class RentalContract {
-    @Id
-    private ObjectId id;
-    private ObjectId owner;
-    private ObjectId lessee;
-    private Date createdAt;
-
-    // Car lessee (Party A)
+@EqualsAndHashCode(callSuper = true)
+public class RentalContract extends RentalDetails {
+    // Car lessor (Party A)
     private String lessorIdentityNumber;
     private String lessorIssuedDate;
     private String lessorIssuedLocation;
@@ -28,7 +26,7 @@ public class RentalContract {
     private String lessorContactAddress;
     private String lessorPhoneNumber;
 
-    // Car lessee (Party B)
+    // For individual lessee
     private String lesseeIdentityNumber;
     private String lesseePassportNumber;
     private String lesseeLicenseNumber;
@@ -36,7 +34,7 @@ public class RentalContract {
     private String lesseeContactAddress;
     private String lesseePhoneNumber;
 
-    // For organizations
+    // For organizational lessee
     private String organizationRegistrationNumber;
     private String organizationHeadquarters;
     private String legalRepresentativeName;
@@ -44,7 +42,6 @@ public class RentalContract {
     private String organizationPhoneNumber;
 
     // Car rental information
-    private ObjectId carId;
     private String vehicleLicensePlate;
     private String vehicleBrand;
     private int vehicleManufacturingYear;
@@ -58,18 +55,71 @@ public class RentalContract {
     private double rentalPricePerDay;
     private int mileageLimitPerDay;
     private double extraMileageCharge;
-
-    private Date rentalStartDate;
-    private int rentalStartHour;
-    private int rentalStartMinute;
-
-    private Date rentalEndDate;
-    private int rentalEndHour;
-    private int rentalEndMinute;
-
     private double extraHourlyCharge;
     private double totalRentalValue;
-    private String vehicleHandOverLocation;
-    private Boolean isApproved;
-    private Date actionTime;
+
+    public RentalContract(RentalRequest rentalRequest, User lessorUser, Car car) {
+        super(rentalRequest.getCarId(), rentalRequest.getLesseeId(), rentalRequest.getLessorId(), rentalRequest.getRentalStartDate(), rentalRequest.getRentalStartHour(), rentalRequest.getRentalStartMinute(), rentalRequest.getRentalEndDate(), rentalRequest.getRentalEndHour(), rentalRequest.getRentalEndMinute(), rentalRequest.getVehicleHandOverLocation());
+
+        this.lessorIdentityNumber = lessorUser.getCitizenIdentification().getCitizenIdentificationNumber();
+        this.lessorPermanentAddress = lessorUser.getCitizenIdentification().getPermanentAddress();
+        this.lessorContactAddress = lessorUser.getCitizenIdentification().getContactAddress();
+        this.lessorPhoneNumber = lessorUser.getPhoneNumber();
+
+        this.vehicleLicensePlate = car.getLicensePlate();
+        this.vehicleBrand = car.getBrand();
+        this.vehicleManufacturingYear = car.getYear();
+        this.vehicleColor = car.getColor();
+        this.vehicleRegistrationNumber = car.getRegistrationNumber();
+        this.vehicleRegistrationDate = car.getRegistrationDate();
+        this.vehicleRegistrationLocation = car.getRegistrationLocation();
+        this.vehicleOwnerName = lessorUser.getDisplayName();
+
+        setPricingDetails(car);
+        calculateTotalRentalValue();
+    }
+
+    private void setPricingDetails(Car car) {
+        this.rentalPricePerDay = car.getDailyRate();
+        this.mileageLimitPerDay = car.getMileageLimitPerDay();
+        this.extraMileageCharge = car.getExtraMileageCharge();
+        this.extraHourlyCharge = car.getExtraHourlyCharge();
+    }
+
+    private void calculateTotalRentalValue() {
+        Calendar startCal = Calendar.getInstance();
+        startCal.setTime(this.getRentalStartDate());
+        startCal.set(Calendar.HOUR_OF_DAY, this.getRentalStartHour());
+        startCal.set(Calendar.MINUTE, this.getRentalStartMinute());
+
+        Calendar endCal = Calendar.getInstance();
+        endCal.setTime(this.getRentalEndDate());
+        endCal.set(Calendar.HOUR_OF_DAY, this.getRentalEndHour());
+        endCal.set(Calendar.MINUTE, this.getRentalEndMinute());
+
+        long durationInMillis = endCal.getTimeInMillis() - startCal.getTimeInMillis();
+        long durationInHours = durationInMillis / (1000 * 60 * 60);
+
+        long days = durationInHours / 24;
+        long hours = durationInHours % 24;
+
+        this.totalRentalValue = (days * this.rentalPricePerDay) + (hours * this.extraHourlyCharge);
+    }
+
+    public void sign(User lesseeUser, SignRequest signRequest) {
+        this.lesseeIdentityNumber = lesseeUser.getCitizenIdentification().getCitizenIdentificationNumber();
+        this.lesseePassportNumber = lesseeUser.getCitizenIdentification().getPassportNumber();
+        this.lesseeLicenseNumber = lesseeUser.getCarLicense().getId();
+        this.lesseePermanentAddress = lesseeUser.getCitizenIdentification().getPermanentAddress();
+        this.lesseeContactAddress = lesseeUser.getCitizenIdentification().getContactAddress();
+        this.lesseePhoneNumber = lesseeUser.getPhoneNumber();
+
+        this.organizationRegistrationNumber = signRequest.organizationRegistrationNumber();
+        this.organizationHeadquarters = signRequest.organizationHeadquarters();
+        this.legalRepresentativeName = signRequest.legalRepresentativeName();
+        this.legalRepresentativePosition = signRequest.legalRepresentativePosition();
+        this.organizationPhoneNumber = signRequest.organizationPhoneNumber();
+
+        this.setUpdatedAt(new Date());
+    }
 }
