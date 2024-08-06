@@ -22,18 +22,6 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public Notification createNotification(String userId, String message, NotificationType type, String link) {
-        Notification notification = new Notification();
-        notification.setUserId(userId);
-        notification.setMessage(message);
-        notification.setRead(false);
-        notification.setCreatedAt(new Date());
-        notification.setType(type);
-        notification.setLink(link);
-        return notificationRepository.save(notification);
-    }
-
-    @Override
     public void markAsRead(ObjectId notificationId) {
         Notification notification = notificationRepository.findById(notificationId).orElseThrow(
                 () -> new RuntimeException("Notification not found with id " + notificationId)
