@@ -18,7 +18,7 @@ import java.util.Date;
 public class Notification {
     @MongoId
     private ObjectId id;
-    private String userId;
+    private ObjectId userId;
     private String message;
     private boolean isRead;
     private Date createdAt;

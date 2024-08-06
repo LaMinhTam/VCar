@@ -67,4 +67,10 @@ public class RentalRequestController {
                 userPrincipal.getId(), sortField, sortDescending, status, page, size);
         return ResponseEntity.ok(new ApiResponse(200, "success", rentalRequests));
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ApiResponse> getRentalRequest(@PathVariable String id) {
+        RentalRequestDTO rentalRequest = rentalRequestService.getRentalRequest(id);
+        return ResponseEntity.ok(new ApiResponse(200, "success", rentalRequest));
+    }
 }

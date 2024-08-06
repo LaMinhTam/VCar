@@ -11,6 +11,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import vn.edu.iuh.sv.vcarbe.dto.RentalContractDTO;
 import vn.edu.iuh.sv.vcarbe.dto.SignRequest;
+import vn.edu.iuh.sv.vcarbe.entity.NotificationType;
 import vn.edu.iuh.sv.vcarbe.entity.RentalContract;
 import vn.edu.iuh.sv.vcarbe.entity.User;
 import vn.edu.iuh.sv.vcarbe.exception.AppException;
@@ -19,6 +20,7 @@ import vn.edu.iuh.sv.vcarbe.repository.RentalRequestRepository;
 import vn.edu.iuh.sv.vcarbe.repository.UserRepository;
 import vn.edu.iuh.sv.vcarbe.security.UserPrincipal;
 import vn.edu.iuh.sv.vcarbe.service.RentalContractService;
+import vn.edu.iuh.sv.vcarbe.util.NotificationUtils;
 
 import java.util.List;
 
@@ -30,6 +32,8 @@ public class RentalContractServiceImpl implements RentalContractService {
     private UserRepository userRepository;
     @Autowired
     private ModelMapper modelMapper;
+    @Autowired
+    private NotificationUtils notificationUtils;
 
     @Override
     public List<RentalContractDTO> getRentalContractForLessor(
@@ -68,7 +72,8 @@ public class RentalContractServiceImpl implements RentalContractService {
                 .orElseThrow(() -> new AppException(404, "Rental contract not found with id " + signRequest.contractId()));
         User lesseeUser = userRepository.findById(userPrincipal.getId()).orElseThrow(() -> new AppException(404, "Lessee not found with id " + userPrincipal.getId()));
         rentalContract.sign(lesseeUser, signRequest);
-        rentalContractRepository.save(rentalContract);
+        rentalContract = rentalContractRepository.save(rentalContract);
+        notificationUtils.createNotification(rentalContract.getLessorId(), "Lessee has signed the contract", NotificationType.RENTAL_CONTRACT, "/rental-contracts/" + rentalContract.getId(), rentalContract.getId());
         return modelMapper.map(rentalContract, RentalContractDTO.class);
     }
 }
