@@ -8,7 +8,6 @@ import lombok.Data;
 public class SignUpRequest {
     @NotBlank
     private String name;
-    private String phoneNumber;
     @NotBlank
     @Email
     private String email;

@@ -31,7 +31,7 @@ public class UserPrincipal implements OAuth2User, UserDetails {
     public static UserPrincipal create(User user) {
         List<GrantedAuthority> authorities = Collections.
                 singletonList(new SimpleGrantedAuthority("ROLE_USER"));
-        boolean isVerify = user.getEmailVerified() && user.getCarLicense() != null && user.getCitizenIdentification() != null;
+        boolean isVerify = user.getEmailVerified() && user.getCarLicense() != null && user.getCitizenIdentification() != null && user.getPhoneNumber() != null;
         return new UserPrincipal(
                 user.getId(),
                 user.getEmail(),

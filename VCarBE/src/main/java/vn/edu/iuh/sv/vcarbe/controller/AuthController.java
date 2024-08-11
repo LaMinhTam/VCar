@@ -40,4 +40,10 @@ public class AuthController {
         authService.verifyUser(verificationRequest);
         return ResponseEntity.ok(new ApiResponse(200, "User verified successfully", null));
     }
+
+    @PostMapping("/update-phone")
+    public ResponseEntity<ApiResponse> updatePhoneNumber(@AuthenticationPrincipal UserPrincipal userPrincipal, @Valid @RequestBody UpdatePhoneRequest updatePhoneRequest) {
+        User user = authService.updatePhoneNumber(userPrincipal, updatePhoneRequest);
+        return ResponseEntity.ok(new ApiResponse(200, "Phone number updated successfully", user));
+    }
 }
