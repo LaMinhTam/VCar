@@ -25,7 +25,7 @@ public class Car {
 
     // Car information
     private String name;
-    private int seats;
+    private int seat;
     private Transmission transmission;
     private Fuel fuel;
     private double fuelConsumption;

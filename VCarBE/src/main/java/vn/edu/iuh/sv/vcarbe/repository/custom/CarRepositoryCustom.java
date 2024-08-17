@@ -6,6 +6,7 @@ import vn.edu.iuh.sv.vcarbe.dto.CarDTO;
 import vn.edu.iuh.sv.vcarbe.dto.CarModel;
 import vn.edu.iuh.sv.vcarbe.entity.Car;
 import vn.edu.iuh.sv.vcarbe.entity.Province;
+import vn.edu.iuh.sv.vcarbe.entity.Transmission;
 
 import java.util.List;
 
@@ -16,5 +17,5 @@ public interface CarRepositoryCustom {
 
     CarModel findByIdCustom(ObjectId id);
 
-    List<Car> findByProvince(Province province, Pageable pageable);
+    List<Car> findAllWithFilters(Province province, Transmission[] transmission, Integer[] seats, Integer minConsumption, Integer maxConsumption, Integer maxRate, Pageable pageable);
 }

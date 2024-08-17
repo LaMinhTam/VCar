@@ -1,5 +1,6 @@
 package vn.edu.iuh.sv.vcarbe.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -9,6 +10,7 @@ import vn.edu.iuh.sv.vcarbe.dto.ApiResponse;
 import vn.edu.iuh.sv.vcarbe.dto.CarDTO;
 import vn.edu.iuh.sv.vcarbe.entity.Car;
 import vn.edu.iuh.sv.vcarbe.entity.Province;
+import vn.edu.iuh.sv.vcarbe.entity.Transmission;
 import vn.edu.iuh.sv.vcarbe.security.UserPrincipal;
 import vn.edu.iuh.sv.vcarbe.service.CarService;
 
@@ -53,10 +55,16 @@ public class CarController {
     public ResponseEntity<List<CarDTO>> findAllCars(
             @RequestParam(required = false) Province province,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        List<CarDTO> cars = carService.findAllCars(province, page, size);
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) Transmission[] transmission,
+            @RequestParam(required = false) Integer[] seats,
+            @RequestParam(required = false) Integer minConsumption,
+            @RequestParam(required = false) Integer maxConsumption,
+            @RequestParam(required = false) Integer maxRate) {
+        List<CarDTO> cars = carService.findAllCars(province, transmission, seats, minConsumption, maxConsumption, maxRate, page, size);
         return ResponseEntity.ok(cars);
     }
+
 
     @GetMapping("/autocomplete")
     public ResponseEntity<List<String>> autocomplete(@RequestParam String query, @RequestParam Province province) {

@@ -11,6 +11,7 @@ import vn.edu.iuh.sv.vcarbe.dto.CarModel;
 import vn.edu.iuh.sv.vcarbe.entity.Car;
 import vn.edu.iuh.sv.vcarbe.entity.CarStatus;
 import vn.edu.iuh.sv.vcarbe.entity.Province;
+import vn.edu.iuh.sv.vcarbe.entity.Transmission;
 import vn.edu.iuh.sv.vcarbe.exception.AppException;
 import vn.edu.iuh.sv.vcarbe.repository.CarRepository;
 import vn.edu.iuh.sv.vcarbe.security.UserPrincipal;
@@ -30,7 +31,7 @@ public class CarServiceImpl implements CarService {
     @Override
     public CarDTO createCar(Car car) {
         car.setStatus(CarStatus.AVAILABLE);
-        Car savedCar= carRepository.save(car);
+        Car savedCar = carRepository.save(car);
         return modelMapper.map(savedCar, CarDTO.class);
     }
 
@@ -61,15 +62,10 @@ public class CarServiceImpl implements CarService {
     }
 
     @Override
-    public List<CarDTO> findAllCars(Province province, int page, int size) {
+    public List<CarDTO> findAllCars(Province province, Transmission[] transmission, Integer[] seats, Integer minConsumption, Integer maxConsumption, Integer maxRate, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
 
-        List<Car> cars;
-        if (province != null) {
-            cars = carRepository.findByProvince(province, pageable);
-        } else {
-            cars = carRepository.findAll(pageable).getContent();
-        }
+        List<Car> cars = carRepository.findAllWithFilters(province, transmission, seats, minConsumption, maxConsumption, maxRate, pageable);
 
         return cars.stream()
                 .map(car -> modelMapper.map(car, CarDTO.class))

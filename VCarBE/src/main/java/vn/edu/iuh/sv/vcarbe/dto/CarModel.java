@@ -13,15 +13,13 @@ import java.util.List;
 public class CarModel {
     private String id;
     private UserDTO owner;
-    private String brand;
-    private String model;
-    private int year;
+    private String name;
     private CarStatus status;
     private List<String> imageUrl;
     private Province province;
     private String location;
     private double dailyRate;
-    private int seats;
+    private int seat;
     private Transmission transmission;
     private Fuel fuel;
     private double fuelConsumption;
