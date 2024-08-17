@@ -10,6 +10,7 @@ import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import vn.edu.iuh.sv.vcarbe.dto.CarDTO;
 import vn.edu.iuh.sv.vcarbe.dto.CarModel;
@@ -128,5 +129,23 @@ public class CarRepositoryCustomImpl implements CarRepositoryCustom {
         }
 
         return carDTO;
+    }
+
+    @Override
+    public List<Car> findByProvince(Province province, Pageable pageable) {
+        MongoCollection<Document> collection = getCarCollection();
+
+        Bson provinceFilter = Filters.eq("province", province);
+        List<Bson> pipeline = buildPipeline(provinceFilter);
+
+        AggregateIterable<Document> results = collection.aggregate(pipeline);
+
+        List<Car> cars = new ArrayList<>();
+        for (Document result : results) {
+            Car car = modelMapper.map(result, Car.class);
+            cars.add(car);
+        }
+
+        return cars;
     }
 }

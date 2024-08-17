@@ -23,7 +23,7 @@ public class CarController {
 
     @PostMapping
     public ResponseEntity<ApiResponse> createCar(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody Car car) {
-        if(!userPrincipal.isVerify()) {
+        if (!userPrincipal.isVerify()) {
             return ResponseEntity.badRequest().body(new ApiResponse(400, "You must verify your email, car license, citizen identification first", null));
         }
         car.setOwner(userPrincipal.getId());
@@ -50,8 +50,11 @@ public class CarController {
     }
 
     @GetMapping
-    public ResponseEntity<List<CarDTO>> findAllCars() {
-        List<CarDTO> cars = carService.findAllCars();
+    public ResponseEntity<List<CarDTO>> findAllCars(
+            @RequestParam(required = false) Province province,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        List<CarDTO> cars = carService.findAllCars(province, page, size);
         return ResponseEntity.ok(cars);
     }
 

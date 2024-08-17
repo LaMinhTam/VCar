@@ -3,6 +3,8 @@ package vn.edu.iuh.sv.vcarbe.service.impl;
 import org.bson.types.ObjectId;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import vn.edu.iuh.sv.vcarbe.dto.CarDTO;
 import vn.edu.iuh.sv.vcarbe.dto.CarModel;
@@ -59,8 +61,16 @@ public class CarServiceImpl implements CarService {
     }
 
     @Override
-    public List<CarDTO> findAllCars() {
-        List<Car> cars = carRepository.findAll();
+    public List<CarDTO> findAllCars(Province province, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+
+        List<Car> cars;
+        if (province != null) {
+            cars = carRepository.findByProvince(province, pageable);
+        } else {
+            cars = carRepository.findAll(pageable).getContent();
+        }
+
         return cars.stream()
                 .map(car -> modelMapper.map(car, CarDTO.class))
                 .toList();
