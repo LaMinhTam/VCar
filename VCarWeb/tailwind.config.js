@@ -23,7 +23,7 @@ export default {
       text8: "#f3f7f9",
       iconColor: "#A2A2A8",
       white: "#FFFFFF",
-      black: '#000000',
+      black: "#000000",
       whiteSoft: "#FCFBFF",
       graySoft: "#FCFCFC",
       grayf3: "#f3f3f3",
@@ -38,34 +38,37 @@ export default {
       darkRed: "#422C32",
 
       // Primary Neutral Palette
-      'primary-dark': '#0A196F',
-      'primary-default': '#3563E9',
-      'primary-light': '#658DF1',
+      "primary-dark": "#0A196F",
+      "primary-default": "#3563E9",
+      "primary-light": "#658DF1",
 
       // Success Palette
-      'success-dark': '#3B6506',
-      'success-default': '#9CD323',
-      'success-light': '#BCE455',
+      "success-dark": "#3B6506",
+      "success-default": "#9CD323",
+      "success-light": "#BCE455",
 
       // Error Palette
-      'error-dark': '#7A0619',
-      'error-default': '#FF4423',
-      'error-light': '#FF7F59',
+      "error-dark": "#7A0619",
+      "error-default": "#FF4423",
+      "error-light": "#FF7F59",
 
       // Warning Palette
-      'warning-dark': '#7A4D0B',
-      'warning-default': '#FFC73A',
-      'warning-light': '#FFD96B',
+      "warning-dark": "#7A4D0B",
+      "warning-default": "#FFC73A",
+      "warning-light": "#FFD96B",
 
       // Information Palette
-      'info-dark': '#102E7A',
-      'info-default': '#54A6FF',
-      'info-light': '#7EC2FF',
+      "info-dark": "#102E7A",
+      "info-default": "#54A6FF",
+      "info-light": "#7EC2FF",
 
       // Secondary Palette
-      'secondary-dark': '#040815',
-      'secondary-default': '#1A202C',
-      'secondary-light': '#596780',
+      "secondary-dark": "#040815",
+      "secondary-default": "#1A202C",
+      "secondary-light": "#596780",
+
+      "custom-blue": "#90A3BF",
+      "filter-range": "#90A3BF",
     },
   },
   plugins: [],

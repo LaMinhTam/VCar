@@ -5,8 +5,9 @@ export const loginUser = createAsyncThunk(
   "auth/loginUser",
   async ({ email, password }: { email: string; password: string }) => {
     // Simulate an API call for login
-    const response = await new Promise<{ email: string; token: string }>((resolve) =>
-      setTimeout(() => resolve({ email, token: "mocked_token" }), 500)
+    const response = await new Promise<{ email: string; token: string }>(
+      (resolve) =>
+        setTimeout(() => resolve({ email, token: "mocked_token" }), 500)
     );
     return response;
   }
@@ -16,8 +17,9 @@ export const registerUser = createAsyncThunk(
   "auth/registerUser",
   async ({ email, password }: { email: string; password: string }) => {
     // Simulate an API call for registration
-    const response = await new Promise<{ email: string; token: string }>((resolve) =>
-      setTimeout(() => resolve({ email, token: "mocked_token" }), 500)
+    const response = await new Promise<{ email: string; token: string }>(
+      (resolve) =>
+        setTimeout(() => resolve({ email, token: "mocked_token" }), 500)
     );
     return response;
   }
