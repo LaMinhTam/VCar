@@ -3,10 +3,16 @@ import { View, Text, Pressable } from 'react-native';
 import { TextInput, Button } from 'react-native-paper';
 import LayoutAuthentication from '../layouts/LayoutAuthentication';
 import { useTranslation } from 'react-i18next';
+import { ParamListBase, useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 const LoginScreen = () => {
+    const navigation = useNavigation<NativeStackNavigationProp<ParamListBase>>();
     const [showPassword, setShowPassword] = React.useState(false);
     const { t } = useTranslation();
+    const handleLogin = () => {
+        navigation.navigate('HOME_SCREEN');
+    }
     return (
         <LayoutAuthentication
             title={t('auth.login.title')}
@@ -35,7 +41,7 @@ const LoginScreen = () => {
                     <Text className="mb-6 text-sm text-text2">{t('auth.login.forgot_password')}</Text>
                 </Pressable>
             </View>
-            <Button mode="contained" className="w-full mb-4">
+            <Button mode="contained" className="w-full mb-4" onPress={handleLogin}>
                 {t('auth.login')}
             </Button>
         </LayoutAuthentication>
