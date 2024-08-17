@@ -24,15 +24,12 @@ public class Car {
     private String location;
 
     // Car information
-    private String brand;
-    private String model;
-    private int year;
+    private String name;
     private int seats;
     private Transmission transmission;
     private Fuel fuel;
     private double fuelConsumption;
     private String description;
-    private String color;
     private List<Feature> features = new ArrayList<>();
 
     // Registration information
@@ -46,4 +43,6 @@ public class Car {
     private int mileageLimitPerDay;
     private double extraMileageCharge;
     private double extraHourlyCharge;
+    private double washingPrice;
+    private double deodorisePrice;
 }

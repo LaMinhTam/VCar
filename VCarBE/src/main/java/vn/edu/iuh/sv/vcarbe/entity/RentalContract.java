@@ -43,9 +43,7 @@ public class RentalContract extends RentalDetails {
 
     // Car rental information
     private String vehicleLicensePlate;
-    private String vehicleBrand;
-    private int vehicleManufacturingYear;
-    private String vehicleColor;
+    private String vehicleName;
     private String vehicleRegistrationNumber;
     private String vehicleRegistrationDate;
     private String vehicleRegistrationLocation;
@@ -65,11 +63,8 @@ public class RentalContract extends RentalDetails {
         this.lessorPermanentAddress = lessorUser.getCitizenIdentification().getPermanentAddress();
         this.lessorContactAddress = lessorUser.getCitizenIdentification().getContactAddress();
         this.lessorPhoneNumber = lessorUser.getPhoneNumber();
-
+        this.vehicleName = car.getName();
         this.vehicleLicensePlate = car.getLicensePlate();
-        this.vehicleBrand = car.getBrand();
-        this.vehicleManufacturingYear = car.getYear();
-        this.vehicleColor = car.getColor();
         this.vehicleRegistrationNumber = car.getRegistrationNumber();
         this.vehicleRegistrationDate = car.getRegistrationDate();
         this.vehicleRegistrationLocation = car.getRegistrationLocation();

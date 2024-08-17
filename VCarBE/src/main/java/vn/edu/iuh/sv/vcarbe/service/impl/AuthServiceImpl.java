@@ -62,7 +62,6 @@ public class AuthServiceImpl implements Authservice {
         user.setEmail(signUpRequest.getEmail());
         user.setImageUrl("https://source.unsplash.com/random");
         user.setDisplayName(signUpRequest.getName());
-        user.setPhoneNumber(signUpRequest.getPhoneNumber());
         user.setPassword(signUpRequest.getPassword());
         user.setProvider(AuthProvider.local);
         String verificationCode = generateVerificationCode();
@@ -98,6 +97,15 @@ public class AuthServiceImpl implements Authservice {
         } else {
             throw new AppException(400, "Invalid verification code");
         }
+    }
+
+    @Override
+    public User updatePhoneNumber(UserPrincipal userPrincipal, UpdatePhoneRequest updatePhoneRequest) {
+        User user = userRepository.findById(userPrincipal.getId())
+                .orElseThrow(() -> new BadRequestException("User not found"));
+
+        user.setPhoneNumber(updatePhoneRequest.phone());
+        return userRepository.save(user);
     }
 
     private String generateVerificationCode() {
