@@ -201,6 +201,12 @@ public class CarRepositoryCustomImpl implements CarRepositoryCustom {
             pipeline.add(Aggregates.match(Filters.and(filters)));
         }
 
+        pipeline.add(Aggregates.project(Projections.fields(
+                Projections.include("_id","owner","status","imageUrl","province","location","name","seat","transmission","fuel","fuelConsumption","description","features","licensePlate","registrationNumber","registrationDate","registrationLocation","dailyRate","mileageLimitPerDay","extraMileageCharge","extraHourlyCharge","washingPrice","deodorisePrice"),
+                Projections.computed("id", "$_id"),
+                Projections.excludeId()
+        )));
+
         if (pageable != null) {
             pipeline.add(Aggregates.skip(pageable.getPageNumber() * pageable.getPageSize()));
             pipeline.add(Aggregates.limit(pageable.getPageSize()));
@@ -227,7 +233,7 @@ public class CarRepositoryCustomImpl implements CarRepositoryCustom {
         Arrays.sort(seats);
 
         if (isContinuousSequence(seats) && seats[seats.length - 1] >= 10) {
-            return Filters.gte("seat", seats[0]);
+                return Filters.gte("seat", seats[0]);
         }
 
         return buildFallbackSeatFilter(seats);
