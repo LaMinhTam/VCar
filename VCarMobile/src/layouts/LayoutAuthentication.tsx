@@ -37,35 +37,37 @@ const LayoutAuthentication = ({ title, desc, type, children }: {
                 </Text>
                 <Text className='mb-6 font-medium text-text2'>{desc}</Text>
                 {children}
-                <View className="flex-row items-center w-full mb-6">
-                    <View className="flex-1 h-px bg-gray-300" />
-                    <Text className="mx-4 text-text8">{type === "LOGIN" ? t('auth.login.oauth2') : t('auth.register.oauth2')}</Text>
-                    <View className="flex-1 h-px bg-gray-300" />
-                </View>
-                <View className="flex-row justify-center mb-6">
-                    <Button
-                        icon={() => <Icon name="logo-google" size={20} />}
-                        compact
-                        mode="outlined"
-                        className="mx-2"
-                    >
-                        Google
-                    </Button>
-                    <Button
-                        icon={() => <Icon name="logo-facebook" size={20} />}
-                        compact
-                        mode="outlined"
-                        className="mx-2"
-                    >
-                        Facebook
-                    </Button>
-                </View>
-                <Pressable onPress={() => navigation.navigate(`${type === "LOGIN" ? "REGISTER_SCREEN" : "LOGIN_SCREEN"}`)}>
-                    <Text className="text-sm text-text2">
-                        {type === "LOGIN" ? t('auth.login.register') : t('auth.register.login')}{' '}
-                        <Text className="font-bold text-text8">{type === "LOGIN" ? t('auth.register') : t('auth.login')}</Text>
-                    </Text>
-                </Pressable>
+                {type !== 'VERIFY' && <>
+                    <View className="flex-row items-center w-full mb-6">
+                        <View className="flex-1 h-px bg-gray-300" />
+                        <Text className="mx-4 text-text8">{type === "LOGIN" ? t('auth.login.oauth2') : t('auth.register.oauth2')}</Text>
+                        <View className="flex-1 h-px bg-gray-300" />
+                    </View>
+                    <View className="flex-row justify-center mb-6">
+                        <Button
+                            icon={() => <Icon name="logo-google" size={20} />}
+                            compact
+                            mode="outlined"
+                            className="mx-2"
+                        >
+                            Google
+                        </Button>
+                        <Button
+                            icon={() => <Icon name="logo-facebook" size={20} />}
+                            compact
+                            mode="outlined"
+                            className="mx-2"
+                        >
+                            Facebook
+                        </Button>
+                    </View>
+                    <Pressable onPress={() => navigation.navigate(`${type === "LOGIN" ? "REGISTER_SCREEN" : "LOGIN_SCREEN"}`)}>
+                        <Text className="text-sm text-text2">
+                            {type === "LOGIN" ? t('auth.login.register') : t('auth.register.login')}{' '}
+                            <Text className="font-bold text-text8">{type === "LOGIN" ? t('auth.register') : t('auth.login')}</Text>
+                        </Text>
+                    </Pressable>
+                </>}
             </View>
             {languageDialogVisible && <LanguageDialog
                 languageDialogVisible={languageDialogVisible}

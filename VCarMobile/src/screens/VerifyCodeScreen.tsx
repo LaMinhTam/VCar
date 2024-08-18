@@ -1,53 +1,84 @@
-import React, { useState } from 'react';
-import { View, Text } from 'react-native';
-import { TextInput, Button } from 'react-native-paper';
+import React, { useState, useRef, useEffect } from 'react';
+import { View, Text, TextInput as RNTextInput, Alert } from 'react-native';
+import { Button } from 'react-native-paper';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { useNavigation } from '@react-navigation/native'; // Import navigation hook
+import { ParamListBase, useNavigation } from '@react-navigation/native';
+import LayoutAuthentication from '../layouts/LayoutAuthentication';
+import { useTranslation } from 'react-i18next';
+import { useDispatch, useSelector } from 'react-redux';
+import { VERIFY_CODE } from '../store/auth/actions';
+import { RootState } from '../store/configureStore';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import Loading from '../components/common/Loading';
 
 const VerifyCodeScreen = () => {
-    const [code, setCode] = useState('');
-    const navigation = useNavigation(); // Initialize navigation
+    const { loading, error, email, verification_code, email_verified } = useSelector((state: RootState) => state.auth);
+    const [code, setCode] = useState<string[]>(
+        Array.from({ length: verification_code.length || 6 }, () => ''),
+    );
+    const navigation = useNavigation<NativeStackNavigationProp<ParamListBase>>();
+    const { t } = useTranslation();
+    const inputRefs = useRef<(RNTextInput | null)[]>([]);
+    const dispatch = useDispatch();
 
-    // Handler for verifying the code
     const handleVerifyCode = () => {
-        // Perform code verification here
+        const enteredCode = code.join('');
+        dispatch({ type: VERIFY_CODE, payload: { email, verification_code: enteredCode } });
+    };
 
-        // Navigate to the next screen upon successful verification
-        // navigation.navigate('NextScreen'); // Change 'NextScreen' to your next screen name
+    useEffect(() => {
+        if (email_verified) {
+            Alert.alert('Verify Success', t('verify_code.success'), [{ text: 'OK' }]);
+            navigation.navigate('HOME_SCREEN');
+        } else if (error) {
+            Alert.alert('Verify Failed', t('verify_code.failed'), [{ text: 'OK' }]);
+        }
+    }, [email_verified, error, navigation]);
+
+    const handleChangeText = (text: string, index: number) => {
+        const newCode = [...code];
+        newCode[index] = text;
+        setCode(newCode);
+
+        if (text) {
+            if (index < inputRefs.current.length - 1) {
+                inputRefs.current[index + 1]?.focus();
+            }
+        } else {
+            if (index > 0) {
+                inputRefs.current[index - 1]?.focus();
+            }
+        }
     };
 
     return (
-        <KeyboardAwareScrollView
-            className="flex flex-1 bg-strock"
-            contentContainerStyle={{ flexGrow: 1 }}
-            keyboardShouldPersistTaps="handled"
-            enableOnAndroid
-            extraScrollHeight={100}
-            enableAutomaticScroll
-            showsVerticalScrollIndicator={false}
-            showsHorizontalScrollIndicator={false}
+        <LayoutAuthentication
+            title={t('verify_code.title')}
+            desc={t('verify_code.desc')}
+            type="VERIFY"
         >
-            <View className="items-center justify-center flex-1 px-6">
-                <Text className="mb-8 text-3xl font-bold text-text8">
-                    Verify Your Email
-                </Text>
-                <TextInput
-                    label="Verification Code"
-                    mode="outlined"
-                    className="w-full mb-6"
-                    keyboardType="numeric"
-                    value={code}
-                    onChangeText={setCode}
-                />
-                <Button
-                    mode="contained"
-                    className="w-full mb-4"
-                    onPress={handleVerifyCode} // Verify code button handler
-                >
-                    Verify Code
-                </Button>
+            <View className="flex-row justify-between w-4/5 mb-8">
+                {code.map((digit, index) => (
+                    <RNTextInput
+                        key={index}
+                        ref={(ref) => (inputRefs.current[index] = ref)}
+                        value={digit}
+                        onChangeText={(text) => handleChangeText(text, index)}
+                        keyboardType="numeric"
+                        maxLength={1}
+                        className="w-12 h-12 text-2xl text-center border border-[#ccc] rounded-lg text-[#333]"
+                    />
+                ))}
             </View>
-        </KeyboardAwareScrollView>
+            <Button
+                mode="contained"
+                onPress={handleVerifyCode}
+                className="w-4/5 py-2 bg-blue-500 rounded-lg"
+                disabled={loading}
+            >
+                {!loading ? t('verify_code.submit') : <Loading />}
+            </Button>
+        </LayoutAuthentication>
     );
 };
 

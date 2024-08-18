@@ -12,6 +12,8 @@
     "auth.login": "Login",
     "auth.login.oauth2": "Or login with",
     "auth.login.register": "Don't have a VCar account?",
+    "auth.login.success": "Login successfully!",
+    "auth.login.failed": "Login failed!",
 
     "auth.register": "Register",
     "auth.register.title": "Nice to meet you!",
@@ -23,6 +25,21 @@
     "auth.register.login": "Already have a VCar account?",
     "auth.register.verify_code": "Verify code",
     "auth.register.verify_code.desc": "We have sent a verification code to your email.",
-    "auth.register.verify_code.resend": "Resend"
+    "auth.register.verify_code.resend": "Resend",
+    "auth.register.success": "Register successfully!",
+    "auth.register.failed": "Register failed!",
+
+    "_comment": "Validate area",
+    "validate.required": "This field is required",
+    "validate.name": "Invalid name",
+    "validate.email": "Invalid email",
+    "validate.password": "Password must be at least 6 characters",
+
+    "_comment": "Verify code area",
+    "verify_code.title": "Verify code",
+    "verify_code.desc": "We have sent a verification code to your email.",
+    "verify_code.submit": "Verify",
+    "verify_code.failed": "Verify failed!",
+    "verify_code.success": "Verify successfully!"
   }
 }
