@@ -1,21 +1,19 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
-import { loginUser } from "../store/authSlice";
-import type { AppDispatch } from "../store/store";
+import { useAuth } from "../provider/AuthProvider";
 import { useTranslation } from "react-i18next";
 
 const LoginPage = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const dispatch = useDispatch<AppDispatch>();
+  const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await dispatch(loginUser({ email, password }));
+      await login(email, password);
       navigate("/");
     } catch (error) {
       console.error("Failed to login", error);
@@ -24,7 +22,9 @@ const LoginPage = () => {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-neutral-light">
-      <h1 className="mb-6 text-2xl font-bold text-primary-default">{t("login")}</h1>
+      <h1 className="mb-6 text-2xl font-bold text-primary-default">
+        {t("login")}
+      </h1>
       <form className="w-full max-w-sm" onSubmit={handleLogin}>
         <div className="mb-4">
           <label className="block mb-2 text-sm font-bold text-neutral-dark">

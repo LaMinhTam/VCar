@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { registerUser } from "../store/authSlice";
+// import { registerUser } from "../store/authSlice";
 import type { AppDispatch } from "../store/store";
 import { useTranslation } from "react-i18next";
 
@@ -20,7 +20,7 @@ const SignUpPage = () => {
       return;
     }
     try {
-      await dispatch(registerUser({ email, password }));
+      // await dispatch(registerUser({ email, password }));
       navigate("/signin");
     } catch (error) {
       console.error("Failed to sign up", error);
@@ -29,7 +29,9 @@ const SignUpPage = () => {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-neutral-light">
-      <h1 className="mb-6 text-2xl font-bold text-primary-default">{t("signUp")}</h1>
+      <h1 className="mb-6 text-2xl font-bold text-primary-default">
+        {t("signUp")}
+      </h1>
       <form className="w-full max-w-sm" onSubmit={handleSignUp}>
         <div className="mb-4">
           <label className="block mb-2 text-sm font-bold text-neutral-dark">
