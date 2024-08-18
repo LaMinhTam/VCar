@@ -1,6 +1,5 @@
 package vn.edu.iuh.sv.vcarbe.controller;
 
-import jakarta.servlet.http.HttpServletRequest;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -34,9 +33,9 @@ public class CarController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<CarDTO> updateCar(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable ObjectId id, @RequestBody Car car) {
+    public ResponseEntity<ApiResponse> updateCar(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable ObjectId id, @RequestBody Car car) {
         CarDTO updatedCar = carService.updateCar(userPrincipal, id, car);
-        return ResponseEntity.ok(updatedCar);
+        return ResponseEntity.ok(new ApiResponse(200, "Car updated successfully", updatedCar));
     }
 
     @DeleteMapping("/{id}")
@@ -46,13 +45,13 @@ public class CarController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CarDTO> findCarById(@PathVariable ObjectId id) {
+    public ResponseEntity<ApiResponse> findCarById(@PathVariable ObjectId id) {
         CarDTO car = carService.findCarById(id);
-        return ResponseEntity.ok(car);
+        return ResponseEntity.ok(new ApiResponse(200, "success", car));
     }
 
     @GetMapping
-    public ResponseEntity<List<CarDTO>> findAllCars(
+    public ResponseEntity<ApiResponse> findAllCars(
             @RequestParam(required = false) Province province,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
@@ -62,19 +61,19 @@ public class CarController {
             @RequestParam(required = false) Integer maxConsumption,
             @RequestParam(required = false) Integer maxRate) {
         List<CarDTO> cars = carService.findAllCars(province, transmission, seats, minConsumption, maxConsumption, maxRate, page, size);
-        return ResponseEntity.ok(cars);
+        return ResponseEntity.ok(new ApiResponse(200, "success", cars));
     }
 
 
     @GetMapping("/autocomplete")
-    public ResponseEntity<List<String>> autocomplete(@RequestParam String query, @RequestParam Province province) {
+    public ResponseEntity<ApiResponse> autocomplete(@RequestParam String query, @RequestParam Province province) {
         List<String> suggestions = carService.autocomplete(query, province);
-        return ResponseEntity.ok(suggestions);
+        return ResponseEntity.ok(new ApiResponse(200, "success", suggestions));
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<CarDTO>> search(@RequestParam String query, @RequestParam Province province) {
+    public ResponseEntity<ApiResponse> search(@RequestParam String query, @RequestParam Province province) {
         List<CarDTO> cars = carService.search(query, province);
-        return ResponseEntity.ok(cars);
+        return ResponseEntity.ok(new ApiResponse(200, "success", cars));
     }
 }
