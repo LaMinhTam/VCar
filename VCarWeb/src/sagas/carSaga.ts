@@ -44,7 +44,8 @@ function* fetchCars(action) {
     const response = yield call(fetch, `${BASE_URL}/cars?${queryString}`);
 
     const data = yield response.json();
-    yield put(fetchCarsSuccess(data));
+
+    yield put(fetchCarsSuccess(data.data));
   } catch (error) {
     console.log(error);
     yield put(fetchCarsFailure("Failed to fetch cars."));
