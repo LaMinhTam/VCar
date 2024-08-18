@@ -13,7 +13,7 @@ const FilterSidebar = ({
   const [seats, setSeats] = useState<number[]>([]);
   const [minConsumption, setMinConsumption] = useState<number>(0);
   const [maxConsumption, setMaxConsumption] = useState<number>(20);
-  const [maxRate, setMaxRate] = useState<number>(100000); // Default max rate in VND
+  const [maxRate, setMaxRate] = useState<number>(1000000); // Default max rate in VND
 
   const handleTransmissionChange = (value: string) => {
     setTransmission((prevTransmission) =>

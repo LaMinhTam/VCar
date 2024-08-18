@@ -42,7 +42,6 @@ function* fetchCars(action) {
   try {
     const queryString = buildQueryString(action.payload);
     const response = yield call(fetch, `${BASE_URL}/cars?${queryString}`);
-    console.log(`${BASE_URL}/cars?${queryString}`);
 
     const data = yield response.json();
     yield put(fetchCarsSuccess(data));
