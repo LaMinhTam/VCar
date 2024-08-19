@@ -4,7 +4,6 @@ import { useAuth } from "../provider/AuthProvider";
 
 const Header: React.FC = () => {
   const { isAuthenticated } = useAuth();
-  // console.log("is authenticated", isAuthenticated);
 
   return (
     <header className="bg-white shadow-md p-4 flex flex-col md:flex-row items-center justify-between fixed top-0 left-0 right-0 z-50">

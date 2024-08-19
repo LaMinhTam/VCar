@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../store/store";
-import { loginUser } from "../store/authSlice";
+import { loginRequest, logout } from "../store/authSlice";
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -18,7 +18,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const authState = useSelector((state: RootState) => state.auth);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  // Update the isAuthenticated state based on authState changes
   useEffect(() => {
     if (authState.token) {
       setIsAuthenticated(true);
@@ -28,16 +27,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   }, [authState.token]);
 
   const login = async (email: string, password: string) => {
-    await dispatch(loginUser({ email, password }));
+    await dispatch(loginRequest({ email, password }));
   };
 
-  const logout = () => {
-    dispatch({ type: "auth/logout" });
+  const logoutUser = () => {
+    dispatch(logout());
     setIsAuthenticated(false);
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, logout }}>
+    <AuthContext.Provider
+      value={{ isAuthenticated, login, logout: logoutUser }}
+    >
       {children}
     </AuthContext.Provider>
   );
