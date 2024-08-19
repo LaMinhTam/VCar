@@ -29,7 +29,7 @@ public class TokenProvider {
 
     public String generateToken(UserPrincipal userPrincipal, String tokenType, long expirationTime) {
         Map<String, Object> claims = new HashMap<>();
-        claims.put("email", userPrincipal.getEmail());
+        claims.put("email", userPrincipal.getUsername());
         claims.put("type", tokenType);
 
         if (tokenType.equals("ACCESS")) {

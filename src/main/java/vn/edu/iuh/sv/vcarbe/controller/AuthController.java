@@ -19,7 +19,7 @@ public class AuthController {
 
     @PostMapping("/signin")
     public ResponseEntity<ApiResponse> authenticateUser(@RequestBody LoginRequest loginRequest) {
-        TokenResponse tokenResponse = authService.authenticateUser(loginRequest);
+        SignInResponse tokenResponse = authService.authenticateUser(loginRequest);
         return ResponseEntity.ok(new ApiResponse(200, "User authenticated successfully", tokenResponse));
     }
 
@@ -37,8 +37,8 @@ public class AuthController {
 
     @PostMapping("/verify")
     public ResponseEntity<ApiResponse> verifyUser(@Valid @RequestBody VerificationRequest verificationRequest) {
-        authService.verifyUser(verificationRequest);
-        return ResponseEntity.ok(new ApiResponse(200, "User verified successfully", null));
+        SignInResponse signInResponse = authService.verifyUser(verificationRequest);
+        return ResponseEntity.ok(new ApiResponse(200, "User verified successfully", signInResponse));
     }
 
     @PostMapping("/update-phone")

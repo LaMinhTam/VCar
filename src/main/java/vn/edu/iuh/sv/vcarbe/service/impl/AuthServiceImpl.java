@@ -40,7 +40,7 @@ public class AuthServiceImpl implements Authservice {
     @Autowired
     private MailSenderHelper mailSenderHelper;
 
-    public TokenResponse authenticateUser(LoginRequest loginRequest) {
+    public SignInResponse authenticateUser(LoginRequest loginRequest) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         loginRequest.getEmail(),
@@ -48,9 +48,17 @@ public class AuthServiceImpl implements Authservice {
                 )
         );
 
-        String accessToken = tokenProvider.createToken(authentication);
-        String refreshToken = tokenProvider.refreshToken((UserPrincipal) authentication.getPrincipal());
-        return new TokenResponse(accessToken, refreshToken);
+        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+        String accessToken = tokenProvider.accessToken(userPrincipal);
+        String refreshToken = tokenProvider.refreshToken(userPrincipal);
+        return new SignInResponse(
+                userPrincipal.getId().toHexString(),
+                userPrincipal.getDisplayName(),
+                userPrincipal.getUsername(),
+                userPrincipal.getImageUrl(),
+                userPrincipal.getPhoneNumber(),
+                accessToken,
+                refreshToken);
     }
 
     public User registerUser(SignUpRequest signUpRequest) {
@@ -86,17 +94,27 @@ public class AuthServiceImpl implements Authservice {
         return new TokenResponse(accessToken, refreshToken);
     }
 
-    public void verifyUser(VerificationRequest verificationRequest) {
+    public SignInResponse verifyUser(VerificationRequest verificationRequest) {
         User user = userRepository.findByEmail(verificationRequest.getEmail())
                 .orElseThrow(() -> new BadRequestException("User not found with this email"));
 
-        if (user.getVerificationCode().equals(verificationRequest.getVerificationCode())) {
-            user.setEmailVerified(true);
-            user.setVerificationCode(null);
-            userRepository.save(user);
-        } else {
+        if (!user.getVerificationCode().equals(verificationRequest.getVerificationCode())) {
             throw new AppException(400, "Invalid verification code");
         }
+        user.setEmailVerified(true);
+        user.setVerificationCode(null);
+        userRepository.save(user);
+        UserPrincipal userPrincipal = UserPrincipal.create(user);
+
+        return new SignInResponse(
+                user.getId().toHexString(),
+                user.getDisplayName(),
+                user.getEmail(),
+                user.getImageUrl(),
+                user.getPhoneNumber(),
+                tokenProvider.accessToken(userPrincipal),
+                tokenProvider.refreshToken(userPrincipal)
+        );
     }
 
     @Override

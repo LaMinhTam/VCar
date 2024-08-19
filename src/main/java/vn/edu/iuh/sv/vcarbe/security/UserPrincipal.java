@@ -14,17 +14,23 @@ import java.util.Map;
 
 public class UserPrincipal implements OAuth2User, UserDetails {
     private ObjectId id;
+    private String imageUrl;
     private String email;
+    private String displayName;
     private String password;
+    private String phoneNumber;
     private boolean isEmailVerify;
     private boolean isVerify;
     private Collection<? extends GrantedAuthority> authorities;
     private Map<String, Object> attributes;
 
-    public UserPrincipal(ObjectId id, String email, String password, boolean isEmailVerify,boolean isVerify, Collection<? extends GrantedAuthority> authorities) {
+    public UserPrincipal(ObjectId id, String imageUrl, String email, String displayName, String password, String phoneNumber, boolean isEmailVerify, boolean isVerify, Collection<? extends GrantedAuthority> authorities) {
         this.id = id;
+        this.imageUrl = imageUrl;
         this.email = email;
+        this.displayName = displayName;
         this.password = password;
+        this.phoneNumber = phoneNumber;
         this.isEmailVerify = isEmailVerify;
         this.isVerify = isVerify;
         this.authorities = authorities;
@@ -36,8 +42,11 @@ public class UserPrincipal implements OAuth2User, UserDetails {
         boolean isVerify = user.getEmailVerified() && user.getCarLicense() != null && user.getCitizenIdentification() != null && user.getPhoneNumber() != null;
         return new UserPrincipal(
                 user.getId(),
+                user.getImageUrl(),
                 user.getEmail(),
+                user.getDisplayName(),
                 user.getPassword(),
+                user.getPhoneNumber(),
                 user.getEmailVerified(),
                 isVerify,
                 authorities
@@ -54,8 +63,16 @@ public class UserPrincipal implements OAuth2User, UserDetails {
         return id;
     }
 
-    public String getEmail() {
-        return email;
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
     }
 
     public boolean isVerify() {
