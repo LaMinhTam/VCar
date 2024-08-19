@@ -109,6 +109,6 @@ public class AuthServiceImpl implements Authservice {
     }
 
     private String generateVerificationCode() {
-        return String.valueOf((int) ((Math.random() * 900000) + 100000));
+        return String.valueOf((int) ((Math.random() * 90000) + 10000));
     }
 }
