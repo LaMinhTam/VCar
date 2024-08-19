@@ -1,47 +1,67 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface AuthState {
-  user: string | null;
   token: string | null;
   refreshToken: string | null;
-  status: "idle" | "loading" | "succeeded" | "failed";
+  user: {
+    id: string;
+    display_name: string;
+    email: string;
+    image_url: string;
+  } | null;
   error: string | null;
+  status: "idle" | "loading" | "succeeded" | "failed";
 }
 
 const initialState: AuthState = {
+  token: localStorage.getItem("accessToken"),
+  refreshToken: localStorage.getItem("refreshToken"),
   user: null,
-  token: null,
-  refreshToken: null,
-  status: "idle",
   error: null,
+  status: "idle",
 };
 
 const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    loginRequest: (state) => {
+    loginRequest(state) {
       state.status = "loading";
       state.error = null;
     },
-    loginSuccess: (
+    loginSuccess(
       state,
-      action: PayloadAction<{ token: string; refreshToken: string }>
-    ) => {
+      action: PayloadAction<{
+        token: string;
+        refreshToken: string;
+        user: {
+          id: string;
+          display_name: string;
+          email: string;
+          image_url: string;
+        };
+      }>
+    ) {
       state.status = "succeeded";
       state.token = action.payload.token;
       state.refreshToken = action.payload.refreshToken;
+      state.user = action.payload.user;
+      state.error = null;
+      localStorage.setItem("accessToken", action.payload.token);
+      localStorage.setItem("refreshToken", action.payload.refreshToken);
     },
-    loginFailure: (state, action: PayloadAction<string>) => {
+    loginFailure(state, action: PayloadAction<string>) {
       state.status = "failed";
       state.error = action.payload;
     },
-    logout: (state) => {
-      state.user = null;
+    logout(state) {
       state.token = null;
       state.refreshToken = null;
+      state.user = null;
       state.status = "idle";
       state.error = null;
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
     },
   },
 });

@@ -4,6 +4,7 @@ import { useDispatch } from "react-redux";
 import { useTranslation } from "react-i18next";
 import { loginRequest } from "../store/authSlice";
 import type { AppDispatch } from "../store/store";
+import { toast } from "react-toastify"; // Import toast
 
 const LoginPage = () => {
   const { t } = useTranslation();
@@ -16,11 +17,12 @@ const LoginPage = () => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      dispatch(loginRequest({ email, password }));
+      await dispatch(loginRequest({ email, password }));
       navigate("/");
     } catch (error) {
       console.error("Failed to login", error);
       setError(t("loginFailed"));
+      toast.error(t("loginFailed")); // Show toast on error
     }
   };
 
