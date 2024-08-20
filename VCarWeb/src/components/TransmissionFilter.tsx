@@ -1,5 +1,6 @@
 import React from "react";
 import CustomCheckbox from "./common/CustomCheckbox";
+import { useTranslation } from "react-i18next";
 
 interface TransmissionFilterProps {
   transmission: string[];
@@ -10,6 +11,8 @@ const TransmissionFilter: React.FC<TransmissionFilterProps> = ({
   transmission,
   onTransmissionChange,
 }) => {
+  const { t } = useTranslation();
+
   const handleTransmissionChange = (value: string) => {
     if (transmission.includes(value)) {
       onTransmissionChange(value);
@@ -20,21 +23,21 @@ const TransmissionFilter: React.FC<TransmissionFilterProps> = ({
 
   return (
     <div className="mb-6">
-      <h3 className="text-lg font-semibold mb-2">Transmission</h3>
+      <h3 className="text-lg font-semibold mb-2">{t("transmission")}</h3>
       <div className="flex flex-col gap-2">
         <label className="flex items-center gap-2">
           <CustomCheckbox
             checked={transmission.includes("AUTO")}
             onChange={() => handleTransmissionChange("AUTO")}
           />
-          Automatic
+          {t("automatic")}
         </label>
         <label className="flex items-center gap-2">
           <CustomCheckbox
             checked={transmission.includes("MANUAL")}
             onChange={() => handleTransmissionChange("MANUAL")}
           />
-          Manual
+          {t("manual")}
         </label>
       </div>
     </div>

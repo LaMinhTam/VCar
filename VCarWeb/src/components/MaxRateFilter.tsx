@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 interface MaxRateFilterProps {
   maxRate: number;
@@ -11,6 +12,8 @@ const MaxRateFilter: React.FC<MaxRateFilterProps> = ({
   onRateChange,
   onInputChange,
 }) => {
+  const { t } = useTranslation();
+
   const handleRateChange = (value: number) => {
     if (value > 10000000) {
       onRateChange(10000000);
@@ -29,7 +32,7 @@ const MaxRateFilter: React.FC<MaxRateFilterProps> = ({
 
   return (
     <div className="mb-6">
-      <h3 className="text-lg font-semibold mb-2">Max Rate Per Day (VND)</h3>
+      <h3 className="text-lg font-semibold mb-2">{t("maxRatePerDay")}</h3>
       <div className="flex flex-col items-start">
         <input
           type="range"
@@ -50,7 +53,8 @@ const MaxRateFilter: React.FC<MaxRateFilterProps> = ({
             max="10000000"
           />
           <span className="text-lg font-semibold">
-            {maxRate >= 10000000 ? "10,000,000+" : maxRate.toLocaleString()} VND
+            {maxRate >= 10000000 ? "10,000,000+" : maxRate.toLocaleString()}{" "}
+            {t("currency")}
           </span>
         </div>
       </div>

@@ -7,12 +7,13 @@ import {
   SettingOutlined,
   UserOutlined,
   LogoutOutlined,
+  GlobalOutlined,
 } from "@ant-design/icons";
 import { RootState } from "../store/store";
 import { useTranslation } from "react-i18next";
 
 const Header: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { isAuthenticated, logout } = useAuth();
   const authState = useSelector((state: RootState) => state.auth);
   const user = authState.user;
@@ -23,6 +24,10 @@ const Header: React.FC = () => {
     }
   };
 
+  const handleLanguageChange = (lng: string) => {
+    i18n.changeLanguage(lng);
+  };
+
   const menu = (
     <Menu onClick={handleMenuClick}>
       <Menu.Item key="account" icon={<UserOutlined />}>
@@ -30,6 +35,17 @@ const Header: React.FC = () => {
       </Menu.Item>
       <Menu.Item key="logout" icon={<LogoutOutlined />}>
         {t("logout")}
+      </Menu.Item>
+    </Menu>
+  );
+
+  const languageMenu = (
+    <Menu>
+      <Menu.Item key="en" onClick={() => handleLanguageChange("en")}>
+        {t("english")}
+      </Menu.Item>
+      <Menu.Item key="vi" onClick={() => handleLanguageChange("vi")}>
+        {t("vietnamese")}
       </Menu.Item>
     </Menu>
   );
@@ -76,6 +92,11 @@ const Header: React.FC = () => {
             </Dropdown>
           </div>
         )}
+        <Dropdown overlay={languageMenu} trigger={["click"]}>
+          <div className="p-2 cursor-pointer">
+            <GlobalOutlined className="text-xl" />
+          </div>
+        </Dropdown>
       </div>
     </header>
   );

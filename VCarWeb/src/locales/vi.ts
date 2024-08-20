@@ -27,6 +27,13 @@ const vi = {
     minConsumption: "Tiêu thụ nhiên liệu tối thiểu",
     maxConsumption: "Tiêu thụ nhiên liệu tối đa",
     maxRateDescription: "Mức giá tối đa cho xe",
+    person: "người",
+    litersPer100km: "lít/100km",
+    automatic: "Tự động",
+    manual: "Số tay",
+    currency: "VND",
+    day: "Ngày",
+    rentNow: "Thuê Ngay",
   },
 };
 

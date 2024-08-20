@@ -2,6 +2,7 @@ import React from "react";
 import capacityIcon from "../assets/capacity.png";
 import gasStationIcon from "../assets/gas-station.png";
 import transmissionIcon from "../assets/transmission.png";
+import { useTranslation } from "react-i18next";
 
 interface Car {
   id: string;
@@ -18,6 +19,8 @@ interface CarCardProps {
 }
 
 const CarCard: React.FC<CarCardProps> = ({ car }) => {
+  const { t } = useTranslation();
+
   return (
     <div className="bg-white shadow-md rounded-lg overflow-hidden">
       <img
@@ -31,35 +34,37 @@ const CarCard: React.FC<CarCardProps> = ({ car }) => {
           <div className="flex items-center mr-4">
             <img
               src={gasStationIcon}
-              alt="Fuel Consumption"
+              alt={t("fuelConsumption")}
               className="w-6 h-6 mr-2"
             />
             <span className="text-filter-range">
-              {car.fuel_consumption} L/100km
+              {car.fuel_consumption} {t("litersPer100km")}
             </span>
           </div>
           <div className="flex items-center mr-4">
             <img
               src={transmissionIcon}
-              alt="Transmission"
+              alt={t("transmission")}
               className="w-6 h-6 mr-2"
             />
             <span className="text-filter-range">
-              {car.transmission === "MANUAL" ? "Manual" : "Automatic"}
+              {car.transmission === "MANUAL" ? t("manual") : t("automatic")}
             </span>
           </div>
           <div className="flex items-center">
-            <img src={capacityIcon} alt="Seats" className="w-6 h-6 mr-2" />
-            <span className="text-filter-range">{car.seat}</span>
+            <img src={capacityIcon} alt={t("seats")} className="w-6 h-6 mr-2" />
+            <span className="text-filter-range">
+              {car.seats} {t("seats")}
+            </span>
           </div>
         </div>
         <div className="flex justify-between items-center">
           <span className="text-lg font-bold text-primary-default">
-            {car.daily_rate.toLocaleString()}K /{" "}
-            <span className="text-filter-range">day</span>
+            {car.daily_rate.toLocaleString()} {t("currency")} /{" "}
+            <span className="text-filter-range">{t("day")}</span>
           </span>
           <button className="bg-primary-default text-white px-4 py-2 rounded hover:bg-primary-dark">
-            Rent Now
+            {t("rentNow")}
           </button>
         </div>
       </div>

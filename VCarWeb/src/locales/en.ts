@@ -27,7 +27,13 @@ const en = {
     minConsumption: "Min Consumption",
     maxConsumption: "Max Consumption",
     maxRateDescription: "Maximum rate for the car",
-    // Add any additional keys here
+    person: "person",
+    litersPer100km: "liters/100km",
+    automatic: "Automatic",
+    manual: "Manual",
+    currency: "USD",
+    day: "Day",
+    rentNow: "Rent Now",
   },
 };
 
