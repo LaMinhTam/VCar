@@ -9,7 +9,7 @@ interface Car {
   image_url: string[];
   name: string;
   daily_rate: number;
-  seats: number;
+  seat: number;
   transmission: string;
   fuel_consumption: number;
 }
@@ -53,9 +53,7 @@ const CarCard: React.FC<CarCardProps> = ({ car }) => {
           </div>
           <div className="flex items-center">
             <img src={capacityIcon} alt={t("seats")} className="w-6 h-6 mr-2" />
-            <span className="text-filter-range">
-              {car.seats} {t("seats")}
-            </span>
+            <span className="text-filter-range">{car.seat}</span>
           </div>
         </div>
         <div className="flex justify-between items-center">
