@@ -63,7 +63,7 @@ const FilterSidebar = ({
   };
 
   return (
-    <div className="w-64 p-4 bg-white shadow-md fixed top-0 left-0 h-full overflow-y-auto">
+    <div className="w-64 p-4 bg-white shadow-md fixed top-[64px] left-0 h-[calc(100%-64px)] overflow-y-auto">
       <TransmissionFilter
         transmission={transmission}
         onTransmissionChange={handleTransmissionChange}
