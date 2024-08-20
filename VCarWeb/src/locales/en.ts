@@ -34,6 +34,8 @@ const en = {
     currency: "VND",
     day: "Day",
     rentNow: "Rent Now",
+    english: "English",
+    vietnamese: "Vietnamese",
   },
 };
 

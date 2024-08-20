@@ -34,6 +34,8 @@ const vi = {
     currency: "VND",
     day: "Ngày",
     rentNow: "Thuê Ngay",
+    english: "Tiếng Anh",
+    vietnamese: "Tiếng Việt",
   },
 };
 
