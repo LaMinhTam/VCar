@@ -9,8 +9,10 @@ import {
   LogoutOutlined,
 } from "@ant-design/icons";
 import { RootState } from "../store/store";
+import { useTranslation } from "react-i18next";
 
 const Header: React.FC = () => {
+  const { t } = useTranslation();
   const { isAuthenticated, logout } = useAuth();
   const authState = useSelector((state: RootState) => state.auth);
   const user = authState.user;
@@ -24,10 +26,10 @@ const Header: React.FC = () => {
   const menu = (
     <Menu onClick={handleMenuClick}>
       <Menu.Item key="account" icon={<UserOutlined />}>
-        My Account
+        {t("myAccount")}
       </Menu.Item>
       <Menu.Item key="logout" icon={<LogoutOutlined />}>
-        Logout
+        {t("logout")}
       </Menu.Item>
     </Menu>
   );
@@ -38,7 +40,7 @@ const Header: React.FC = () => {
         <Link to="/" className="flex-shrink-0">
           <img
             src="https://via.placeholder.com/100x50"
-            alt="Logo"
+            alt={t("logo")}
             className="h-10"
           />
         </Link>
@@ -56,7 +58,7 @@ const Header: React.FC = () => {
       <div className="flex items-center w-full md:w-auto">
         <input
           type="text"
-          placeholder="Search..."
+          placeholder={t("search")}
           className="border rounded-md p-2 flex-1 min-w-[200px] md:w-64 lg:w-80"
         />
         {isAuthenticated && user && (

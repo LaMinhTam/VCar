@@ -3,17 +3,19 @@ import TransmissionFilter from "./TransmissionFilter";
 import SeatsFilter from "./SeatsFilter";
 import FuelConsumptionFilter from "./FuelConsumptionFilter";
 import MaxRateFilter from "./MaxRateFilter";
+import { useTranslation } from "react-i18next";
 
 const FilterSidebar = ({
   onFilterChange,
 }: {
   onFilterChange: (filters: any) => void;
 }) => {
+  const { t } = useTranslation();
   const [transmission, setTransmission] = useState<string[]>([]);
   const [seats, setSeats] = useState<number[]>([]);
   const [minConsumption, setMinConsumption] = useState<number>(0);
   const [maxConsumption, setMaxConsumption] = useState<number>(20);
-  const [maxRate, setMaxRate] = useState<number>(1000000); // Default max rate in VND
+  const [maxRate, setMaxRate] = useState<number>(1000000);
 
   const handleTransmissionChange = (value: string) => {
     setTransmission((prevTransmission) =>
@@ -83,7 +85,7 @@ const FilterSidebar = ({
         onClick={handleApplyFilters}
         className="bg-primary-default text-white px-4 py-2 rounded hover:bg-primary-dark"
       >
-        Apply Filters
+        {t("applyFilters")}
       </button>
     </div>
   );
