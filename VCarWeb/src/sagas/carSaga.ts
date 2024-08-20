@@ -4,17 +4,16 @@ import {
   fetchCarsSuccess,
   fetchCarsFailure,
 } from "../store/carSlice";
-import { BASE_URL } from "../config/apiConfig.js";
+import { axiosInstance } from "../apis/axios";
+import { toast } from "react-toastify";
 
 function buildQueryString(filters) {
   const params = new URLSearchParams();
 
-  // Add static parameters
   params.append("province", "Ho_Chi_Minh");
   params.append("page", "1");
   params.append("size", "10");
 
-  // Add filter parameters if they exist
   if (filters.transmission && filters.transmission.length > 0) {
     params.append("transmission", filters.transmission.join(","));
   }
@@ -41,14 +40,28 @@ function buildQueryString(filters) {
 function* fetchCars(action) {
   try {
     const queryString = buildQueryString(action.payload);
-    const response = yield call(fetch, `${BASE_URL}/cars?${queryString}`);
+    const response = yield call(axiosInstance.get, `/cars?${queryString}`);
 
-    const data = yield response.json();
-
-    yield put(fetchCarsSuccess(data.data));
-  } catch (error) {
+    if (response.status === 200) {
+      yield put(fetchCarsSuccess(response.data.data));
+    } else {
+      yield put(
+        fetchCarsFailure(response.data.message || "Failed to fetch cars.")
+      );
+      toast.error(response.data.message || "Failed to fetch cars.");
+    }
+  } catch (error: any) {
     console.log(error);
-    yield put(fetchCarsFailure("Failed to fetch cars."));
+    yield put(
+      fetchCarsFailure(
+        error.response?.data?.message ||
+          error.message ||
+          "Failed to fetch cars."
+      )
+    );
+    toast.error(
+      error.response?.data?.message || error.message || "Failed to fetch cars."
+    );
   }
 }
 

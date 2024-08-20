@@ -1,6 +1,6 @@
 import { call, put, takeEvery } from "redux-saga/effects";
 import { loginRequest, loginSuccess, loginFailure } from "../store/authSlice";
-import { BASE_URL } from "../config/apiConfig";
+import { axiosInstance } from "../apis/axios";
 import { toast } from "react-toastify";
 
 interface LoginPayload {
@@ -10,20 +10,14 @@ interface LoginPayload {
 
 function* loginUserSaga(action: PayloadAction<LoginPayload>) {
   try {
-    const response = yield call(fetch, `${BASE_URL}/auth/signin`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        email: action.payload.email,
-        password: action.payload.password,
-      }),
+    const response = yield call(axiosInstance.post, "/auth/signin", {
+      email: action.payload.email,
+      password: action.payload.password,
     });
 
-    const data = yield response.json();
+    if (response.status === 200) {
+      const data = response.data;
 
-    if (response.ok) {
       localStorage.setItem("access_token", data.data.access_token);
       localStorage.setItem("refresh_token", data.data.refresh_token);
 
@@ -41,12 +35,18 @@ function* loginUserSaga(action: PayloadAction<LoginPayload>) {
       );
       toast.success("Login successful!");
     } else {
-      yield put(loginFailure(data.message || "Failed to login"));
-      toast.error(data.message || "Failed to login");
+      yield put(loginFailure(response.data.message || "Failed to login"));
+      toast.error(response.data.message || "Failed to login");
     }
-  } catch (error) {
-    yield put(loginFailure(error.message || "Failed to login"));
-    toast.error(error.message || "Failed to login");
+  } catch (error: any) {
+    yield put(
+      loginFailure(
+        error.response?.data?.message || error.message || "Failed to login"
+      )
+    );
+    toast.error(
+      error.response?.data?.message || error.message || "Failed to login"
+    );
   }
 }
 
