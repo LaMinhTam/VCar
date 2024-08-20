@@ -20,6 +20,7 @@ const en = {
     seats: "Seats",
     fuelConsumption: "Fuel Consumption",
     maxRate: "Max Rate",
+    maxRatePerDay: "Max Rate Per Day",
     apply: "Apply",
     reset: "Reset",
     min: "Min",

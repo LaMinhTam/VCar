@@ -20,6 +20,7 @@ const vi = {
     seats: "Số ghế",
     fuelConsumption: "Tiêu thụ nhiên liệu",
     maxRate: "Giá tối đa",
+    maxRatePerDay: "Giá tối đa mỗi ngày",
     apply: "Áp dụng",
     reset: "Đặt lại",
     min: "Tối thiểu",
