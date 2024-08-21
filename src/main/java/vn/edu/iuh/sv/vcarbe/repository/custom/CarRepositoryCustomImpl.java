@@ -178,7 +178,7 @@ public class CarRepositoryCustomImpl implements CarRepositoryCustom {
 
         Map<String, UserDTO> userMap = new HashMap<>();
         for (Document userDocument : userResults) {
-            UserDTO userDTO = modelMapper.map(userDocument, UserDTO.class);
+            UserDTO userDTO = new UserDTO(userDocument);
             userMap.put(userDocument.getObjectId("_id").toHexString(), userDTO);
         }
 
