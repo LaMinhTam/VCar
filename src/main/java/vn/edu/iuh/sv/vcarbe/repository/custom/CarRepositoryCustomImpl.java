@@ -198,6 +198,10 @@ public class CarRepositoryCustomImpl implements CarRepositoryCustom {
 
         List<Bson> relatedCarsPipeline = new ArrayList<>();
         relatedCarsPipeline.add(Aggregates.match(relatedCarsFilter));
+        relatedCarsPipeline.add(Aggregates.project(Projections.fields(
+                Projections.computed("id", "$_id"),
+                Projections.include("name", "status", "imageUrl", "province", "location", "dailyRate", "seat", "transmission", "fuel", "fuelConsumption", "description", "features", "color", "licensePlate", "registrationNumber", "registrationDate", "registrationLocation")
+        )));
         relatedCarsPipeline.add(Aggregates.limit(5));
 
         AggregateIterable<Document> relatedCarsResults = carCollection.aggregate(relatedCarsPipeline);
@@ -208,9 +212,7 @@ public class CarRepositoryCustomImpl implements CarRepositoryCustom {
             relatedCars.add(relatedCarDTO);
         }
 
-        CarDetailDTO carDetailDTO = new CarDetailDTO(carModel, reviewDTOs, relatedCars);
-
-        return carDetailDTO;
+        return new CarDetailDTO(carModel, reviewDTOs, relatedCars);
     }
 
 
