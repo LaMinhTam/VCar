@@ -191,6 +191,26 @@ public class CarRepositoryCustomImpl implements CarRepositoryCustom {
         }
 
         carModel.setReviews(reviewDTOs);
+
+        Bson relatedCarsFilter = Filters.and(
+                Filters.ne("_id", id),
+                Filters.eq("province", carResult.getString("province")),
+                Filters.eq("transmission", carResult.getString("transmission"))
+        );
+
+        List<Bson> relatedCarsPipeline = new ArrayList<>();
+        relatedCarsPipeline.add(Aggregates.match(relatedCarsFilter));
+        relatedCarsPipeline.add(Aggregates.limit(5));
+
+        AggregateIterable<Document> relatedCarsResults = carCollection.aggregate(relatedCarsPipeline);
+
+        List<CarDTO> relatedCars = new ArrayList<>();
+        for (Document relatedCar : relatedCarsResults) {
+            CarDTO relatedCarDTO = modelMapper.map(relatedCar, CarDTO.class);
+            relatedCars.add(relatedCarDTO);
+        }
+
+        carModel.setRelatedCars(relatedCars);
         return carModel;
     }
 

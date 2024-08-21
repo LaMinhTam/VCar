@@ -31,4 +31,5 @@ public class CarDTO {
     private String registrationDate;
     private String registrationLocation;
     private List<ReviewDTO> reviews;
+    private List<CarDTO> relatedCars;
 }
