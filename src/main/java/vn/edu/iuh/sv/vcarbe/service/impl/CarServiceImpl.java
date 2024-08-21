@@ -7,12 +7,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import vn.edu.iuh.sv.vcarbe.dto.CarDTO;
-import vn.edu.iuh.sv.vcarbe.dto.CarModel;
+import vn.edu.iuh.sv.vcarbe.dto.CarDetailDTO;
 import vn.edu.iuh.sv.vcarbe.dto.SearchCriteria;
 import vn.edu.iuh.sv.vcarbe.entity.Car;
 import vn.edu.iuh.sv.vcarbe.entity.CarStatus;
 import vn.edu.iuh.sv.vcarbe.entity.Province;
-import vn.edu.iuh.sv.vcarbe.entity.Transmission;
 import vn.edu.iuh.sv.vcarbe.exception.AppException;
 import vn.edu.iuh.sv.vcarbe.repository.CarRepository;
 import vn.edu.iuh.sv.vcarbe.security.UserPrincipal;
@@ -56,9 +55,8 @@ public class CarServiceImpl implements CarService {
     }
 
     @Override
-    public CarDTO findCarById(ObjectId id) {
-        CarModel existingCar = carRepository.findByIdCustom(id);
-        return modelMapper.map(existingCar, CarDTO.class);
+    public CarDetailDTO findCarById(ObjectId id) {
+        return carRepository.findByIdCustom(id);
     }
 
     @Override

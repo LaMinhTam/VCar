@@ -7,6 +7,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import vn.edu.iuh.sv.vcarbe.dto.ApiResponse;
 import vn.edu.iuh.sv.vcarbe.dto.CarDTO;
+import vn.edu.iuh.sv.vcarbe.dto.CarDetailDTO;
 import vn.edu.iuh.sv.vcarbe.dto.SearchCriteria;
 import vn.edu.iuh.sv.vcarbe.entity.Car;
 import vn.edu.iuh.sv.vcarbe.entity.Province;
@@ -46,7 +47,7 @@ public class CarController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse> findCarById(@PathVariable ObjectId id) {
-        CarDTO car = carService.findCarById(id);
+        CarDetailDTO car = carService.findCarById(id);
         return ResponseEntity.ok(new ApiResponse(200, "success", car));
     }
 

@@ -137,7 +137,7 @@ public class CarRepositoryCustomImpl implements CarRepositoryCustom {
     }
 
     @Override
-    public CarModel findByIdCustom(ObjectId id) {
+    public CarDetailDTO findByIdCustom(ObjectId id) {
         MongoCollection<Document> carCollection = getCarCollection();
         MongoCollection<Document> reviewCollection = getReviewCollection();
         MongoCollection<Document> userCollection = getUserCollection();
@@ -190,8 +190,6 @@ public class CarRepositoryCustomImpl implements CarRepositoryCustom {
             }
         }
 
-        carModel.setReviews(reviewDTOs);
-
         Bson relatedCarsFilter = Filters.and(
                 Filters.ne("_id", id),
                 Filters.eq("province", carResult.getString("province")),
@@ -210,9 +208,11 @@ public class CarRepositoryCustomImpl implements CarRepositoryCustom {
             relatedCars.add(relatedCarDTO);
         }
 
-        carModel.setRelatedCars(relatedCars);
-        return carModel;
+        CarDetailDTO carDetailDTO = new CarDetailDTO(carModel, reviewDTOs, relatedCars);
+
+        return carDetailDTO;
     }
+
 
     @Override
     public List<CarDTO> search(SearchCriteria criteria, Pageable pageable) {
