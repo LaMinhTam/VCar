@@ -18,9 +18,7 @@ public interface CarService {
 
     CarDTO findCarById(ObjectId id);
 
-    List<CarDTO> findAllCars(Province province, Transmission[] transmission, Integer[] seats, Integer minConsumption, Integer maxConsumption, Integer maxRate, int page, int size);
-
     List<String> autocomplete(String query, Province province);
 
-    List<CarDTO> search(String query, Province province);
+    List<CarDTO> search(String query, Province province, Transmission[] transmission, Integer[] seats, Integer minConsumption, Integer maxConsumption, Integer maxRate, int page, int size);
 }

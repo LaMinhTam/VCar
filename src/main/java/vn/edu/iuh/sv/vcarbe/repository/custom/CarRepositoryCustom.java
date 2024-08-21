@@ -13,9 +13,7 @@ import java.util.List;
 public interface CarRepositoryCustom {
     List<String> autocomplete(String query, Province province);
 
-    List<CarDTO> search(String query, Province province);
-
     CarModel findByIdCustom(ObjectId id);
 
-    List<Car> findAllWithFilters(Province province, Transmission[] transmission, Integer[] seats, Integer minConsumption, Integer maxConsumption, Integer maxRate, Pageable pageable);
+    List<CarDTO> search(String query, Province province, Transmission[] transmission, Integer[] seats, Integer minConsumption, Integer maxConsumption, Integer maxRate, Pageable pageable);
 }

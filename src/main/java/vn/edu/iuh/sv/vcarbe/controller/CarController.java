@@ -50,21 +50,6 @@ public class CarController {
         return ResponseEntity.ok(new ApiResponse(200, "success", car));
     }
 
-    @GetMapping
-    public ResponseEntity<ApiResponse> findAllCars(
-            @RequestParam(required = false) Province province,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
-            @RequestParam(required = false) Transmission[] transmission,
-            @RequestParam(required = false) Integer[] seats,
-            @RequestParam(required = false) Integer minConsumption,
-            @RequestParam(required = false) Integer maxConsumption,
-            @RequestParam(required = false) Integer maxRate) {
-        List<CarDTO> cars = carService.findAllCars(province, transmission, seats, minConsumption, maxConsumption, maxRate, page, size);
-        return ResponseEntity.ok(new ApiResponse(200, "success", cars));
-    }
-
-
     @GetMapping("/autocomplete")
     public ResponseEntity<ApiResponse> autocomplete(@RequestParam String query, @RequestParam Province province) {
         List<String> suggestions = carService.autocomplete(query, province);
@@ -72,8 +57,16 @@ public class CarController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<ApiResponse> search(@RequestParam String query, @RequestParam Province province) {
-        List<CarDTO> cars = carService.search(query, province);
+    public ResponseEntity<ApiResponse> search(@RequestParam(required = false) String query,
+                                              @RequestParam(required = false) Province province,
+                                              @RequestParam(defaultValue = "0") int page,
+                                              @RequestParam(defaultValue = "10") int size,
+                                              @RequestParam(required = false) Transmission[] transmission,
+                                              @RequestParam(required = false) Integer[] seats,
+                                              @RequestParam(required = false) Integer minConsumption,
+                                              @RequestParam(required = false) Integer maxConsumption,
+                                              @RequestParam(required = false) Integer maxRate) {
+        List<CarDTO> cars = carService.search(query, province, transmission, seats, minConsumption, maxConsumption, maxRate, page, size);
         return ResponseEntity.ok(new ApiResponse(200, "success", cars));
     }
 }

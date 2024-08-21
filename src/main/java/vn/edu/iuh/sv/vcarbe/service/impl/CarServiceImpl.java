@@ -22,7 +22,6 @@ import java.util.List;
 
 @Service
 public class CarServiceImpl implements CarService {
-
     @Autowired
     private CarRepository carRepository;
     @Autowired
@@ -62,23 +61,13 @@ public class CarServiceImpl implements CarService {
     }
 
     @Override
-    public List<CarDTO> findAllCars(Province province, Transmission[] transmission, Integer[] seats, Integer minConsumption, Integer maxConsumption, Integer maxRate, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
-
-        List<Car> cars = carRepository.findAllWithFilters(province, transmission, seats, minConsumption, maxConsumption, maxRate, pageable);
-
-        return cars.stream()
-                .map(car -> modelMapper.map(car, CarDTO.class))
-                .toList();
-    }
-
-    @Override
     public List<String> autocomplete(String query, Province province) {
         return carRepository.autocomplete(query, province);
     }
 
     @Override
-    public List<CarDTO> search(String query, Province province) {
-        return carRepository.search(query, province);
+    public List<CarDTO> search(String query, Province province, Transmission[] transmission, Integer[] seats, Integer minConsumption, Integer maxConsumption, Integer maxRate, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return carRepository.search(query, province, transmission, seats, minConsumption, maxConsumption, maxRate, pageable);
     }
 }
