@@ -2,6 +2,7 @@ package vn.edu.iuh.sv.vcarbe.service;
 
 import org.bson.types.ObjectId;
 import vn.edu.iuh.sv.vcarbe.dto.CarDTO;
+import vn.edu.iuh.sv.vcarbe.dto.SearchCriteria;
 import vn.edu.iuh.sv.vcarbe.entity.Car;
 import vn.edu.iuh.sv.vcarbe.entity.Province;
 import vn.edu.iuh.sv.vcarbe.entity.Transmission;
@@ -20,5 +21,5 @@ public interface CarService {
 
     List<String> autocomplete(String query, Province province);
 
-    List<CarDTO> search(String query, Province province, Transmission[] transmission, Integer[] seats, Integer minConsumption, Integer maxConsumption, Integer maxRate, int page, int size);
+    List<CarDTO> search(SearchCriteria criteria);
 }

@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import vn.edu.iuh.sv.vcarbe.dto.CarDTO;
 import vn.edu.iuh.sv.vcarbe.dto.CarModel;
+import vn.edu.iuh.sv.vcarbe.dto.SearchCriteria;
 import vn.edu.iuh.sv.vcarbe.entity.Car;
 import vn.edu.iuh.sv.vcarbe.entity.CarStatus;
 import vn.edu.iuh.sv.vcarbe.entity.Province;
@@ -66,8 +67,8 @@ public class CarServiceImpl implements CarService {
     }
 
     @Override
-    public List<CarDTO> search(String query, Province province, Transmission[] transmission, Integer[] seats, Integer minConsumption, Integer maxConsumption, Integer maxRate, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        return carRepository.search(query, province, transmission, seats, minConsumption, maxConsumption, maxRate, pageable);
+    public List<CarDTO> search(SearchCriteria criteria) {
+        Pageable pageable = PageRequest.of(criteria.getPage(), criteria.getSize());
+        return carRepository.search(criteria, pageable);
     }
 }

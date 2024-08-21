@@ -4,6 +4,7 @@ import org.bson.types.ObjectId;
 import org.springframework.data.domain.Pageable;
 import vn.edu.iuh.sv.vcarbe.dto.CarDTO;
 import vn.edu.iuh.sv.vcarbe.dto.CarModel;
+import vn.edu.iuh.sv.vcarbe.dto.SearchCriteria;
 import vn.edu.iuh.sv.vcarbe.entity.Car;
 import vn.edu.iuh.sv.vcarbe.entity.Province;
 import vn.edu.iuh.sv.vcarbe.entity.Transmission;
@@ -15,5 +16,5 @@ public interface CarRepositoryCustom {
 
     CarModel findByIdCustom(ObjectId id);
 
-    List<CarDTO> search(String query, Province province, Transmission[] transmission, Integer[] seats, Integer minConsumption, Integer maxConsumption, Integer maxRate, Pageable pageable);
+    List<CarDTO> search(SearchCriteria criteria, Pageable pageable);
 }

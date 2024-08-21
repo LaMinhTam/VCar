@@ -7,9 +7,9 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import vn.edu.iuh.sv.vcarbe.dto.ApiResponse;
 import vn.edu.iuh.sv.vcarbe.dto.CarDTO;
+import vn.edu.iuh.sv.vcarbe.dto.SearchCriteria;
 import vn.edu.iuh.sv.vcarbe.entity.Car;
 import vn.edu.iuh.sv.vcarbe.entity.Province;
-import vn.edu.iuh.sv.vcarbe.entity.Transmission;
 import vn.edu.iuh.sv.vcarbe.security.UserPrincipal;
 import vn.edu.iuh.sv.vcarbe.service.CarService;
 
@@ -57,16 +57,8 @@ public class CarController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<ApiResponse> search(@RequestParam(required = false) String query,
-                                              @RequestParam(required = false) Province province,
-                                              @RequestParam(defaultValue = "0") int page,
-                                              @RequestParam(defaultValue = "10") int size,
-                                              @RequestParam(required = false) Transmission[] transmission,
-                                              @RequestParam(required = false) Integer[] seats,
-                                              @RequestParam(required = false) Integer minConsumption,
-                                              @RequestParam(required = false) Integer maxConsumption,
-                                              @RequestParam(required = false) Integer maxRate) {
-        List<CarDTO> cars = carService.search(query, province, transmission, seats, minConsumption, maxConsumption, maxRate, page, size);
+    public ResponseEntity<ApiResponse> search(SearchCriteria criteria) {
+        List<CarDTO> cars = carService.search(criteria);
         return ResponseEntity.ok(new ApiResponse(200, "success", cars));
     }
 }

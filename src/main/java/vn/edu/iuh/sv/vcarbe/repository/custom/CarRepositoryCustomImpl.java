@@ -13,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import vn.edu.iuh.sv.vcarbe.dto.CarDTO;
 import vn.edu.iuh.sv.vcarbe.dto.CarModel;
+import vn.edu.iuh.sv.vcarbe.dto.SearchCriteria;
 import vn.edu.iuh.sv.vcarbe.dto.UserDTO;
 import vn.edu.iuh.sv.vcarbe.entity.*;
 
@@ -30,14 +31,14 @@ public class CarRepositoryCustomImpl implements CarRepositoryCustom {
         return database.getCollection("cars");
     }
 
-    private Bson buildSearchQuery(String query, Province province, Transmission[] transmission, Integer[] seats, Integer minConsumption, Integer maxConsumption, Integer maxRate) {
-        Bson nameSearchQuery = query != null ? Filters.regex("name", query, "i") : Filters.exists("name");
-        Bson provinceFilter = province != null ? Filters.eq("province", province) : Filters.exists("province");
-        Bson transmissionFilter = transmission != null && transmission.length > 0 ? Filters.in("transmission", (Object[]) transmission) : Filters.exists("transmission");
-        Bson seatsFilter = buildSeatsFilter(seats);
-        Bson minConsumptionFilter = minConsumption != null ? Filters.gte("fuelConsumption", minConsumption) : Filters.exists("fuelConsumption");
-        Bson maxConsumptionFilter = maxConsumption != null ? Filters.lte("fuelConsumption", maxConsumption) : Filters.exists("fuelConsumption");
-        Bson maxRateFilter = maxRate != null ? Filters.lte("dailyRate", maxRate) : Filters.exists("dailyRate");
+    private Bson buildSearchQuery(SearchCriteria criteria) {
+        Bson nameSearchQuery = criteria.getQuery() != null ? Filters.regex("name", criteria.getQuery(), "i") : Filters.exists("name");
+        Bson provinceFilter = criteria.getProvince() != null ? Filters.eq("province", criteria.getProvince()) : Filters.exists("province");
+        Bson transmissionFilter = criteria.getTransmission() != null && criteria.getTransmission().length > 0 ? Filters.in("transmission", (Object[]) criteria.getTransmission()) : Filters.exists("transmission");
+        Bson seatsFilter = buildSeatsFilter(criteria.getSeats());
+        Bson minConsumptionFilter = criteria.getMinConsumption() != null ? Filters.gte("fuelConsumption", criteria.getMinConsumption()) : Filters.exists("fuelConsumption");
+        Bson maxConsumptionFilter = criteria.getMaxConsumption() != null ? Filters.lte("fuelConsumption", criteria.getMaxConsumption()) : Filters.exists("fuelConsumption");
+        Bson maxRateFilter = criteria.getMaxRate() != null ? Filters.lte("dailyRate", criteria.getMaxRate()) : Filters.exists("dailyRate");
 
         return Filters.and(provinceFilter, nameSearchQuery, transmissionFilter, seatsFilter, minConsumptionFilter, maxConsumptionFilter, maxRateFilter);
     }
@@ -109,7 +110,7 @@ public class CarRepositoryCustomImpl implements CarRepositoryCustom {
     public List<String> autocomplete(String query, Province province) {
         MongoCollection<Document> collection = getCarCollection();
 
-        Bson finalQuery = buildSearchQuery(query, province, null, null, null, null, null);
+        Bson finalQuery = buildSearchQuery(null);
         Bson projection = Projections.fields(
                 Projections.include("name"),
                 Projections.excludeId()
@@ -152,10 +153,10 @@ public class CarRepositoryCustomImpl implements CarRepositoryCustom {
     }
 
     @Override
-    public List<CarDTO> search(String query, Province province, Transmission[] transmission, Integer[] seats, Integer minConsumption, Integer maxConsumption, Integer maxRate, Pageable pageable) {
+    public List<CarDTO> search(SearchCriteria criteria, Pageable pageable) {
         MongoCollection<Document> collection = getCarCollection();
 
-        Bson finalQuery = buildSearchQuery(query, province, transmission, seats, minConsumption, maxConsumption, maxRate);
+        Bson finalQuery = buildSearchQuery(criteria);
         List<Bson> pipeline = buildPipeline(finalQuery, pageable);
 
         AggregateIterable<Document> results = collection.aggregate(pipeline);
