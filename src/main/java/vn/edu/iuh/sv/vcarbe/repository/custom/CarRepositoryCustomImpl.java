@@ -23,19 +23,9 @@ public class CarRepositoryCustomImpl implements CarRepositoryCustom {
     @Autowired
     private ModelMapper modelMapper;
 
-    private MongoCollection<Document> getCarCollection() {
+    private MongoCollection<Document> getCollection(String collectionName) {
         MongoDatabase database = mongoClient.getDatabase("VCar");
-        return database.getCollection("cars");
-    }
-
-    private MongoCollection<Document> getReviewCollection() {
-        MongoDatabase database = mongoClient.getDatabase("VCar");
-        return database.getCollection("reviews");
-    }
-
-    private MongoCollection<Document> getUserCollection() {
-        MongoDatabase database = mongoClient.getDatabase("VCar");
-        return database.getCollection("users");
+        return database.getCollection(collectionName);
     }
 
     private Bson buildSearchQuery(SearchCriteria criteria) {
@@ -115,7 +105,7 @@ public class CarRepositoryCustomImpl implements CarRepositoryCustom {
 
     @Override
     public List<String> autocomplete(String query, Province province) {
-        MongoCollection<Document> collection = getCarCollection();
+        MongoCollection<Document> collection = getCollection("cars");
 
         Bson finalQuery = buildSearchQuery(null);
         Bson projection = Projections.fields(
@@ -138,9 +128,8 @@ public class CarRepositoryCustomImpl implements CarRepositoryCustom {
 
     @Override
     public CarDetailDTO findByIdCustom(ObjectId id) {
-        MongoCollection<Document> carCollection = getCarCollection();
-        MongoCollection<Document> reviewCollection = getReviewCollection();
-        MongoCollection<Document> userCollection = getUserCollection();
+        MongoCollection<Document> carCollection = getCollection("cars");
+        MongoCollection<Document> reviewCollection = getCollection("reviews");
 
         Bson idFilter = Filters.eq("_id", id);
         List<Bson> pipeline = buildPipeline(idFilter, null);
@@ -151,15 +140,25 @@ public class CarRepositoryCustomImpl implements CarRepositoryCustom {
             return null;
         }
 
+        CarModel carModel = mapCarResultToModel(carResult);
+        List<ReviewDTO> reviewDTOs = getReviewsForCar(id, reviewCollection);
+        List<CarDTO> relatedCars = getRelatedCars(id, carCollection, carResult);
+
+        return new CarDetailDTO(carModel, reviewDTOs, relatedCars);
+    }
+
+    private CarModel mapCarResultToModel(Document carResult) {
         CarModel carModel = modelMapper.map(carResult, CarModel.class);
         Document ownerDetails = (Document) carResult.get("owner");
         if (ownerDetails != null) {
             UserDTO userDTO = modelMapper.map(ownerDetails, UserDTO.class);
             carModel.setOwner(userDTO);
         }
+        return carModel;
+    }
 
-        Bson reviewFilter = Filters.eq("carId", id);
-        reviewFilter = Filters.and(reviewFilter, Filters.eq("reviewType", "LESSEE_REVIEW"));
+    private List<ReviewDTO> getReviewsForCar(ObjectId carId, MongoCollection<Document> reviewCollection) {
+        Bson reviewFilter = Filters.and(Filters.eq("carId", carId), Filters.eq("reviewType", "LESSEE_REVIEW"));
         FindIterable<Document> reviewResults = reviewCollection.find(reviewFilter);
 
         List<ReviewDTO> reviewDTOs = new ArrayList<>();
@@ -173,6 +172,15 @@ public class CarRepositoryCustomImpl implements CarRepositoryCustom {
             reviewDTOs.add(reviewDTO);
         }
 
+        if (!lesseeIds.isEmpty()) {
+            populateLesseeDetails(lesseeIds, reviewDTOs);
+        }
+
+        return reviewDTOs;
+    }
+
+    private void populateLesseeDetails(Set<ObjectId> lesseeIds, List<ReviewDTO> reviewDTOs) {
+        MongoCollection<Document> userCollection = getCollection("users");
         Bson userFilter = Filters.in("_id", lesseeIds);
         FindIterable<Document> userResults = userCollection.find(userFilter);
 
@@ -189,20 +197,23 @@ public class CarRepositoryCustomImpl implements CarRepositoryCustom {
                 reviewDTO.setLessee(lesseeDTO);
             }
         }
+    }
 
+    private List<CarDTO> getRelatedCars(ObjectId id, MongoCollection<Document> carCollection, Document carResult) {
         Bson relatedCarsFilter = Filters.and(
                 Filters.ne("_id", id),
                 Filters.eq("province", carResult.getString("province")),
                 Filters.eq("transmission", carResult.getString("transmission"))
         );
 
-        List<Bson> relatedCarsPipeline = new ArrayList<>();
-        relatedCarsPipeline.add(Aggregates.match(relatedCarsFilter));
-        relatedCarsPipeline.add(Aggregates.project(Projections.fields(
-                Projections.computed("id", "$_id"),
-                Projections.include("name", "status", "imageUrl", "province", "location", "dailyRate", "seat", "transmission", "fuel", "fuelConsumption", "description", "features", "color", "licensePlate", "registrationNumber", "registrationDate", "registrationLocation")
-        )));
-        relatedCarsPipeline.add(Aggregates.limit(5));
+        List<Bson> relatedCarsPipeline = Arrays.asList(
+                Aggregates.match(relatedCarsFilter),
+                Aggregates.project(Projections.fields(
+                        Projections.computed("id", "$_id"),
+                        Projections.include("name", "status", "imageUrl", "province", "location", "dailyRate", "seat", "transmission", "fuel", "fuelConsumption", "description", "features", "color", "licensePlate", "registrationNumber", "registrationDate", "registrationLocation")
+                )),
+                Aggregates.limit(5)
+        );
 
         AggregateIterable<Document> relatedCarsResults = carCollection.aggregate(relatedCarsPipeline);
 
@@ -212,13 +223,13 @@ public class CarRepositoryCustomImpl implements CarRepositoryCustom {
             relatedCars.add(relatedCarDTO);
         }
 
-        return new CarDetailDTO(carModel, reviewDTOs, relatedCars);
+        return relatedCars;
     }
 
 
     @Override
     public List<CarDTO> search(SearchCriteria criteria, Pageable pageable) {
-        MongoCollection<Document> collection = getCarCollection();
+        MongoCollection<Document> collection = getCollection("cars");
 
         Bson finalQuery = buildSearchQuery(criteria);
         List<Bson> pipeline = buildPipeline(finalQuery, pageable);
