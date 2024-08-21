@@ -33,4 +33,5 @@ public class CarModel {
     private int mileageLimitPerDay;
     private double extraMileageCharge;
     private double extraHourlyCharge;
+    private List<ReviewDTO> reviews;
 }

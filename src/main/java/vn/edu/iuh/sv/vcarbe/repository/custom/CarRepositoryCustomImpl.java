@@ -11,10 +11,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
-import vn.edu.iuh.sv.vcarbe.dto.CarDTO;
-import vn.edu.iuh.sv.vcarbe.dto.CarModel;
-import vn.edu.iuh.sv.vcarbe.dto.SearchCriteria;
-import vn.edu.iuh.sv.vcarbe.dto.UserDTO;
+import vn.edu.iuh.sv.vcarbe.dto.*;
 import vn.edu.iuh.sv.vcarbe.entity.*;
 
 import java.util.*;
@@ -29,6 +26,16 @@ public class CarRepositoryCustomImpl implements CarRepositoryCustom {
     private MongoCollection<Document> getCarCollection() {
         MongoDatabase database = mongoClient.getDatabase("VCar");
         return database.getCollection("cars");
+    }
+
+    private MongoCollection<Document> getReviewCollection() {
+        MongoDatabase database = mongoClient.getDatabase("VCar");
+        return database.getCollection("reviews");
+    }
+
+    private MongoCollection<Document> getUserCollection() {
+        MongoDatabase database = mongoClient.getDatabase("VCar");
+        return database.getCollection("users");
     }
 
     private Bson buildSearchQuery(SearchCriteria criteria) {
@@ -131,25 +138,60 @@ public class CarRepositoryCustomImpl implements CarRepositoryCustom {
 
     @Override
     public CarModel findByIdCustom(ObjectId id) {
-        MongoCollection<Document> collection = getCarCollection();
+        MongoCollection<Document> carCollection = getCarCollection();
+        MongoCollection<Document> reviewCollection = getReviewCollection();
+        MongoCollection<Document> userCollection = getUserCollection();
 
         Bson idFilter = Filters.eq("_id", id);
         List<Bson> pipeline = buildPipeline(idFilter, null);
+        AggregateIterable<Document> carResults = carCollection.aggregate(pipeline);
+        Document carResult = carResults.first();
 
-        AggregateIterable<Document> results = collection.aggregate(pipeline);
-        Document result = results.first();
-        if (result == null) {
+        if (carResult == null) {
             return null;
         }
 
-        CarModel carDTO = modelMapper.map(result, CarModel.class);
-        Document ownerDetails = (Document) result.get("owner");
+        CarModel carModel = modelMapper.map(carResult, CarModel.class);
+        Document ownerDetails = (Document) carResult.get("owner");
         if (ownerDetails != null) {
             UserDTO userDTO = modelMapper.map(ownerDetails, UserDTO.class);
-            carDTO.setOwner(userDTO);
+            carModel.setOwner(userDTO);
         }
 
-        return carDTO;
+        Bson reviewFilter = Filters.eq("carId", id);
+        reviewFilter = Filters.and(reviewFilter, Filters.eq("reviewType", "LESSEE_REVIEW"));
+        FindIterable<Document> reviewResults = reviewCollection.find(reviewFilter);
+
+        List<ReviewDTO> reviewDTOs = new ArrayList<>();
+        Set<ObjectId> lesseeIds = new HashSet<>();
+        for (Document review : reviewResults) {
+            ReviewDTO reviewDTO = new ReviewDTO(review);
+            ObjectId lesseeId = review.getObjectId("lesseeId");
+            if (lesseeId != null) {
+                lesseeIds.add(lesseeId);
+            }
+            reviewDTOs.add(reviewDTO);
+        }
+
+        Bson userFilter = Filters.in("_id", lesseeIds);
+        FindIterable<Document> userResults = userCollection.find(userFilter);
+
+        Map<String, UserDTO> userMap = new HashMap<>();
+        for (Document userDocument : userResults) {
+            UserDTO userDTO = modelMapper.map(userDocument, UserDTO.class);
+            userMap.put(userDocument.getObjectId("_id").toHexString(), userDTO);
+        }
+
+        for (ReviewDTO reviewDTO : reviewDTOs) {
+            String lesseeId = reviewDTO.getLessee().getId();
+            if (lesseeId != null) {
+                UserDTO lesseeDTO = userMap.get(lesseeId);
+                reviewDTO.setLessee(lesseeDTO);
+            }
+        }
+
+        carModel.setReviews(reviewDTOs);
+        return carModel;
     }
 
     @Override

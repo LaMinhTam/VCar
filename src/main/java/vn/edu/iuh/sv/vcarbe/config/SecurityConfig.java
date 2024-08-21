@@ -91,7 +91,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/actuator/**","/auth/signup", "/auth/login", "/auth/signin", "/auth/verify", "/oauth2/**", "/socket.io/")
                         .permitAll()
-                        .requestMatchers(HttpMethod.GET, "/cars/**")
+                        .requestMatchers(HttpMethod.GET, "/cars/**", "/reviews/**")
                         .permitAll()
                         .anyRequest()
                         .authenticated())
