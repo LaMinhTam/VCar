@@ -40,7 +40,10 @@ function buildQueryString(filters) {
 function* fetchCars(action) {
   try {
     const queryString = buildQueryString(action.payload);
-    const response = yield call(axiosInstance.get, `/cars?${queryString}`);
+    const response = yield call(
+      axiosInstance.get,
+      `/cars/search?${queryString}`
+    );
 
     if (response.status === 200) {
       yield put(fetchCarsSuccess(response.data.data));
