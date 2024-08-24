@@ -35,4 +35,5 @@ public class CarModel {
     private double extraHourlyCharge;
     private List<ReviewDTO> reviews;
     private List<CarDTO> relatedCars;
+    private double averageRating;
 }
