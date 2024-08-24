@@ -83,19 +83,14 @@ public class CarRepositoryCustomImpl implements CarRepositoryCustom {
 
     private List<Bson> buildPipeline(Bson filter, Pageable pageable) {
         List<Bson> pipeline = new ArrayList<>();
-        // Match stage
         pipeline.add(Aggregates.match(filter));
-        // Lookup owner details
         pipeline.add(Aggregates.lookup("users", "owner", "_id", "ownerDetails"));
-        // Unwind owner details
         pipeline.add(Aggregates.unwind("$ownerDetails"));
-        // Lookup reviews
         pipeline.add(Aggregates.lookup("reviews", "_id", "carId", "reviews"));
-        // Unwind reviews to process them individually
         pipeline.add(Aggregates.unwind("$reviews", new UnwindOptions().preserveNullAndEmptyArrays(true)));
-        // Group by car ID and calculate average rating
+
         pipeline.add(Aggregates.group(
-                new BsonDocument("_id", new BsonString("$_id")),
+                "$_id",
                 Accumulators.avg("averageRating", "$reviews.rating"),
                 Accumulators.first("name", "$name"),
                 Accumulators.first("status", "$status"),
@@ -122,14 +117,14 @@ public class CarRepositoryCustomImpl implements CarRepositoryCustom {
                 Accumulators.first("ownerDisplayName", "$ownerDetails.displayName"),
                 Accumulators.first("ownerPhoneNumber", "$ownerDetails.phoneNumber")
         ));
-        // Project stage to reshape the document
+
         pipeline.add(Aggregates.project(Projections.fields(
-                Projections.computed("id", "$_id"),
                 Projections.include("name", "status", "imageUrl", "province", "location", "dailyRate", "seat", "transmission", "fuel", "fuelConsumption", "description", "features", "color", "licensePlate", "registrationNumber", "registrationDate", "registrationLocation", "mileageLimitPerDay", "extraMileageCharge", "extraHourlyCharge"),
-                Projections.computed("owner.id", "$ownerId"), // Avoid dot in field name
-                Projections.computed("owner.email", "$ownerEmail"), // Avoid dot in field name
-                Projections.computed("owner.displayName", "$ownerDisplayName"), // Avoid dot in field name
-                Projections.computed("owner.phoneNumber", "$ownerPhoneNumber"), // Avoid dot in field name
+                Projections.computed("id", "$_id"),
+                Projections.computed("owner.id", "$ownerId"),
+                Projections.computed("owner.email", "$ownerEmail"),
+                Projections.computed("owner.displayName", "$ownerDisplayName"),
+                Projections.computed("owner.phoneNumber", "$ownerPhoneNumber"),
                 Projections.computed("averageRating", "$averageRating")
         )));
 
