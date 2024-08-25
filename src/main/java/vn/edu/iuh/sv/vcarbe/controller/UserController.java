@@ -1,5 +1,6 @@
 package vn.edu.iuh.sv.vcarbe.controller;
 
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,6 +15,12 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ApiResponse> getUserById(@PathVariable ObjectId id) {
+        UserDetailDTO user = userService.getUserDetailById(id);
+        return ResponseEntity.ok(new ApiResponse(200, "User retrieved successfully", user));
+    }
 
     @GetMapping("/me")
     public ResponseEntity<ApiResponse> getCurrentUser(@CurrentUser UserPrincipal userPrincipal) {

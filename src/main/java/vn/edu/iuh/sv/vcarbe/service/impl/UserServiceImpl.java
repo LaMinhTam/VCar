@@ -4,10 +4,7 @@ import org.bson.types.ObjectId;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import vn.edu.iuh.sv.vcarbe.dto.UpdateCarLicenseDTO;
-import vn.edu.iuh.sv.vcarbe.dto.UpdateCitizenIdentificationDTO;
-import vn.edu.iuh.sv.vcarbe.dto.UpdateUserDTO;
-import vn.edu.iuh.sv.vcarbe.dto.UserDTO;
+import vn.edu.iuh.sv.vcarbe.dto.*;
 import vn.edu.iuh.sv.vcarbe.entity.CarLicense;
 import vn.edu.iuh.sv.vcarbe.entity.CitizenIdentification;
 import vn.edu.iuh.sv.vcarbe.entity.User;
@@ -68,6 +65,12 @@ public class UserServiceImpl implements UserService {
         user.setCitizenIdentification(citizenIdentification);
         User savedUser = userRepository.save(user);
         return modelMapper.map(savedUser, UserDTO.class);
+    }
+
+    @Override
+    public UserDetailDTO getUserDetailById(ObjectId id) {
+        UserDetailDTO user = userRepository.getUserDetailById(id);
+        return modelMapper.map(user, UserDetailDTO.class);
     }
 
 }
