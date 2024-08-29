@@ -4,11 +4,19 @@ import org.bson.types.ObjectId;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.web3j.crypto.Credentials;
+import org.web3j.protocol.Web3j;
+import org.web3j.protocol.core.RemoteFunctionCall;
+import org.web3j.protocol.core.methods.response.TransactionReceipt;
+import org.web3j.protocol.http.HttpService;
+import org.web3j.tx.gas.StaticGasProvider;
 import vn.edu.iuh.sv.vcarbe.dto.ApprovalRequest;
 import vn.edu.iuh.sv.vcarbe.dto.RentRequestDTO;
 import vn.edu.iuh.sv.vcarbe.dto.RentalContractDTO;
@@ -21,25 +29,33 @@ import vn.edu.iuh.sv.vcarbe.repository.RentalRequestRepository;
 import vn.edu.iuh.sv.vcarbe.repository.UserRepository;
 import vn.edu.iuh.sv.vcarbe.security.UserPrincipal;
 import vn.edu.iuh.sv.vcarbe.service.RentalRequestService;
+import vn.edu.iuh.sv.vcarbe.util.BlockchainUtils;
 import vn.edu.iuh.sv.vcarbe.util.NotificationUtils;
 
+import java.math.BigInteger;
 import java.util.Date;
 import java.util.List;
 
 @Service
 public class RentalRequestServiceImpl implements RentalRequestService {
+    private final RentalContractRepository rentalContractRepository;
+    private final CarRepository carRepository;
+    private final UserRepository userRepository;
+    private final RentalRequestRepository rentalRequestRepository;
+    private final ModelMapper modelMapper;
+    private final NotificationUtils notificationUtils;
+    private final BlockchainUtils blockchainUtils;
+
     @Autowired
-    private RentalContractRepository rentalContractRepository;
-    @Autowired
-    private CarRepository carRepository;
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private RentalRequestRepository rentalRequestRepository;
-    @Autowired
-    private ModelMapper modelMapper;
-    @Autowired
-    private NotificationUtils notificationUtils;
+    public RentalRequestServiceImpl(RentalContractRepository rentalContractRepository, CarRepository carRepository, UserRepository userRepository, RentalRequestRepository rentalRequestRepository, ModelMapper modelMapper, NotificationUtils notificationUtils, BlockchainUtils blockchainUtils) {
+        this.rentalContractRepository = rentalContractRepository;
+        this.carRepository = carRepository;
+        this.userRepository = userRepository;
+        this.rentalRequestRepository = rentalRequestRepository;
+        this.modelMapper = modelMapper;
+        this.notificationUtils = notificationUtils;
+        this.blockchainUtils = blockchainUtils;
+    }
 
     @Override
     public RentalRequestDTO createRentalRequest(RentRequestDTO rentRequestDTO, ObjectId lesseeId) {
@@ -52,7 +68,7 @@ public class RentalRequestServiceImpl implements RentalRequestService {
     }
 
     @Override
-    public RentalContractDTO approveRentalContract(UserPrincipal userPrincipal, ApprovalRequest approvalRequest) {
+    public RentalContractDTO approveRentalContract(UserPrincipal userPrincipal, ApprovalRequest approvalRequest) throws Exception {
         RentalRequest rentalRequest = rentalRequestRepository.findByIdAndLessorId(approvalRequest.requestId(), userPrincipal.getId())
                 .orElseThrow(() -> new AppException(404, "Rental request not found with id " + approvalRequest.requestId()));
         rentalRequest.setStatus(RentRequestStatus.APPROVED);
@@ -62,9 +78,11 @@ public class RentalRequestServiceImpl implements RentalRequestService {
         Car car = carRepository.findById(rentalRequest.getCarId()).orElseThrow(() -> new AppException(404, "Car not found with id " + rentalRequest.getCarId()));
         User lessorUser = userRepository.findById(rentalRequest.getLessorId()).orElseThrow(() -> new AppException(404, "Lessor not found with id " + rentalRequest.getLessorId()));
         RentalContract rentalContract = new RentalContract(rentalRequest, lessorUser, car);
-        RentalContract savedRentalContract = rentalContractRepository.save(rentalContract);
-        notificationUtils.createNotification(savedRentalContract.getLesseeId(), "Rental contract signed", NotificationType.RENTAL_CONTRACT, "/rental-contracts/" + savedRentalContract.getId(), savedRentalContract.getId());
-        return modelMapper.map(savedRentalContract, RentalContractDTO.class);
+        rentalContract = rentalContractRepository.save(rentalContract);
+        notificationUtils.createNotification(rentalContract.getLesseeId(), "Rental contract signed", NotificationType.RENTAL_CONTRACT, "/rental-contracts/" + rentalContract.getId(), rentalContract.getId());
+
+        blockchainUtils.createRentalContract(rentalContract);
+        return modelMapper.map(rentalContract, RentalContractDTO.class);
     }
 
     @Override

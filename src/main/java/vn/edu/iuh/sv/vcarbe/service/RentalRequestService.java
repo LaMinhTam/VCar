@@ -14,7 +14,7 @@ import java.util.List;
 public interface RentalRequestService {
     RentalRequestDTO createRentalRequest(RentRequestDTO rentRequestDTO, ObjectId lesseeId);
 
-    RentalContractDTO approveRentalContract(UserPrincipal userPrincipal, ApprovalRequest approvalRequest);
+    RentalContractDTO approveRentalContract(UserPrincipal userPrincipal, ApprovalRequest approvalRequest) throws Exception;
 
     RentalRequest rejectRentalContract(ApprovalRequest approvalRequest);
 

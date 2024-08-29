@@ -22,13 +22,13 @@ public class RentalContractController {
     private RentalContractService rentalContractService;
 
     @PostMapping("/sign")
-    public ResponseEntity<ApiResponse> signRentalContract(@CurrentUser UserPrincipal userPrincipal, @Valid @RequestBody SignRequest signRequest) {
+    public ResponseEntity<ApiResponse> signRentalContract(@CurrentUser UserPrincipal userPrincipal, @Valid @RequestBody SignRequest signRequest) throws Exception {
         RentalContractDTO updatedContract = rentalContractService.signRentalContract(userPrincipal, signRequest);
         return ResponseEntity.ok(new ApiResponse(200, "Rental contract signed successfully", updatedContract));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse> getRentalContract(@PathVariable ObjectId id) {
+    public ResponseEntity<ApiResponse> getRentalContract(@PathVariable ObjectId id) throws Exception {
         RentalContractDTO rentalContract = rentalContractService.getRentalContract(id);
         return ResponseEntity.ok(new ApiResponse(200, "success", rentalContract));
     }

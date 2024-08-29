@@ -10,11 +10,11 @@ import vn.edu.iuh.sv.vcarbe.security.UserPrincipal;
 import java.util.List;
 
 public interface RentalContractService {
-    RentalContractDTO getRentalContract(ObjectId id);
+    RentalContractDTO getRentalContract(ObjectId id) throws Exception;
 
     List<RentalContractDTO> getRentalContractForLessor(ObjectId id, String sortField, boolean sortDescending, int page, int size);
 
     List<RentalContractDTO> getRentalContractForLessee(ObjectId id, String sortField, boolean sortDescending, int page, int size);
 
-    RentalContractDTO signRentalContract(UserPrincipal userPrincipal, SignRequest signRequest);
+    RentalContractDTO signRentalContract(UserPrincipal userPrincipal, SignRequest signRequest) throws Exception;
 }

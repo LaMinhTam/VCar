@@ -31,7 +31,7 @@ public class RentalRequestController {
     }
 
     @PostMapping("/approve")
-    public ResponseEntity<ApiResponse> approveRentalRequest(@CurrentUser UserPrincipal userPrincipal, @Valid @RequestBody ApprovalRequest approvalRequest) {
+    public ResponseEntity<ApiResponse> approveRentalRequest(@CurrentUser UserPrincipal userPrincipal, @Valid @RequestBody ApprovalRequest approvalRequest) throws Exception {
         RentalContractDTO updatedContract = rentalRequestService.approveRentalContract(userPrincipal, approvalRequest);
         return ResponseEntity.ok(new ApiResponse(200, "Rental contract approved successfully", updatedContract));
     }
