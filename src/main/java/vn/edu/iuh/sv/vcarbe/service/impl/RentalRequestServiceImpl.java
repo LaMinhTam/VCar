@@ -77,11 +77,11 @@ public class RentalRequestServiceImpl implements RentalRequestService {
 
         Car car = carRepository.findById(rentalRequest.getCarId()).orElseThrow(() -> new AppException(404, "Car not found with id " + rentalRequest.getCarId()));
         User lessorUser = userRepository.findById(rentalRequest.getLessorId()).orElseThrow(() -> new AppException(404, "Lessor not found with id " + rentalRequest.getLessorId()));
-        RentalContract rentalContract = new RentalContract(rentalRequest, lessorUser, car);
+        RentalContract rentalContract = new RentalContract(rentalRequest, lessorUser, car, approvalRequest.additionalTerms());
         rentalContract = rentalContractRepository.save(rentalContract);
         notificationUtils.createNotification(rentalContract.getLesseeId(), "Rental contract signed", NotificationType.RENTAL_CONTRACT, "/rental-contracts/" + rentalContract.getId(), rentalContract.getId());
 
-        blockchainUtils.createRentalContract(rentalContract);
+//        blockchainUtils.createRentalContract(rentalContract);
         return modelMapper.map(rentalContract, RentalContractDTO.class);
     }
 

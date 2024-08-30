@@ -38,13 +38,13 @@ public class BlockchainUtils {
         CarRental carRentalContract = loadCarRentalContract();
         RemoteFunctionCall<TransactionReceipt> transactionReceipt = carRentalContract.createContract(
                 rentalContract.getId().toHexString(),
-                rentalContract.getCarId().toHexString(),
+                rentalContract.getRentalRequestId().toHexString(),
                 rentalContract.getCarId().toHexString(),
                 rentalContract.getLessorId().toHexString(),
                 rentalContract.getLesseeId().toHexString(),
                 BigInteger.valueOf(rentalContract.getRentalStartDate().getTime()),
                 BigInteger.valueOf(rentalContract.getRentalEndDate().getTime()),
-                BigInteger.valueOf(1500000)
+                BigInteger.valueOf((long) rentalContract.getTotalRentalValue())
         );
 
         executeTransaction(transactionReceipt);

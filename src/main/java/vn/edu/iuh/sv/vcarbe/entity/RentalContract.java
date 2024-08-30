@@ -50,13 +50,17 @@ public class RentalContract extends RentalDetails {
     private String vehicleOwnerName;
 
     // Car rental terms
+    private String additionalTerms;
     private double rentalPricePerDay;
     private int mileageLimitPerDay;
     private double extraMileageCharge;
     private double extraHourlyCharge;
     private double totalRentalValue;
 
-    public RentalContract(RentalRequest rentalRequest, User lessorUser, Car car) {
+    // Rental request
+    private ObjectId rentalRequestId;
+
+    public RentalContract(RentalRequest rentalRequest, User lessorUser, Car car, String additionalTerms) {
         super(rentalRequest.getCarId(), rentalRequest.getLesseeId(), rentalRequest.getLessorId(), rentalRequest.getRentalStartDate(), rentalRequest.getRentalEndDate(), rentalRequest.getVehicleHandOverLocation());
 
         this.lessorIdentityNumber = lessorUser.getCitizenIdentification().getCitizenIdentificationNumber();
@@ -69,7 +73,8 @@ public class RentalContract extends RentalDetails {
         this.vehicleRegistrationDate = car.getRegistrationDate();
         this.vehicleRegistrationLocation = car.getRegistrationLocation();
         this.vehicleOwnerName = lessorUser.getDisplayName();
-
+        this.additionalTerms = additionalTerms;
+        this.rentalRequestId = rentalRequest.getId();
         setPricingDetails(car);
         calculateTotalRentalValue();
     }

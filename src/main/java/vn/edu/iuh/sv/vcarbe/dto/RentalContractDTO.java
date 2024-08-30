@@ -53,6 +53,7 @@ public class RentalContractDTO {
     private String vehicleOwnerName;
 
     // Car rental terms
+    private String additionalTerms;
     private double rentalPricePerDay;
     private int mileageLimitPerDay;
     private double extraMileageCharge;

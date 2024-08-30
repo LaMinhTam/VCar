@@ -76,9 +76,6 @@ public class RentalContractServiceImpl implements RentalContractService {
     public RentalContractDTO signRentalContract(UserPrincipal userPrincipal, SignRequest signRequest) throws Exception {
         RentalContract rentalContract = rentalContractRepository.findByLesseeIdAndId(userPrincipal.getId(), signRequest.contractId())
                 .orElseThrow(() -> new AppException(404, "Rental contract not found with id " + signRequest.contractId()));
-        User lesseeUser = userRepository.findById(userPrincipal.getId()).orElseThrow(() -> new AppException(404, "Lessee not found with id " + userPrincipal.getId()));
-        rentalContract.sign(lesseeUser, signRequest);
-        rentalContract = rentalContractRepository.save(rentalContract);
         notificationUtils.createNotification(rentalContract.getLessorId(), "Lessee has signed the contract", NotificationType.RENTAL_CONTRACT, "/rental-contracts/" + rentalContract.getId(), rentalContract.getId());
         blockchainUtils.approveRentalContract(rentalContract.getId().toHexString());
         return modelMapper.map(rentalContract, RentalContractDTO.class);

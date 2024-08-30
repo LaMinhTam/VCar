@@ -44,3 +44,12 @@ blockchain:
   infuraUrl: ${INFURA_URL}
   privateKey: ${PRIVATE_KEY}
   contractAddress: "${CONTRACT_ADDRESS}"
+
+vnp:
+  secretKey: ${VNP_SECRET_KEY}
+  version: ${VNP_VERSION}
+  vnp_TmnCode: ${VNP_TMN}
+  vnp_Url: ${VNP_URL}
+  vnp_ReturnUrl: ${VNP_RETURN_URL}
+  vnp_ApiUrl: ${VNP_API_URL}
+  vnp_Command: ${VNP_COMMAND}
