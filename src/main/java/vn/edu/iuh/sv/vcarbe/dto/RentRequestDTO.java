@@ -11,11 +11,7 @@ public record RentRequestDTO
 
                 // Rental details
                 @NotNull Date rentalStartDate,
-                @NotNull int rentalStartHour,
-                @NotNull int rentalStartMinute,
                 @NotNull Date rentalEndDate,
-                @NotNull int rentalEndHour,
-                @NotNull int rentalEndMinute,
                 @NotNull String vehicleHandOverLocation
         ) {
 }

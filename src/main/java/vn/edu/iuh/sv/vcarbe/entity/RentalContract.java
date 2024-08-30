@@ -57,7 +57,7 @@ public class RentalContract extends RentalDetails {
     private double totalRentalValue;
 
     public RentalContract(RentalRequest rentalRequest, User lessorUser, Car car) {
-        super(rentalRequest.getCarId(), rentalRequest.getLesseeId(), rentalRequest.getLessorId(), rentalRequest.getRentalStartDate(), rentalRequest.getRentalStartHour(), rentalRequest.getRentalStartMinute(), rentalRequest.getRentalEndDate(), rentalRequest.getRentalEndHour(), rentalRequest.getRentalEndMinute(), rentalRequest.getVehicleHandOverLocation());
+        super(rentalRequest.getCarId(), rentalRequest.getLesseeId(), rentalRequest.getLessorId(), rentalRequest.getRentalStartDate(), rentalRequest.getRentalEndDate(), rentalRequest.getVehicleHandOverLocation());
 
         this.lessorIdentityNumber = lessorUser.getCitizenIdentification().getCitizenIdentificationNumber();
         this.lessorPermanentAddress = lessorUser.getCitizenIdentification().getPermanentAddress();
@@ -82,17 +82,11 @@ public class RentalContract extends RentalDetails {
     }
 
     private void calculateTotalRentalValue() {
-        Calendar startCal = Calendar.getInstance();
-        startCal.setTime(this.getRentalStartDate());
-        startCal.set(Calendar.HOUR_OF_DAY, this.getRentalStartHour());
-        startCal.set(Calendar.MINUTE, this.getRentalStartMinute());
+        Date startDate = this.getRentalStartDate();
+        Date endDate = this.getRentalEndDate();
 
-        Calendar endCal = Calendar.getInstance();
-        endCal.setTime(this.getRentalEndDate());
-        endCal.set(Calendar.HOUR_OF_DAY, this.getRentalEndHour());
-        endCal.set(Calendar.MINUTE, this.getRentalEndMinute());
+        long durationInMillis = endDate.getTime() - startDate.getTime();
 
-        long durationInMillis = endCal.getTimeInMillis() - startCal.getTimeInMillis();
         long durationInHours = durationInMillis / (1000 * 60 * 60);
 
         long days = durationInHours / 24;

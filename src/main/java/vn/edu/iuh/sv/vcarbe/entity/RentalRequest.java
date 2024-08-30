@@ -18,7 +18,7 @@ public class RentalRequest extends RentalDetails {
     private RentRequestStatus status;
 
     public RentalRequest(RentRequestDTO rentRequestDTO, Car car, ObjectId lesseeId) {
-        super(car.getId(), lesseeId, car.getOwner(), rentRequestDTO.rentalStartDate(), rentRequestDTO.rentalStartHour(), rentRequestDTO.rentalStartMinute(), rentRequestDTO.rentalEndDate(), rentRequestDTO.rentalEndHour(), rentRequestDTO.rentalEndMinute(), rentRequestDTO.vehicleHandOverLocation());
+        super(car.getId(), lesseeId, car.getOwner(), rentRequestDTO.rentalStartDate(), rentRequestDTO.rentalEndDate(), rentRequestDTO.vehicleHandOverLocation());
         this.status = RentRequestStatus.PENDING;
     }
 }

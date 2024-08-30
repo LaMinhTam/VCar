@@ -20,11 +20,7 @@ public class RentalRequestDTO {
     private Date updatedAt;
 
     private Date rentalStartDate;
-    private int rentalStartHour;
-    private int rentalStartMinute;
     private Date rentalEndDate;
-    private int rentalEndHour;
-    private int rentalEndMinute;
     private String vehicleHandOverLocation;
 
     // For individual lessee
