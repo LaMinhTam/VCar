@@ -6,6 +6,8 @@ import lombok.NoArgsConstructor;
 import vn.edu.iuh.sv.vcarbe.entity.Province;
 import vn.edu.iuh.sv.vcarbe.entity.Transmission;
 
+import java.util.Date;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
@@ -19,4 +21,7 @@ public class SearchCriteria {
     private Integer maxRate;
     private int page = 0;
     private int size = 10;
+    private Long rentalStartDate;
+    private Long rentalEndDate;
+    private Integer rating;
 }

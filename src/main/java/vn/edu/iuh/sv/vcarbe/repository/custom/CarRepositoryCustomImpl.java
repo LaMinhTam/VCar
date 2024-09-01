@@ -81,9 +81,22 @@ public class CarRepositoryCustomImpl implements CarRepositoryCustom {
         return true;
     }
 
-    private List<Bson> buildPipeline(Bson filter, Pageable pageable) {
+    private List<Bson> buildPipeline(Bson filter, Pageable pageable, Date searchStartDate, Date searchEndDate, Integer rating) {
         List<Bson> pipeline = new ArrayList<>();
         pipeline.add(Aggregates.match(filter));
+        if (searchStartDate != null && searchEndDate != null) {
+            pipeline.add(Aggregates.lookup("rental_contracts", "_id", "carId", "rentalContracts"));
+            pipeline.add(Aggregates.unwind("$rentalContracts", new UnwindOptions().preserveNullAndEmptyArrays(true)));
+            Bson rentalDateFilter = Filters.or(
+                    Filters.and(
+                            Filters.lte("rentalContracts.rentalStartDate", searchEndDate),
+                            Filters.gte("rentalContracts.rentalEndDate", searchStartDate)
+                    ),
+                    Filters.exists("rentalContracts._id", false)
+            );
+            pipeline.add(Aggregates.match(rentalDateFilter));
+        }
+
         pipeline.add(Aggregates.lookup("users", "owner", "_id", "ownerDetails"));
         pipeline.add(Aggregates.unwind("$ownerDetails"));
         pipeline.add(Aggregates.lookup("reviews", "_id", "carId", "reviews"));
@@ -128,6 +141,13 @@ public class CarRepositoryCustomImpl implements CarRepositoryCustom {
                 Projections.computed("averageRating", "$averageRating")
         )));
 
+        if (rating != null) {
+            pipeline.add(Aggregates.match(Filters.and(
+                    Filters.gte("averageRating", rating),
+                    Filters.lt("averageRating", rating + 1.0)
+            )));
+        }
+
         if (pageable != null) {
             pipeline.add(Aggregates.skip((int) pageable.getOffset()));
             pipeline.add(Aggregates.limit(pageable.getPageSize()));
@@ -165,7 +185,7 @@ public class CarRepositoryCustomImpl implements CarRepositoryCustom {
         MongoCollection<Document> reviewCollection = getCollection("reviews");
 
         Bson idFilter = Filters.eq("_id", id);
-        List<Bson> pipeline = buildPipeline(idFilter, null);
+        List<Bson> pipeline = buildPipeline(idFilter, null, null, null, null);
         AggregateIterable<Document> carResults = carCollection.aggregate(pipeline);
         Document carResult = carResults.first();
 
@@ -265,18 +285,14 @@ public class CarRepositoryCustomImpl implements CarRepositoryCustom {
         MongoCollection<Document> collection = getCollection("cars");
 
         Bson finalQuery = buildSearchQuery(criteria);
-        List<Bson> pipeline = buildPipeline(finalQuery, pageable);
+        List<Bson> pipeline = buildPipeline(finalQuery, pageable, new Date(criteria.getRentalStartDate()), new Date(criteria.getRentalEndDate()), criteria.getRating());
 
         AggregateIterable<Document> results = collection.aggregate(pipeline);
 
         List<CarDTO> carDTOs = new ArrayList<>();
         for (Document result : results) {
             CarDTO carDTO = modelMapper.map(result, CarDTO.class);
-            Document ownerDetails = (Document) result.get("owner");
-            if (ownerDetails != null) {
-                UserDTO userDTO = modelMapper.map(ownerDetails, UserDTO.class);
-                carDTO.setOwner(userDTO);
-            }
+            carDTO.setOwner(modelMapper.map(result.get("owner"), UserDTO.class));
             carDTOs.add(carDTO);
         }
 
