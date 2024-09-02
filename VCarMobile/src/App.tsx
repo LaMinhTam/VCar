@@ -8,7 +8,7 @@ import { PaperProvider } from 'react-native-paper';
 import { Provider } from 'react-redux';
 import store from './store/configureStore';
 import { getTokens } from './utils/auth';
-import TabNavigator from './modules/tab/TabNavigator';
+import TabNavigator from './modules/navigator/TabNavigator';
 
 const Stack = createNativeStackNavigator();
 

@@ -25,4 +25,7 @@ export const ScreenOptions = {
   },
 };
 
-export const API_BASE_URL = 'http://192.168.1.6:8080';
+export const API_BASE_URL = 'https://api-vcar.onrender.com/';
+
+export const DEFAULT_AVATAR =
+  'https://static-00.iconduck.com/assets.00/avatar-default-symbolic-icon-479x512-n8sg74wg.png';

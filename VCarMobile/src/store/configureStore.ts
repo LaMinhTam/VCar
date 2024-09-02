@@ -2,12 +2,14 @@ import {combineReducers, configureStore} from '@reduxjs/toolkit';
 
 import createSagaMiddleware from 'redux-saga';
 import rootSaga from './rootSaga';
-import authSlice from './auth/reducers'; // Correct the import
+import authSlice from './auth/reducers';
+import carSlice from './car/reducers';
 
 const sagaMiddleware = createSagaMiddleware();
 
 const reducer = combineReducers({
   auth: authSlice,
+  car: carSlice,
 });
 
 const store = configureStore({

@@ -8,6 +8,7 @@ module.exports = {
         secondary: '#0068ff',
         thirdly: '#3498DB',
         tertiary: '#1DA1F2',
+        semiPrimary: '#EE632C',
         text1: '#171725',
         text2: '#4B5264',
         text3: '#808191',
