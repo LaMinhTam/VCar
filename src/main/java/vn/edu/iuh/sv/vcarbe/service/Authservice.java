@@ -10,7 +10,7 @@ public interface Authservice {
 
     User registerUser(SignUpRequest signUpRequest);
 
-    TokenResponse refreshToken(UserPrincipal userPrincipal);
+    TokenResponse refreshToken(UserPrincipal userPrincipal, String oldRefreshToken);
 
     SignInResponse verifyUser(VerificationRequest verificationRequest);
 

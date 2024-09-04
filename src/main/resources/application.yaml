@@ -3,9 +3,9 @@ spring:
     name: VCarBE
   data:
     redis:
-      host: redis-14434.c292.ap-southeast-1-1.ec2.redns.redis-cloud.com
-      port: 14434
-      password: QSXXcWgl2sserlbefUsJlestoMv5fuF9
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
     mongodb:
       uri: mongodb+srv://mongobasic:Social123456789Media@cluster0.oiyfqvw.mongodb.net/VCar?retryWrites=true&w=majority&appName=Cluster0
   security:

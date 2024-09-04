@@ -2,6 +2,7 @@ package vn.edu.iuh.sv.vcarbe.service.impl;
 
 import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -21,24 +22,22 @@ import vn.edu.iuh.sv.vcarbe.service.Authservice;
 import vn.edu.iuh.sv.vcarbe.util.MailSenderHelper;
 
 import java.io.UnsupportedEncodingException;
+import java.time.Duration;
 
 @Service
 public class AuthServiceImpl implements Authservice {
-
     @Autowired
     private AuthenticationManager authenticationManager;
-
     @Autowired
     private UserRepository userRepository;
-
     @Autowired
     private PasswordEncoder passwordEncoder;
-
     @Autowired
     private TokenProvider tokenProvider;
-
     @Autowired
     private MailSenderHelper mailSenderHelper;
+    @Autowired
+    private RedisTemplate<String, Object> redisTemplate;
 
     public SignInResponse authenticateUser(LoginRequest loginRequest) {
         Authentication authentication = authenticationManager.authenticate(
@@ -88,12 +87,18 @@ public class AuthServiceImpl implements Authservice {
     }
 
     @Override
-    public TokenResponse refreshToken(UserPrincipal userPrincipal) {
+    public TokenResponse refreshToken(UserPrincipal userPrincipal, String oldRefreshToken) {
+        if (redisTemplate.opsForValue().get(oldRefreshToken) != null) {
+            throw new AppException(400, "Refresh token already used");
+        }
+        redisTemplate.opsForValue().set(oldRefreshToken, true, Duration.ofMinutes(tokenProvider.getRefreshTokenExpiryMinutes()));
+
         String accessToken = tokenProvider.accessToken(userPrincipal);
         String refreshToken = tokenProvider.refreshToken(userPrincipal);
         return new TokenResponse(accessToken, refreshToken);
     }
 
+    @Override
     public SignInResponse verifyUser(VerificationRequest verificationRequest) {
         User user = userRepository.findByEmail(verificationRequest.getEmail())
                 .orElseThrow(() -> new BadRequestException("User not found with this email"));

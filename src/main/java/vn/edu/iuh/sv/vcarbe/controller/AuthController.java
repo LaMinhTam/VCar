@@ -13,7 +13,6 @@ import vn.edu.iuh.sv.vcarbe.service.Authservice;
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
-
     @Autowired
     private Authservice authService;
 
@@ -30,8 +29,8 @@ public class AuthController {
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<ApiResponse> refreshToken(@AuthenticationPrincipal UserPrincipal userPrincipal) {
-        TokenResponse token = authService.refreshToken(userPrincipal);
+    public ResponseEntity<ApiResponse> refreshToken(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody TokenRefreshRequest tokenRequest) {
+        TokenResponse token = authService.refreshToken(userPrincipal, tokenRequest.refreshToken());
         return ResponseEntity.ok(new ApiResponse(200, "Token refreshed successfully", token));
     }
 

@@ -18,7 +18,6 @@ import java.util.Map;
 public class TokenProvider {
 
     private static final Logger logger = LoggerFactory.getLogger(TokenProvider.class);
-
     private final AppProperties appProperties;
     private final Key key;
 
@@ -90,4 +89,7 @@ public class TokenProvider {
         return false;
     }
 
+    public long getRefreshTokenExpiryMinutes() {
+        return appProperties.getAuth().getTokenExpirationMsec() / 1000 / 60;
+    }
 }
