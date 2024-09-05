@@ -10,12 +10,14 @@ import { LOGIN } from '../store/auth/actions';
 import Loading from '../components/common/Loading';
 import { RootState } from '../store/configureStore';
 import { validateEmail, validatePassword } from '../utils/validate';
+import { setIsRecheckToken } from '../store/auth/reducers';
 
 const LoginScreen = () => {
     const navigation = useNavigation<NativeStackNavigationProp<ParamListBase>>();
     const [showPassword, setShowPassword] = React.useState(false);
     const [username, setUsername] = React.useState('');
     const [password, setPassword] = React.useState('');
+    const { isRecheckToken } = useSelector((state: RootState) => state.auth);
     const [errorType, setErrorType] = React.useState({
         require: {
             email: false,
@@ -71,7 +73,7 @@ const LoginScreen = () => {
     useEffect(() => {
         if (access_token) {
             Alert.alert('Login Success', t('auth.login.success'), [{ text: 'OK' }]);
-            navigation.navigate('HOME_SCREEN');
+            dispatch(setIsRecheckToken(!isRecheckToken));
         } else if (error) {
             Alert.alert('Login Failed', t('auth.login.failed'), [{ text: 'OK' }]);
         }

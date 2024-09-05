@@ -10,12 +10,14 @@ import { VERIFY_CODE } from '../store/auth/actions';
 import { RootState } from '../store/configureStore';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import Loading from '../components/common/Loading';
+import { setIsRecheckToken } from '../store/auth/reducers';
 
 const VerifyCodeScreen = () => {
     const { loading, error, email, verification_code, email_verified } = useSelector((state: RootState) => state.auth);
     const [code, setCode] = useState<string[]>(
         Array.from({ length: verification_code.length || 6 }, () => ''),
     );
+    const { isRecheckToken } = useSelector((state: RootState) => state.auth);
     const navigation = useNavigation<NativeStackNavigationProp<ParamListBase>>();
     const { t } = useTranslation();
     const inputRefs = useRef<(RNTextInput | null)[]>([]);
@@ -29,7 +31,8 @@ const VerifyCodeScreen = () => {
     useEffect(() => {
         if (email_verified) {
             Alert.alert('Verify Success', t('verify_code.success'), [{ text: 'OK' }]);
-            navigation.navigate('HOME_SCREEN');
+            // navigation.navigate('HOME_SCREEN');
+            dispatch(setIsRecheckToken(!isRecheckToken));
         } else if (error) {
             Alert.alert('Verify Failed', t('verify_code.failed'), [{ text: 'OK' }]);
         }

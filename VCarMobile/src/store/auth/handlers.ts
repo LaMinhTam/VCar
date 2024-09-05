@@ -27,7 +27,7 @@ function* login(action: {
     const response: IResponse = yield call(
       axiosInstance.post,
       ENDPOINTS.LOGIN,
-      {username, password},
+      {email: username, password},
     );
     yield call(
       saveTokens,
@@ -36,6 +36,7 @@ function* login(action: {
     );
     yield put(loginSuccess(response.data.data));
   } catch (error: any) {
+    console.log('error:', error.message);
     yield put(loginFailure(error.message));
   }
 }

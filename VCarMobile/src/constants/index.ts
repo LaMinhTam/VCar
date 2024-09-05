@@ -28,4 +28,4 @@ export const ScreenOptions = {
 export const API_BASE_URL = 'https://api-vcar.onrender.com/';
 
 export const DEFAULT_AVATAR =
-  'https://static-00.iconduck.com/assets.00/avatar-default-symbolic-icon-479x512-n8sg74wg.png';
+  'https://i.pinimg.com/736x/ee/4e/20/ee4e2079bf453d71c55ddf20fc00d130.jpg';

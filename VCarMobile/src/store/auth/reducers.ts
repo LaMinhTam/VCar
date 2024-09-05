@@ -12,6 +12,7 @@ const initialState: AuthState = {
   provider: '',
   loading: false,
   error: null,
+  isRecheckToken: false,
 };
 
 const authSlice = createSlice({
@@ -64,6 +65,9 @@ const authSlice = createSlice({
       state.error = action.payload;
       state.email_verified = false;
     },
+    setIsRecheckToken: (state, action: PayloadAction<boolean>) => {
+      state.isRecheckToken = action.payload;
+    },
   },
 });
 
@@ -77,5 +81,6 @@ export const {
   verifyEmail,
   verifyEmailSuccess,
   verifyEmailFailure,
+  setIsRecheckToken,
 } = authSlice.actions;
 export default authSlice.reducer;

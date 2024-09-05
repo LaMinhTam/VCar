@@ -9,4 +9,5 @@ export interface AuthState {
   provider: string;
   loading: boolean;
   error: null | string;
+  isRecheckToken: boolean;
 }
