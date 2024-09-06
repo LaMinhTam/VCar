@@ -7,13 +7,13 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ICar } from '../../store/car/types';
 import { formatPrice } from '../../utils';
 
-const CarCard = ({ car }: { car: ICar }) => {
+const CarCard = ({ car, isFullWidth = false }: { car: ICar, isFullWidth: boolean }) => {
     const navigation = useNavigation<NativeStackNavigationProp<ParamListBase>>();
     return (
-        <Card containerStyle={{ width: 200, padding: 0, borderRadius: 10, marginRight: 10 }}>
+        <Card containerStyle={{ width: isFullWidth ? 320 : 200, padding: 0, borderRadius: 10, marginRight: 10 }}>
             <Card.Image
                 source={{ uri: car.image_url[0] ?? 'https://picsum.photos/200/300' }}
-                style={{ height: 120 }}
+                style={{ height: isFullWidth ? 200 : 120, borderTopLeftRadius: 10, borderTopRightRadius: 10 }}
                 resizeMode="cover"
                 onPress={() => navigation.navigate('CAR_DETAIL_SCREEN', { carId: car.id })}
             />

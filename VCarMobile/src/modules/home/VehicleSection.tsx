@@ -7,10 +7,12 @@ import { formatPrice } from '../../utils';
 import { ParamListBase, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import CarCard from '../../components/common/CarCard';
+import CardSkeleton from '../../components/common/CardSkeleton';
 
-const VehicleSection = ({ title, cars }: {
+const VehicleSection = ({ title, cars, loading }: {
     title: string
     cars: ICar[]
+    loading: boolean
 }) => {
     const navigation = useNavigation<NativeStackNavigationProp<ParamListBase>>();
     return (
@@ -20,11 +22,18 @@ const VehicleSection = ({ title, cars }: {
                 <Text style={{ color: '#1E90FF' }}>See all</Text>
             </View>
             <ScrollView className='mb-4' horizontal showsHorizontalScrollIndicator={false}>
-                {cars.map((car, index) => (
+                {!loading && cars.length > 0 && cars.map((car, index) => (
                     <CarCard
                         key={car.id}
                         car={car}
+                        isFullWidth={false}
                     ></CarCard>
+                ))}
+                {loading && Array.from({ length: 10 }).map((_, index) => (
+                    <CardSkeleton
+                        key={index}
+                        isFullWidth
+                    ></CardSkeleton>
                 ))}
             </ScrollView>
         </>

@@ -5,6 +5,7 @@ import {ENDPOINTS, QuerySearchCar} from './models';
 import {
   getCarDetailFailed,
   getCarDetailSuccess,
+  getCars,
   getCarsFailed,
   getCarsSuccess,
 } from './reducers';
@@ -27,6 +28,7 @@ interface ICarDetailResponse {
 
 function* searchCar(action: {type: string; payload: any}) {
   try {
+    yield put(getCars());
     const response: ICarResponse = yield call(
       axiosInstance.get,
       ENDPOINTS.SEARCH,

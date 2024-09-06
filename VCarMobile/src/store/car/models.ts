@@ -17,4 +17,7 @@ export const QuerySearchCar = {
   seats: '',
   minConsumption: 0,
   maxRate: '',
+  rentalStartDate: 1729828230000,
+  rentalEndDate: 1732506630000,
+  rating: '',
 };
