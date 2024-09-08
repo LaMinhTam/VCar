@@ -11,6 +11,8 @@ import transmissionIcon from "../assets/transmission.png";
 import { useTranslation } from 'react-i18next';
 import { DEFAULT_AVATAR } from '../config/apiConfig';
 import CarSession from '../modules/home/CarSession';
+import CarCard from '../components/CarCard';
+import CarCardSkeleton from '../components/common/CarCardSkeleton';
 
 const CarDetailPage = () => {
     const { t } = useTranslation();
@@ -21,6 +23,7 @@ const CarDetailPage = () => {
     useMemo(() => {
         dispatch({ type: GET_CAR_BY_ID, payload: id });
     }, [dispatch, id])
+    if (!car) return null;
     return (
         <div>
             <Row gutter={[32, 0]} justify={"center"} align={"stretch"}>
@@ -39,13 +42,13 @@ const CarDetailPage = () => {
                             <div>
                                 <Typography.Title level={3}>{car?.name}</Typography.Title>
                                 <div className='flex items-center justify-start gap-x-2'>
-                                    <Rate allowHalf disabled defaultValue={car.average_rating} />
+                                    <Rate allowHalf disabled defaultValue={car?.average_rating} />
                                     <Typography.Text>440+ Reviewer</Typography.Text>
                                 </div>
                             </div>
                             <HeartOutlined className='text-2xl cursor-pointer' />
                         </div>
-                        <Typography.Paragraph className='font-normal text-text5'>{car.description}</Typography.Paragraph>
+                        <Typography.Paragraph className='font-normal text-text5'>{car?.description}</Typography.Paragraph>
                         <div>
                             <Typography.Title level={5}>Đặc điểm</Typography.Title>
                             <div className="flex items-center justify-start mb-2 gap-x-5">
@@ -60,7 +63,7 @@ const CarDetailPage = () => {
                                             NL tiêu hao
                                         </Typography.Text>
                                         <Typography.Text className="text-filter-range">
-                                            {car.fuel_consumption} {t("litersPer100km")}
+                                            {car?.fuel_consumption} {t("litersPer100km")}
                                         </Typography.Text>
                                     </div>
                                 </div>
@@ -75,7 +78,7 @@ const CarDetailPage = () => {
                                             Truyền động
                                         </Typography.Text>
                                         <Typography.Text className="text-filter-range">
-                                            {car.transmission === "MANUAL" ? t("manual") : t("automatic")}
+                                            {car?.transmission === "MANUAL" ? t("manual") : t("automatic")}
                                         </Typography.Text>
                                     </div>
                                 </div>
@@ -86,7 +89,7 @@ const CarDetailPage = () => {
                                             Số ghế
                                         </Typography.Text>
                                         <Typography.Text className="text-filter-range">
-                                            {car.seat}
+                                            {car?.seat}
                                         </Typography.Text>
                                     </div>
                                 </div>
@@ -95,7 +98,7 @@ const CarDetailPage = () => {
                         <div className="mt-2">
                             <Typography.Title level={5}>Các tiện nghi khác</Typography.Title>
                             <div className="flex flex-wrap gap-2">
-                                {car.features.map((feature, index) => (
+                                {car?.features.map((feature, index) => (
                                     <Tag key={index} color="blue">
                                         {feature}
                                     </Tag>
@@ -104,7 +107,7 @@ const CarDetailPage = () => {
                         </div>
                         <div className="flex items-center justify-between mt-5">
                             <span className="font-bold text-primary-default">
-                                {car.daily_rate.toLocaleString()} {t("currency")} /{" "}
+                                {car?.daily_rate?.toLocaleString()} {t("currency")} /{" "}
                                 <span className="text-filter-range">{t("day")}</span>
                             </span>
                             <button className="px-4 py-2 text-white rounded bg-primary-default hover:bg-primary-dark">
@@ -159,10 +162,24 @@ const CarDetailPage = () => {
                     ))}
                 </div>
             </div>
-            <CarSession
-                title='Related cars'
-                type='popular'
-            ></CarSession>
+            <div className="mt-10">
+                <div className="flex items-center justify-between mb-5">
+                    <Typography.Text className="text-text7">Related Car</Typography.Text>
+                    <Button type="link" href="#">View All</Button>
+                </div>
+                <Row gutter={[32, 32]}>
+                    {related_cars.length > 0 && related_cars.map((car) => (
+                        <Col key={car.id} span={6}>
+                            <CarCard car={car} />
+                        </Col>
+                    ))}
+                    {loading && Array.from({ length: 4 }).map((_, index) => (
+                        <Col key={index} span={6}>
+                            <CarCardSkeleton></CarCardSkeleton>
+                        </Col>
+                    ))}
+                </Row>
+            </div>
             <CarSession
                 title='Recomendation Car'
                 type='recommend'
