@@ -18,6 +18,9 @@ public class Invoice {
     private ObjectId lessorId;
     private ObjectId lesseeId;
     private String txnRef;
+    private String transactionNo;
+    private Long transactionDate;
+    private String createDate;
     private Long amount;
     private PaymentStatus paymentStatus;
     private Date createdAt = new Date();

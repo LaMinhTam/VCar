@@ -1,10 +1,17 @@
 package vn.edu.iuh.sv.vcarbe.service.impl;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.bson.types.ObjectId;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import vn.edu.iuh.sv.vcarbe.config.VNPayConfig;
+import vn.edu.iuh.sv.vcarbe.dto.InvoiceDTO;
 import vn.edu.iuh.sv.vcarbe.dto.RentalContractDTO;
 import vn.edu.iuh.sv.vcarbe.dto.SignRequest;
 import vn.edu.iuh.sv.vcarbe.entity.*;
@@ -52,12 +59,12 @@ public class InvoiceService {
         String txnRef = VNPayConfig.getRandomNumber(8);
         Invoice invoice = new Invoice();
         invoice.setContractId(rentalContract.getId());
+        invoice.setTxnRef(txnRef);
         invoice.setAmount((long) (rentalContract.getTotalRentalValue() * 30L));
         invoice.setLesseeId(rentalContract.getLesseeId());
         invoice.setLessorId(rentalContract.getLessorId());
         invoice.setTxnRef(txnRef);
         invoice.setPaymentStatus(PaymentStatus.PENDING);
-        invoiceRepository.save(invoice);
 
         Map<String, String> vnpParams = new HashMap<>();
         vnpParams.put("vnp_Version", vnPayConfig.getVnp_Version());
@@ -75,6 +82,8 @@ public class InvoiceService {
         Calendar cld = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));
         SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
         vnpParams.put("vnp_CreateDate", formatter.format(cld.getTime()));
+        invoice.setCreateDate(formatter.format(cld.getTime()));
+        invoiceRepository.save(invoice);
         cld.add(Calendar.MINUTE, 15);
         vnpParams.put("vnp_ExpireDate", formatter.format(cld.getTime()));
 
@@ -105,6 +114,8 @@ public class InvoiceService {
         if ("00".equals(vnpResponseCode)) {
             invoice.setPaymentStatus(PaymentStatus.PAID);
             invoice.setContent("Thanh toán thành công");
+            invoice.setTransactionNo(req.getParameter("vnp_TransactionNo"));
+            invoice.setTransactionDate(Long.parseLong(req.getParameter("vnp_PayDate")));
             invoiceRepository.save(invoice);
 
             RentalContract rentalContract = rentalContractRepository.findById(invoice.getContractId())
@@ -155,5 +166,18 @@ public class InvoiceService {
             }
         }
         return fields;
+    }
+
+    public List<InvoiceDTO> getUserInvoices(UserPrincipal userPrincipal, int page, int size, String sortBy, String sortDir) {
+        Sort sort = Sort.by(Sort.Direction.fromString(sortDir.toUpperCase()), sortBy);
+        Pageable pageable = PageRequest.of(page, size, sort);
+        Page<Invoice> invoices = invoiceRepository.findByLesseeId(userPrincipal.getId(), pageable);
+        return modelMapper.map(invoices.getContent(), new TypeToken<List<InvoiceDTO>>() {
+        }.getType());
+    }
+
+    public InvoiceDTO getInvoiceById(UserPrincipal userPrincipal, ObjectId invoiceId) {
+        Invoice invoice = invoiceRepository.findByInvoiceIdAndLesseeId(invoiceId, userPrincipal.getId());
+        return modelMapper.map(invoice, InvoiceDTO.class);
     }
 }
