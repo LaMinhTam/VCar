@@ -1,59 +1,16 @@
-import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { RootState, AppDispatch } from "../store/store";
-import { fetchCarsRequest } from "../store/carSlice";
-import FilterSidebar from "../components/FilterSidebar";
-import CarCard from "../components/CarCard";
-import Header from "../components/Header";
-import { useTranslation } from "react-i18next";
+
+import Banner from "../modules/home/Banner";
+import CarSession from "../modules/home/CarSession";
+import FilterCar from "../modules/home/FilterCar";
 
 const HomePage = () => {
-  const { t } = useTranslation();
-  const dispatch = useDispatch<AppDispatch>();
-  const { cars, loading, error } = useSelector((state: RootState) => state.car);
-  const [filters, setFilters] = useState<any>({
-    transmission: [],
-    seats: [],
-    minConsumption: 0,
-    maxConsumption: 20,
-    maxRate: 1000000,
-  });
-
-  useEffect(() => {
-    dispatch(fetchCarsRequest(filters));
-  }, [dispatch, filters]);
-
-  const handleFilterChange = (newFilters: any) => {
-    setFilters(newFilters);
-  };
-
   return (
-    <div className="flex flex-col bg-[#f8f4fc] min-h-screen">
-      <Header />
-      <div className="flex mt-16">
-        <FilterSidebar onFilterChange={handleFilterChange} />
-        <div className="flex-1 ml-64 p-4">
-          {loading && <div>{t("loading")}</div>}
-          {error && (
-            <div>
-              {t("error")}: {error}
-            </div>
-          )}
-          {!loading && !error && (
-            <>
-              {cars.length > 0 ? (
-                <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
-                  {cars.map((car) => (
-                    <CarCard key={car.id} car={car} />
-                  ))}
-                </div>
-              ) : (
-                <div>{t("noCarsAvailable")}</div>
-              )}
-            </>
-          )}
-        </div>
-      </div>
+    <div>
+      <Banner></Banner>
+      <FilterCar></FilterCar>
+      <CarSession title="Popular" type="popular"></CarSession>
+      <CarSession title="Recommendation" type="recommend"></CarSession>
+      <CarSession title="Near you" type="near"></CarSession>
     </div>
   );
 };

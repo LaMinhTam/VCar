@@ -1,11 +1,12 @@
+import { API_BASE_URL } from "./../config/apiConfig";
 import axios from "axios";
 import axiosRetry from "axios-retry";
 import { toast } from "react-toastify";
-import { BASE_URL } from "../config/apiConfig";
-const RETRIES = 5;
+import { getAccessToken } from "../utils";
+const RETRIES = 2;
 
 export const axiosInstance = axios.create({
-  baseURL: BASE_URL,
+  baseURL: API_BASE_URL,
   headers: {
     "Content-Type": "application/json",
   },
@@ -21,7 +22,7 @@ axiosRetry(axiosInstance, {
 
 axiosInstance.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem("access_token");
+    const token = getAccessToken();
     if (token) {
       config.headers["Authorization"] = `Bearer ${token}`;
     }

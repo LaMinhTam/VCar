@@ -1,10 +1,18 @@
 const en = {
   translation: {
+    // Authentication
     login: "Login",
+    loginSuccess: "Login successfully",
+    loginFailed: "Login failed",
     signUp: "Sign Up",
     email: "Email",
+    emailInvalid: "Invalid email",
+    emailPlaceholder: "Enter your email",
     password: "Password",
+    passwordInvalid: "Password must be at least 8 characters",
+    passwordPlaceholder: "Enter your password",
     confirmPassword: "Confirm Password",
+    require: "Required",
     alreadyHaveAccount: "Already have an account?",
     signIn: "Sign in",
     dontHaveAccount: "Don't have an account?",

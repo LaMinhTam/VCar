@@ -15,8 +15,9 @@ import Loading from "./components/common/Loading.tsx";
 
 import "./locales";
 import HomePage from "./pages/HomePage.tsx";
-import { AuthProvider } from "./provider/AuthProvider.tsx";
-
+import { AuthProvider } from "./contexts/auth-context.tsx";
+import { AuthContextType } from "./types/common.ts";
+import CarDetailPage from "./pages/CarDetailPage.tsx";
 const router = createBrowserRouter([
   {
     element: <LayoutMain />,
@@ -25,6 +26,10 @@ const router = createBrowserRouter([
         path: "/",
         element: <HomePage />,
       },
+      {
+        path: "/car/:id",
+        element: <CarDetailPage />,
+      }
     ],
   },
   {
@@ -41,7 +46,7 @@ const router = createBrowserRouter([
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <Provider store={store}>
-      <AuthProvider>
+      <AuthProvider value={{} as AuthContextType}>
         <App>
           <Suspense
             fallback={

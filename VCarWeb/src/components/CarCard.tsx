@@ -3,6 +3,7 @@ import capacityIcon from "../assets/capacity.png";
 import gasStationIcon from "../assets/gas-station.png";
 import transmissionIcon from "../assets/transmission.png";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 
 interface Car {
   id: string;
@@ -19,17 +20,19 @@ interface CarCardProps {
 }
 
 const CarCard: React.FC<CarCardProps> = ({ car }) => {
+  const navigate = useNavigate();
   const { t } = useTranslation();
 
   return (
-    <div className="bg-white shadow-md rounded-lg overflow-hidden">
+    <div className="overflow-hidden bg-white rounded-lg shadow-md">
       <img
         src={car.image_url[0]}
         alt="Car"
-        className="w-full h-64 object-cover"
+        className="object-cover w-full h-64 cursor-pointer"
+        onClick={() => navigate(`/car/${car.id}`)}
       />
       <div className="p-4">
-        <h2 className="text-xl font-bold mb-2">{car.name}</h2>
+        <h2 className="mb-2 text-lg font-bold cursor-pointer line-clamp-1" onClick={() => navigate(`/car/${car.id}`)}>{car.name}</h2>
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center mr-4">
             <img
@@ -52,16 +55,20 @@ const CarCard: React.FC<CarCardProps> = ({ car }) => {
             </span>
           </div>
           <div className="flex items-center">
-            <img src={capacityIcon} alt={t("seats")} className="w-6 h-6 mr-2" />
+            <img
+              src={capacityIcon}
+              alt={t("seats")}
+              className="w-6 h-6 mr-2"
+            />
             <span className="text-filter-range">{car.seat}</span>
           </div>
         </div>
-        <div className="flex justify-between items-center">
-          <span className="text-lg font-bold text-primary-default">
+        <div className="flex items-center justify-between mt-5">
+          <span className="font-bold text-primary-default">
             {car.daily_rate.toLocaleString()} {t("currency")} /{" "}
             <span className="text-filter-range">{t("day")}</span>
           </span>
-          <button className="bg-primary-default text-white px-4 py-2 rounded hover:bg-primary-dark">
+          <button className="px-4 py-2 text-white rounded bg-primary-default hover:bg-primary-dark">
             {t("rentNow")}
           </button>
         </div>

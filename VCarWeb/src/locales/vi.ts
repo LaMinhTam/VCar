@@ -1,10 +1,17 @@
 const vi = {
   translation: {
     login: "Đăng Nhập",
+    loginSuccess: "Đăng nhập thành công",
+    loginFailed: "Đăng nhập thất bại",
     signUp: "Đăng Ký",
     email: "Email",
+    emailInvalid: "Email không hợp lệ",
+    emailPlaceholder: "Nhập email của bạn",
     password: "Mật Khẩu",
+    passwordInvalid: "Mật khẩu phải có ít nhất 8 ký tự",
+    passwordPlaceholder: "Nhập mật khẩu của bạn",
     confirmPassword: "Xác Nhận Mật Khẩu",
+    require: "Bắt buộc",
     alreadyHaveAccount: "Đã có tài khoản?",
     signIn: "Đăng Nhập",
     dontHaveAccount: "Chưa có tài khoản?",

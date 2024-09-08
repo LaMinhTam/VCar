@@ -1,79 +1,125 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
 import { useTranslation } from "react-i18next";
-import { loginRequest } from "../store/authSlice";
-import type { AppDispatch } from "../store/store";
-import { toast } from "react-toastify"; // Import toast
+import { Button, Form, FormProps, Input, Typography } from "antd";
+import LayoutAuthentication from "../layouts/LayoutAuthentication";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "../store/store";
+import { LOGIN } from "../store/auth/actions";
+import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+import { getAccessToken } from "../utils";
+type FieldType = {
+  email: string;
+  password: string;
+};
 
 const LoginPage = () => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
+  const [form] = Form.useForm();
   const dispatch = useDispatch<AppDispatch>();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
+  const { loading, user, error } = useSelector((state: RootState) => state.auth);
+  const accessToken = getAccessToken();
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      await dispatch(loginRequest({ email, password }));
+  const onFinish = (values: FieldType) => {
+    dispatch({ type: LOGIN, payload: values });
+    if (user && user.id && !error && !loading) {
+      toast.success(t("loginSuccess"));
       navigate("/");
-    } catch (error) {
-      console.error("Failed to login", error);
-      setError(t("loginFailed"));
-      toast.error(t("loginFailed")); // Show toast on error
+    } else {
+      toast.error(t("loginFailed"));
     }
   };
 
+  useEffect(() => {
+    if (accessToken) {
+      navigate("/");
+    }
+  }, [accessToken, navigate])
+
+  const onFinishFailed: FormProps<FieldType>["onFinishFailed"] = (
+    errorInfo
+  ) => {
+    console.log("Failed:", errorInfo);
+  };
+
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-neutral-light">
-      <h1 className="mb-6 text-2xl font-bold text-primary-default">
-        {t("login")}
-      </h1>
-      <form className="w-full max-w-sm" onSubmit={handleLogin}>
-        <div className="mb-4">
-          <label className="block mb-2 text-sm font-bold text-neutral-dark">
-            {t("email")}
-          </label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full px-3 py-2 border rounded shadow appearance-none focus:outline-none focus:ring-primary-light"
-            required
-          />
-        </div>
-        <div className="mb-4">
-          <label className="block mb-2 text-sm font-bold text-neutral-dark">
-            {t("password")}
-          </label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full px-3 py-2 border rounded shadow appearance-none focus:outline-none focus:ring-primary-light"
-            required
-          />
-        </div>
-        {error && <p className="text-red-500">{error}</p>}
-        <button
-          type="submit"
-          className="w-full px-4 py-2 text-white bg-primary-default rounded hover:bg-primary-dark"
+    <LayoutAuthentication>
+      <Form
+        form={form}
+        name="login-form"
+        layout="vertical"
+        labelCol={{ span: 16 }}
+        wrapperCol={{ span: 24 }}
+        initialValues={{ remember: true }}
+        autoComplete="off"
+        onFinish={onFinish}
+        onFinishFailed={onFinishFailed}
+        className="bg-lite w-full max-w-[400px] p-4 rounded-lg shadow-md mx-auto"
+      >
+        <Typography.Title
+          level={3}
+          style={{
+            textAlign: "center",
+          }}
         >
           {t("login")}
-        </button>
-      </form>
-      <p className="mt-4 text-neutral-dark">
-        {t("dontHaveAccount")}{" "}
-        <span
-          className="text-primary-default cursor-pointer hover:underline"
-          onClick={() => navigate("/signup")}
+        </Typography.Title>
+        <Form.Item<FieldType>
+          label="Email"
+          name="email"
+          rules={[
+            {
+              required: true,
+              message: t("require"),
+            },
+            {
+              type: "email",
+              message: t("emailInvalid"),
+            },
+          ]}
         >
-          {t("signUp")}
-        </span>
-      </p>
-    </div>
+          <Input placeholder={t("emailPlaceholder")} />
+        </Form.Item>
+        <Form.Item<FieldType>
+          label="Password"
+          name="password"
+          rules={[
+            {
+              required: true,
+              message: t("require"),
+            },
+            {
+              min: 8,
+              message: t("passwordInvalid"),
+            },
+          ]}
+        >
+          <Input.Password placeholder={t("passwordPlaceholder")} />
+        </Form.Item>
+        <Form.Item>
+          <Button
+            type="primary"
+            htmlType="submit"
+            block
+            loading={loading}
+            iconPosition={"end"}
+          >
+            {t("login")}
+          </Button>
+        </Form.Item>
+        <Typography.Paragraph
+          style={{
+            textAlign: "center",
+          }}
+        >
+          {t("dontHaveAccount")}{" "}
+          <Button type="link" href="/signup">
+            {t("signUp")}
+          </Button>
+        </Typography.Paragraph>
+      </Form>
+    </LayoutAuthentication>
   );
 };
 
