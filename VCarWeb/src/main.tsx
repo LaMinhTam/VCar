@@ -18,6 +18,7 @@ import HomePage from "./pages/HomePage.tsx";
 import { AuthProvider } from "./contexts/auth-context.tsx";
 import { AuthContextType } from "./types/common.ts";
 import CarDetailPage from "./pages/CarDetailPage.tsx";
+import CheckoutPage from "./pages/CheckoutPage.tsx";
 const router = createBrowserRouter([
   {
     element: <LayoutMain />,
@@ -29,6 +30,10 @@ const router = createBrowserRouter([
       {
         path: "/car/:id",
         element: <CarDetailPage />,
+      },
+      {
+        path: "/checkout",
+        element: <CheckoutPage />
       }
     ],
   },

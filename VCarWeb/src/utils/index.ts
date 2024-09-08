@@ -3,6 +3,8 @@ import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
 import { IUser } from "../store/auth/types";
 import CryptoJS from "crypto-js";
+import numeral from "numeral";
+import moment from "moment";
 
 const accessTokenKey = "VCAR_ACCESS_TOKEN";
 const refreshTokenKey = "VCAR_REFRESH_TOKEN";
@@ -95,7 +97,7 @@ export const isTokenExpire = (token: string) => {
 export function getUserInfoFromCookie() {
   const accessToken = getAccessToken();
   const encryptedUser = getUser();
-  let decryptedData = null;
+  let decryptedData: IUser = {} as IUser;
   if (encryptedUser && accessToken) {
     const bytes = CryptoJS.AES.decrypt(encryptedUser, accessToken);
     decryptedData = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
@@ -113,3 +115,12 @@ export function saveUserInfoToCookie(
   ).toString();
   saveUser(cipherText);
 }
+
+export const formatPrice = (price: number) => {
+  return numeral(price).format("0,0");
+};
+
+export const formatDate = (date: string) => {
+  // using moment to format timestamp to dd/mm/yyyy hh:mm
+  return moment(date).format("DD/MM/YYYY HH:mm");
+};
