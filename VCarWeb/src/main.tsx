@@ -19,6 +19,13 @@ import { AuthProvider } from "./contexts/auth-context.tsx";
 import { AuthContextType } from "./types/common.ts";
 import CarDetailPage from "./pages/CarDetailPage.tsx";
 import CheckoutPage from "./pages/CheckoutPage.tsx";
+import AccountPage from "./pages/AccountPage.tsx";
+import AccountDetails from "./modules/account/AccountDetails.tsx";
+import FavoriteCars from "./modules/account/FavoriteCars.tsx";
+import MyCars from "./modules/account/MyCars.tsx";
+import MyTrips from "./modules/account/MyTrips.tsx";
+import MyAddress from "./modules/account/MyAddress.tsx";
+import ChangePassword from "./modules/account/ChangePassword.tsx";
 const router = createBrowserRouter([
   {
     element: <LayoutMain />,
@@ -34,7 +41,37 @@ const router = createBrowserRouter([
       {
         path: "/checkout",
         element: <CheckoutPage />
-      }
+      },
+      {
+        path: "/account",
+        element: <AccountPage />,
+        children: [
+          {
+            path: "",
+            element: <AccountDetails />,
+          },
+          {
+            path: "favorite",
+            element: <FavoriteCars />,
+          },
+          {
+            path: "my-cars",
+            element: <MyCars />,
+          },
+          {
+            path: "my-trips",
+            element: <MyTrips />,
+          },
+          {
+            path: "my-address",
+            element: <MyAddress />,
+          },
+          {
+            path: "change-password",
+            element: <ChangePassword />,
+          },
+        ],
+      },
     ],
   },
   {

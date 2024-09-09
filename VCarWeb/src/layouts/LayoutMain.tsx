@@ -6,7 +6,7 @@ const LayoutMain = () => {
     return (
         <Layout>
             <DashboardHeader />
-            <Content className="w-full max-w-[1280px] mx-auto pt-8 pb-16">
+            <Content className="w-full max-w-[1280px] mx-auto mt-16 pt-8 pb-16">
                 <Outlet></Outlet>
             </Content>
         </Layout>

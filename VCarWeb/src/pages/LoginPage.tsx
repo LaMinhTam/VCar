@@ -9,9 +9,9 @@ import { login } from "../store/auth/handlers";
 import { AxiosResponse } from "axios";
 import { IUser } from "../store/auth/types";
 import { ENDPOINTS } from "../store/auth/models";
-import axiosInstance from "../apis/axios";
 import { useSelector } from "react-redux";
 import { RootState } from "../store/store";
+import { axiosInstance } from "../apis/axios";
 type FieldType = {
   email: string;
   password: string;
