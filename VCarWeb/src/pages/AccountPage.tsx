@@ -1,6 +1,6 @@
 import { CarOutlined, DeleteOutlined, DragOutlined, HeartOutlined, LockOutlined, LogoutOutlined, UserOutlined } from "@ant-design/icons";
 import { Button, Col, Divider, Row, Typography } from "antd";
-import { Link, useLocation, Outlet } from "react-router-dom";
+import { Link, useLocation, Outlet, useNavigate } from "react-router-dom";
 import LocationIcon from "../components/icons/LocationIcon";
 import { saveAccessToken, saveRefreshToken, saveUser } from "../utils";
 import { useAuth } from "../contexts/auth-context";
@@ -46,12 +46,14 @@ const tabs = [
 
 const AccountPage = () => {
     const path = useLocation().pathname;
+    const navigate = useNavigate();
     const { setIsLogged } = useAuth();
     const handleLogout = () => {
         saveAccessToken("");
         saveRefreshToken("");
         saveUser("");
         setIsLogged(false);
+        navigate("/");
     }
     return (
         <div>

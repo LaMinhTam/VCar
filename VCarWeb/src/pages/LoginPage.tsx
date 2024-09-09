@@ -11,7 +11,8 @@ import { IUser } from "../store/auth/types";
 import { ENDPOINTS } from "../store/auth/models";
 import { useSelector } from "react-redux";
 import { RootState } from "../store/store";
-import { axiosInstance } from "../apis/axios";
+import { axiosPrivate } from "../apis/axios";
+import { useAuth } from "../contexts/auth-context";
 type FieldType = {
   email: string;
   password: string;
@@ -29,24 +30,20 @@ const LoginPage = () => {
   const [form] = Form.useForm();
   const navigate = useNavigate();
   const { loading } = useSelector((state: RootState) => state.auth);
+  const { setIsLogged } = useAuth();
   const accessToken = getAccessToken();
 
   const onFinish = async (values: FieldType) => {
-    // dispatch({ type: LOGIN, payload: values });
-    // if (user && user.id && !error && !loading) {
-    //   toast.success(t("loginSuccess"));
-    //   navigate("/");
-    // } else {
-    //   toast.error(t("loginFailed"));
-    // }
     const res = await login(values.email, values.password);
     if (res?.success) {
       const meResponse: AxiosResponse<IMeResponse> =
-        await axiosInstance.get(ENDPOINTS.GET_ME);
+        await axiosPrivate.get(ENDPOINTS.GET_ME);
+      console.log("onFinish ~ meResponse:", meResponse)
       if (meResponse.data.code === 200) {
         saveUserInfoToCookie(meResponse.data.data, res?.token ?? "");
       }
       toast.success(t("loginSuccess"));
+      setIsLogged(true);
       navigate("/");
     } else {
       toast.error(t("loginFailed"));
