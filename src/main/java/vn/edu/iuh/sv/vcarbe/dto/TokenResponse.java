@@ -1,4 +1,4 @@
-package vn.edu.iuh.sv.vcarbe.controller;
+package vn.edu.iuh.sv.vcarbe.dto;
 
 public record TokenResponse(String accessToken, String refreshToken) {
 }

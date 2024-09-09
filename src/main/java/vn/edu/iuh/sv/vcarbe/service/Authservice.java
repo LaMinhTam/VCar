@@ -1,6 +1,6 @@
 package vn.edu.iuh.sv.vcarbe.service;
 
-import vn.edu.iuh.sv.vcarbe.controller.TokenResponse;
+import vn.edu.iuh.sv.vcarbe.dto.TokenResponse;
 import vn.edu.iuh.sv.vcarbe.dto.*;
 import vn.edu.iuh.sv.vcarbe.entity.User;
 import vn.edu.iuh.sv.vcarbe.security.UserPrincipal;

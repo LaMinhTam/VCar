@@ -14,10 +14,8 @@ import vn.edu.iuh.sv.vcarbe.service.UserService;
 
 @Service
 public class UserServiceImpl implements UserService {
-
     @Autowired
     private UserRepository userRepository;
-
     @Autowired
     private ModelMapper modelMapper;
 
@@ -37,8 +35,8 @@ public class UserServiceImpl implements UserService {
         User user = getUserByIdFromRepository(userId);
         user.setDisplayName(updateUserDTO.displayName());
         user.setPhoneNumber(updateUserDTO.phoneNumber());
-         User savedUser = userRepository.save(user);
-         return modelMapper.map(savedUser, UserDTO.class);
+        User savedUser = userRepository.save(user);
+        return modelMapper.map(savedUser, UserDTO.class);
     }
 
     @Override

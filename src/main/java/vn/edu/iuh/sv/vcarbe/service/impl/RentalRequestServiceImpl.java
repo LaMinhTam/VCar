@@ -128,8 +128,8 @@ public class RentalRequestServiceImpl implements RentalRequestService {
     }
 
     @Override
-    public RentalRequestDTO getRentalRequest(String id) {
-        RentalRequest rentalRequest = rentalRequestRepository.findById(new ObjectId(id))
+    public RentalRequestDTO getRentalRequest(ObjectId id) {
+        RentalRequest rentalRequest = rentalRequestRepository.findById(id)
                 .orElseThrow(() -> new AppException(404, "Rental request not found with id " + id));
         return modelMapper.map(rentalRequest, RentalRequestDTO.class);
     }

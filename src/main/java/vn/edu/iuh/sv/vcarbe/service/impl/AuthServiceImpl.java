@@ -8,7 +8,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import vn.edu.iuh.sv.vcarbe.controller.TokenResponse;
+import vn.edu.iuh.sv.vcarbe.dto.TokenResponse;
 import vn.edu.iuh.sv.vcarbe.dto.*;
 import vn.edu.iuh.sv.vcarbe.entity.AuthProvider;
 import vn.edu.iuh.sv.vcarbe.entity.User;

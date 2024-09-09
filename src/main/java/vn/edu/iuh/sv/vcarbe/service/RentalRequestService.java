@@ -22,5 +22,5 @@ public interface RentalRequestService {
 
     List<RentalRequestDTO> getRentalRequestForLessee(ObjectId id, String sortField, boolean sortDescending, RentRequestStatus status, int page, int size);
 
-    RentalRequestDTO getRentalRequest(String id);
+    RentalRequestDTO getRentalRequest(ObjectId id);
 }

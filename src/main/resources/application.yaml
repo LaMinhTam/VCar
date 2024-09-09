@@ -53,3 +53,9 @@ vnp:
   vnp_ReturnUrl: ${VNP_RETURN_URL}
   vnp_ApiUrl: ${VNP_API_URL}
   vnp_Command: ${VNP_COMMAND}
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui-custom.html

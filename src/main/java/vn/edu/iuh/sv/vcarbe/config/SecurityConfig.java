@@ -89,6 +89,8 @@ public class SecurityConfig {
                 )
                 .authenticationProvider(authenticationProvider())
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/v2/api-docs", "/v3/api-docs", "/swagger-resources/**", "/swagger-ui/**", "/webjars/**", "/swagger-ui.html", "/api-docs/**")
+                        .permitAll()
                         .requestMatchers("/actuator/**","/auth/signup", "/auth/login", "/auth/signin", "/auth/verify", "/oauth2/**", "/socket.io/")
                         .permitAll()
                         .requestMatchers(HttpMethod.GET, "/cars/**", "/reviews/**")

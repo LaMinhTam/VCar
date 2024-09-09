@@ -14,11 +14,8 @@ import vn.edu.iuh.sv.vcarbe.dto.RentalContractDTO;
 import vn.edu.iuh.sv.vcarbe.dto.SignRequest;
 import vn.edu.iuh.sv.vcarbe.entity.NotificationType;
 import vn.edu.iuh.sv.vcarbe.entity.RentalContract;
-import vn.edu.iuh.sv.vcarbe.entity.User;
 import vn.edu.iuh.sv.vcarbe.exception.AppException;
 import vn.edu.iuh.sv.vcarbe.repository.RentalContractRepository;
-import vn.edu.iuh.sv.vcarbe.repository.RentalRequestRepository;
-import vn.edu.iuh.sv.vcarbe.repository.UserRepository;
 import vn.edu.iuh.sv.vcarbe.security.UserPrincipal;
 import vn.edu.iuh.sv.vcarbe.service.RentalContractService;
 import vn.edu.iuh.sv.vcarbe.util.BlockchainUtils;
@@ -31,8 +28,6 @@ import java.util.List;
 public class RentalContractServiceImpl implements RentalContractService {
     @Autowired
     private RentalContractRepository rentalContractRepository;
-    @Autowired
-    private UserRepository userRepository;
     @Autowired
     private ModelMapper modelMapper;
     @Autowired
