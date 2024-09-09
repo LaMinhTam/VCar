@@ -124,3 +124,16 @@ export const formatDate = (date: string) => {
   // using moment to format timestamp to dd/mm/yyyy hh:mm
   return moment(date).format("DD/MM/YYYY HH:mm");
 };
+
+export const calculateDays = (
+  startTimestamp: number | null,
+  endTimestamp: number | null
+): number => {
+  if (startTimestamp === null || endTimestamp === null) {
+    return 0;
+  }
+  const millisecondsPerDay = 24 * 60 * 60 * 1000;
+  const differenceInMilliseconds = endTimestamp - startTimestamp;
+  const numberOfDays = differenceInMilliseconds / millisecondsPerDay;
+  return parseFloat(numberOfDays.toFixed(1));
+};

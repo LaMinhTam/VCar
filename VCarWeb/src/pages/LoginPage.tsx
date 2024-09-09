@@ -1,29 +1,51 @@
 import { useTranslation } from "react-i18next";
 import { Button, Form, FormProps, Input, Typography } from "antd";
 import LayoutAuthentication from "../layouts/LayoutAuthentication";
-import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "../store/store";
-import { LOGIN } from "../store/auth/actions";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
-import { getAccessToken } from "../utils";
+import { getAccessToken, saveUserInfoToCookie } from "../utils";
+import { login } from "../store/auth/handlers";
+import { AxiosResponse } from "axios";
+import { IUser } from "../store/auth/types";
+import { ENDPOINTS } from "../store/auth/models";
+import axiosInstance from "../apis/axios";
+import { useSelector } from "react-redux";
+import { RootState } from "../store/store";
 type FieldType = {
   email: string;
   password: string;
 };
 
+
+interface IMeResponse {
+  code: number;
+  message: string;
+  data: IUser;
+}
+
 const LoginPage = () => {
   const { t } = useTranslation();
   const [form] = Form.useForm();
-  const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
-  const { loading, user, error } = useSelector((state: RootState) => state.auth);
+  const { loading } = useSelector((state: RootState) => state.auth);
   const accessToken = getAccessToken();
 
-  const onFinish = (values: FieldType) => {
-    dispatch({ type: LOGIN, payload: values });
-    if (user && user.id && !error && !loading) {
+  const onFinish = async (values: FieldType) => {
+    // dispatch({ type: LOGIN, payload: values });
+    // if (user && user.id && !error && !loading) {
+    //   toast.success(t("loginSuccess"));
+    //   navigate("/");
+    // } else {
+    //   toast.error(t("loginFailed"));
+    // }
+    const res = await login(values.email, values.password);
+    if (res?.success) {
+      const meResponse: AxiosResponse<IMeResponse> =
+        await axiosInstance.get(ENDPOINTS.GET_ME);
+      if (meResponse.data.code === 200) {
+        saveUserInfoToCookie(meResponse.data.data, res?.token ?? "");
+      }
       toast.success(t("loginSuccess"));
       navigate("/");
     } else {
