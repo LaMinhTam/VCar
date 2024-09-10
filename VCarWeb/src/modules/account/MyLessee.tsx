@@ -2,17 +2,18 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../store/store";
 import { IRentalData, IRentalRequestParams } from "../../store/rental/types";
 import { useMemo, useState } from "react";
-import { GET_LESSEE_REQUESTS } from "../../store/rental/action";
 import { Table, Typography, Tag, Modal } from "antd";
 import { ColumnsType, TablePaginationConfig } from "antd/es/table";
 import { FilterValue, SorterResult } from "antd/es/table/interface";
-import TripDetailDialog from "../../components/modals/TripDetailDialog";
+import { GET_LESSOR_REQUESTS } from "../../store/rental/action";
+import LesseeDetailDialog from "../../components/modals/LesseeDetailDialog";
 
-const MyTrips = () => {
-    const { lesseeListRequest, loading } = useSelector((state: RootState) => state.rental);
+const MyLessee = () => {
+
+    const { lessorListRequest, loading } = useSelector((state: RootState) => state.rental);
+    const dispatch = useDispatch();
     const [modalRecord, setModalRecord] = useState<IRentalData>({} as IRentalData);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const dispatch = useDispatch();
 
     const [params, setParams] = useState<IRentalRequestParams>({
         sortDescending: "",
@@ -22,7 +23,7 @@ const MyTrips = () => {
     });
 
     useMemo(() => {
-        dispatch({ type: GET_LESSEE_REQUESTS, payload: params });
+        dispatch({ type: GET_LESSOR_REQUESTS, payload: params });
     }, [dispatch, params]);
 
     const handleTableChange = (
@@ -128,22 +129,22 @@ const MyTrips = () => {
             <Table
                 className="w-full"
                 columns={columns}
-                dataSource={lesseeListRequest}
+                dataSource={lessorListRequest}
                 loading={loading}
                 rowKey="id"
                 pagination={{
                     pageSize: Number(params.size),
                     current: Number(params.page) + 1,
-                    total: lesseeListRequest.length,
+                    total: lessorListRequest.length,
                     showSizeChanger: true,
                 }}
                 onChange={handleTableChange}
             />
             <Modal title="Chi tiết yêu cầu" open={isModalOpen} onOk={handleOk} width={860} onCancel={handleCancel}>
-                <TripDetailDialog record={modalRecord}></TripDetailDialog>
+                <LesseeDetailDialog record={modalRecord}></LesseeDetailDialog>
             </Modal>
         </div>
     );
 };
 
-export default MyTrips;
+export default MyLessee;

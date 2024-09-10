@@ -1,6 +1,6 @@
 export const ENDPOINTS = {
   // [REQUEST]
-  RENT_REQUEST: "/rental/rent-request",
+  RENT_REQUEST: "/rental-requests/rent",
   LESSOR_APPROVE_REQUEST: "/rental-requests/approve",
   LESSOR_REJECT_REQUEST: "/rental-requests/reject",
   GET_LESSEE_REQUESTS: "/rental-requests/lessee",
@@ -13,14 +13,14 @@ export const ENDPOINTS = {
 };
 
 export const RentalRequestParams = {
-  sortDescending: "true",
-  page: "1",
+  sortDescending: "",
+  page: "0",
   size: "10",
-  status: "APPROVED",
+  status: "",
 };
 
 export const ContractParams = {
-  sortDescending: "true",
-  page: "1",
+  sortDescending: "",
+  page: "0",
   size: "10",
 };

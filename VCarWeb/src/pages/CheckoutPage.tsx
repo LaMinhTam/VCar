@@ -12,8 +12,11 @@ import Confirmation from "../modules/checkout/Confirmation";
 import { Dayjs } from "dayjs";
 import { CheckboxChangeEvent } from "antd/es/checkbox";
 import { toast } from "react-toastify";
+import { handleRentRequest } from "../store/rental/handlers";
+import { useNavigate } from "react-router-dom";
 
 const CheckoutPage = () => {
+    const navigate = useNavigate();
     const carId = localStorage.getItem('STORAGE_RENT_CAR_ID');
     const [isTermsAgreed, setIsTermsAgreed] = useState(false);
     const [startTimestamp, setStartTimestamp] = useState<number | null>(null);
@@ -45,7 +48,7 @@ const CheckoutPage = () => {
         setIsTermsAgreed(e.target.checked);
     };
 
-    const onRent = () => {
+    const onRent = async () => {
         if (!isTermsAgreed) {
             toast.error('Vui lòng đồng ý với các điều khoản và điều kiện và chính sách bảo mật.');
             return;
@@ -59,7 +62,14 @@ const CheckoutPage = () => {
             toast.error('Vui lòng chọn phương thức thanh toán.');
             return;
         } else {
-            toast.success('Thuê xe thành công!');
+            const response = await handleRentRequest(carId ?? '', startTimestamp!, endTimestamp!, province);
+            console.log("onRent ~ response:", response)
+            if (response?.success) {
+                navigate('/account/my-trips')
+                toast.success('Đã gửi yêu cầu thuê xe. Vui lòng chờ xác nhận từ chủ xe!');
+            } else {
+                toast.error('Gửi yêu cầu thuê xe thất bại. Vui lòng thử lại sau!');
+            }
         }
     }
 

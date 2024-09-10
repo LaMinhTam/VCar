@@ -1,4 +1,4 @@
-import { CarOutlined, DeleteOutlined, DragOutlined, HeartOutlined, LockOutlined, LogoutOutlined, UserOutlined } from "@ant-design/icons";
+import { CarOutlined, DeleteOutlined, DragOutlined, HeartOutlined, LockOutlined, LogoutOutlined, ShoppingCartOutlined, UserOutlined } from "@ant-design/icons";
 import { Button, Col, Divider, Row, Typography } from "antd";
 import { Link, useLocation, Outlet, useNavigate } from "react-router-dom";
 import LocationIcon from "../components/icons/LocationIcon";
@@ -29,6 +29,12 @@ const tabs = [
         path: "/account/my-trips",
         title: "Chuyến của tôi",
         icon: <DragOutlined className="text-xl" />,
+    },
+    {
+        key: "my-car-lessee",
+        path: "/account/my-car-lessee",
+        title: "Người thuê xe",
+        icon: <ShoppingCartOutlined className="text-xl" />,
     },
     {
         key: "my-address",

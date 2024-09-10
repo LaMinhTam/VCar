@@ -26,6 +26,7 @@ import MyCars from "./modules/account/MyCars.tsx";
 import MyTrips from "./modules/account/MyTrips.tsx";
 import MyAddress from "./modules/account/MyAddress.tsx";
 import ChangePassword from "./modules/account/ChangePassword.tsx";
+import MyLessee from "./modules/account/MyLessee.tsx";
 const router = createBrowserRouter([
   {
     element: <LayoutMain />,
@@ -61,6 +62,10 @@ const router = createBrowserRouter([
           {
             path: "my-trips",
             element: <MyTrips />,
+          },
+          {
+            path: "my-car-lessee",
+            element: <MyLessee />,
           },
           {
             path: "my-address",

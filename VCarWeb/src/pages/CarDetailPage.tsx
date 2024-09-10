@@ -183,8 +183,8 @@ const CarDetailPage = () => {
                     </Row>
                 </div>
             </>}
-            {loading && <div className='flex items-center justify-center'><Spin size="large"></Spin></div>}
-        </div>
+            {loading && !car?.id && <div className='flex items-center justify-center'><Spin size="large"></Spin></div>}
+        </div >
     );
 };
 
