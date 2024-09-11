@@ -9,13 +9,11 @@ import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Mono;
 import vn.edu.iuh.sv.vcarbe.dto.ApiResponseWrapper;
-import vn.edu.iuh.sv.vcarbe.entity.Notification;
 import vn.edu.iuh.sv.vcarbe.security.CurrentUser;
 import vn.edu.iuh.sv.vcarbe.security.UserPrincipal;
 import vn.edu.iuh.sv.vcarbe.service.NotificationService;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/notifications")
@@ -30,10 +28,11 @@ public class NotificationController {
             @ApiResponse(responseCode = "401", description = "Unauthorized access")
     })
     @GetMapping
-    public ResponseEntity<ApiResponseWrapper> getNotifications(
+    public Mono<ResponseEntity<ApiResponseWrapper>> getNotifications(
             @CurrentUser @Parameter(hidden = true) UserPrincipal userPrincipal) {
-        List<Notification> notifications = notificationService.getNotificationsForUser(userPrincipal.getId());
-        return ResponseEntity.ok(new ApiResponseWrapper(200, "Notifications retrieved successfully", notifications));
+        return notificationService.getNotificationsForUser(userPrincipal.getId())
+                .collectList()
+                .map(notifications -> ResponseEntity.ok(new ApiResponseWrapper(200, "Notifications retrieved successfully", notifications)));
     }
 
     @Operation(summary = "Mark a notification as read",
@@ -43,14 +42,14 @@ public class NotificationController {
             @ApiResponse(responseCode = "404", description = "Notification not found")
     })
     @PutMapping("/{id}/markAsRead")
-    public ResponseEntity<ApiResponseWrapper> markAsRead(
+    public Mono<ResponseEntity<ApiResponseWrapper>> markAsRead(
             @PathVariable
             @Parameter(
                     description = "ID of the notification to mark as read",
                     schema = @Schema(type = "string")
             )
             ObjectId id) {
-        notificationService.markAsRead(id);
-        return ResponseEntity.ok(new ApiResponseWrapper(200, "Notification marked as read", null));
+        return notificationService.markAsRead(id)
+                .map(notification -> ResponseEntity.ok(new ApiResponseWrapper(200, "Notification marked as read", notification)));
     }
 }
