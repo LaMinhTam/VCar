@@ -2,7 +2,7 @@ import { call, put } from "redux-saga/effects";
 import { AxiosResponse } from "axios";
 import { axiosPrivate } from "../../apis/axios";
 import { ENDPOINTS } from "./models";
-import { IRentalData, IRentalRequestParams } from "./types";
+import { ILessorApproveRequestResponse, IRentalData, IRentalRequestParams } from "./types";
 import {
   getLesseeRentRequest,
   getLesseeRentRequestFailure,
@@ -25,6 +25,12 @@ interface IListRentRequestResponse {
   code: number;
   message: string;
   data: IRentalData[];
+}
+
+interface IApproveRentRequestResponse {
+  code: number;
+  message: string;
+  data: ILessorApproveRequestResponse;
 }
 
 export async function handleRentRequest(
@@ -91,5 +97,35 @@ export function* lessorGetRentRequests(action: {
   } catch (error) {
     const typedError = error as Error;
     yield put(getLessorRentRequestFailure(typedError.message));
+  }
+}
+
+export async function rejectRentRequest(request_id: string) {
+  try {
+    const response: AxiosResponse<IRentRequestResponse> = await axiosPrivate.post(ENDPOINTS.LESSOR_REJECT_REQUEST, {
+      request_id,
+    })
+    const { code, data } = response.data;
+    if (code === 200) {
+      return { success: true, data };
+    }
+  } catch (error) {
+    console.error(error);
+    return { success: false, data: null };
+  }
+}
+
+export async function approveRentRequest(request_id: string) {
+  try {
+    const response: AxiosResponse<IApproveRentRequestResponse> = await axiosPrivate.post(ENDPOINTS.LESSOR_APPROVE_REQUEST, {
+      request_id,
+    })
+    const { code, data } = response.data;
+    if (code === 200) {
+      return { success: true, data };
+    }
+  } catch (error) {
+    console.error(error);
+    return { success: false, data: null };
   }
 }

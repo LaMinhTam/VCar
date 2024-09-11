@@ -4,19 +4,11 @@ import gasStationIcon from "../assets/gas-station.png";
 import transmissionIcon from "../assets/transmission.png";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-
-interface Car {
-  id: string;
-  image_url: string[];
-  name: string;
-  daily_rate: number;
-  seat: number;
-  transmission: string;
-  fuel_consumption: number;
-}
+import { DEFAULT_AVATAR } from "../config/apiConfig";
+import { ICar } from "../store/car/types";
 
 interface CarCardProps {
-  car: Car;
+  car: ICar;
 }
 
 const CarCard: React.FC<CarCardProps> = ({ car }) => {
@@ -26,7 +18,7 @@ const CarCard: React.FC<CarCardProps> = ({ car }) => {
   return (
     <div className="overflow-hidden bg-white rounded-lg shadow-md">
       <img
-        src={car.image_url[0]}
+        src={car?.image_url?.[0] || DEFAULT_AVATAR}
         alt="Car"
         className="object-cover w-full h-64 cursor-pointer"
         onClick={() => navigate(`/car/${car.id}`)}
@@ -65,7 +57,7 @@ const CarCard: React.FC<CarCardProps> = ({ car }) => {
         </div>
         <div className="flex items-center justify-between mt-5">
           <span className="font-bold text-primary-default">
-            {car.daily_rate.toLocaleString()} {t("currency")} /{" "}
+            {car?.daily_rate?.toLocaleString()} {t("currency")} /{" "}
             <span className="text-filter-range">{t("day")}</span>
           </span>
           <button className="px-4 py-2 text-white rounded bg-primary-default hover:bg-primary-dark">

@@ -141,7 +141,7 @@ const MyLessee = () => {
                 onChange={handleTableChange}
             />
             <Modal title="Chi tiết yêu cầu" open={isModalOpen} onOk={handleOk} width={860} onCancel={handleCancel}>
-                <LesseeDetailDialog record={modalRecord}></LesseeDetailDialog>
+                <LesseeDetailDialog record={modalRecord} setIsModalOpen={setIsModalOpen} setParams={setParams} params={params}></LesseeDetailDialog>
             </Modal>
         </div>
     );

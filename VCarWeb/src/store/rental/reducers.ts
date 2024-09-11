@@ -64,6 +64,9 @@ const rentalSlice = createSlice({
       state.loading = false;
       state.error = action.payload;
     },
+    setLoading(state, action: PayloadAction<boolean>) {
+      state.loading = action.payload;
+    },
   },
 });
 
