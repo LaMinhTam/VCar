@@ -6,25 +6,22 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import jakarta.validation.Valid;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Mono;
 import vn.edu.iuh.sv.vcarbe.dto.*;
 import vn.edu.iuh.sv.vcarbe.entity.Car;
 import vn.edu.iuh.sv.vcarbe.entity.Province;
 import vn.edu.iuh.sv.vcarbe.security.UserPrincipal;
 import vn.edu.iuh.sv.vcarbe.service.CarService;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/cars")
 @Tag(name = "Car Controller", description = "APIs related to car management")
 public class CarController {
-
     @Autowired
     private CarService carService;
 
@@ -34,15 +31,15 @@ public class CarController {
             @ApiResponse(responseCode = "400", description = "User is not verified or request is invalid")
     })
     @PostMapping
-    public ResponseEntity<ApiResponseWrapper> createCar(
+    public Mono<ResponseEntity<ApiResponseWrapper>> createCar(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @RequestBody Car car) {
         if (!userPrincipal.isVerify()) {
-            return ResponseEntity.badRequest().body(new ApiResponseWrapper(400, "You must verify your email, car license, citizen identification first", null));
+            return Mono.just(ResponseEntity.badRequest().body(new ApiResponseWrapper(400, "You must verify your email, car license, citizen identification first", null)));
         }
         car.setOwner(userPrincipal.getId());
-        CarDTO createdCar = carService.createCar(car);
-        return ResponseEntity.ok(new ApiResponseWrapper(200, "Car created successfully", createdCar));
+        return carService.createCar(car)
+                .map(createdCar -> ResponseEntity.ok(new ApiResponseWrapper(200, "Car created successfully", createdCar)));
     }
 
     @Operation(summary = "Update car details", description = "Updates the details of an existing car owned by the authenticated user")
@@ -51,7 +48,7 @@ public class CarController {
             @ApiResponse(responseCode = "404", description = "Car not found")
     })
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponseWrapper> updateCar(
+    public Mono<ResponseEntity<ApiResponseWrapper>> updateCar(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @Parameter(
                     description = "Car ID (must be a valid ObjectId)",
@@ -59,8 +56,8 @@ public class CarController {
             )
             @PathVariable ObjectId id,
             @RequestBody Car car) {
-        CarDTO updatedCar = carService.updateCar(userPrincipal, id, car);
-        return ResponseEntity.ok(new ApiResponseWrapper(200, "Car updated successfully", updatedCar));
+        return carService.updateCar(userPrincipal, id, car)
+                .map(updatedCar -> ResponseEntity.ok(new ApiResponseWrapper(200, "Car updated successfully", updatedCar)));
     }
 
     @Operation(summary = "Delete a car", description = "Deletes a car owned by the authenticated user")
@@ -69,15 +66,15 @@ public class CarController {
             @ApiResponse(responseCode = "404", description = "Car not found")
     })
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteCar(
+    public Mono<ResponseEntity<Object>> deleteCar(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @Parameter(
                     description = "Car ID (must be a valid ObjectId)",
                     schema = @Schema(type = "string", example = "66c1b604172236f7936e26c0")
             )
             @PathVariable ObjectId id) {
-        carService.deleteCar(userPrincipal, id);
-        return ResponseEntity.ok().build();
+        return carService.deleteCar(userPrincipal, id)
+                .map(car -> ResponseEntity.ok(new ApiResponseWrapper(200, "Car deleted successfully", null)));
     }
 
     @Operation(summary = "Find car by ID", description = "Finds a car by its ID")
@@ -86,14 +83,14 @@ public class CarController {
             @ApiResponse(responseCode = "404", description = "Car not found")
     })
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponseWrapper> findCarById(
+    public Mono<ResponseEntity<ApiResponseWrapper>> findCarById(
             @Parameter(
                     description = "Car ID (must be a valid ObjectId)",
                     schema = @Schema(type = "string", example = "66c1b604172236f7936e26c0")
             )
             @PathVariable ObjectId id) {
-        CarDetailDTO car = carService.findCarById(id);
-        return ResponseEntity.ok(new ApiResponseWrapper(200, "success", car));
+        return carService.findCarById(id)
+                .map(car -> ResponseEntity.ok(new ApiResponseWrapper(200, "success", car)));
     }
 
     @Operation(summary = "Autocomplete car search", description = "Provides autocomplete suggestions based on the search query and province")
@@ -101,11 +98,13 @@ public class CarController {
             @ApiResponse(responseCode = "200", description = "Suggestions retrieved successfully")
     })
     @GetMapping("/autocomplete")
-    public ResponseEntity<ApiResponseWrapper> autocomplete(
+    public Mono<ResponseEntity<ApiResponseWrapper>> autocomplete(
             @RequestParam String query,
             @RequestParam Province province) {
-        List<String> suggestions = carService.autocomplete(query, province);
-        return ResponseEntity.ok(new ApiResponseWrapper(200, "success", suggestions));
+        return carService.autocomplete(query, province)
+                .collectList()
+                .map(suggestions -> ResponseEntity.ok(new ApiResponseWrapper(200, "success", suggestions)));
+
     }
 
     @Operation(summary = "Search for cars", description = "Searches for cars based on the provided search criteria")
@@ -113,8 +112,10 @@ public class CarController {
             @ApiResponse(responseCode = "200", description = "Cars found successfully")
     })
     @GetMapping("/search")
-    public ResponseEntity<ApiResponseWrapper> search(SearchCriteria criteria) {
-        List<CarDTO> cars = carService.search(criteria);
-        return ResponseEntity.ok(new ApiResponseWrapper(200, "success", cars));
+    public Mono<ResponseEntity<ApiResponseWrapper>> search(SearchCriteria criteria) {
+        return carService.search(criteria)
+                .collectList()
+                .map(cars -> ResponseEntity.ok(new ApiResponseWrapper(200, "success", cars)));
+
     }
 }

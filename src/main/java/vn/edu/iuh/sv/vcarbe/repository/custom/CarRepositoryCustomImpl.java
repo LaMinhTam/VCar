@@ -1,9 +1,11 @@
 package vn.edu.iuh.sv.vcarbe.repository.custom;
 
-import com.mongodb.client.*;
+import com.mongodb.client.AggregateIterable;
+import com.mongodb.client.FindIterable;
 import com.mongodb.client.model.*;
-import org.bson.BsonDocument;
-import org.bson.BsonString;
+import com.mongodb.reactivestreams.client.MongoClient;
+import com.mongodb.reactivestreams.client.MongoCollection;
+import com.mongodb.reactivestreams.client.MongoDatabase;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
@@ -11,6 +13,8 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 import vn.edu.iuh.sv.vcarbe.dto.*;
 import vn.edu.iuh.sv.vcarbe.entity.*;
 
@@ -157,47 +161,42 @@ public class CarRepositoryCustomImpl implements CarRepositoryCustom {
     }
 
     @Override
-    public List<String> autocomplete(String query, Province province) {
+    public Flux<String> autocomplete(String query, Province province) {
         MongoCollection<Document> collection = getCollection("cars");
 
-        Bson finalQuery = buildSearchQuery(null);
+        Bson finalQuery = buildSearchQuery(new SearchCriteria());
         Bson projection = Projections.fields(
                 Projections.include("name"),
                 Projections.excludeId()
         );
 
-        FindIterable<Document> results = collection.find(finalQuery).projection(projection).limit(5);
-
-        Set<String> suggestions = new HashSet<>();
-        for (Document result : results) {
-            String name = result.getString("name");
-
-            if (name != null) {
-                suggestions.add(name);
-            }
-        }
-        return new ArrayList<>(suggestions);
+        return Flux.from(collection.find(finalQuery).projection(projection).limit(5))
+                .map(result -> result.getString("name"))
+                .distinct();
     }
 
     @Override
-    public CarDetailDTO findByIdCustom(ObjectId id) {
+    public Mono<CarDetailDTO> findByIdCustom(ObjectId id) {
         MongoCollection<Document> carCollection = getCollection("cars");
-        MongoCollection<Document> reviewCollection = getCollection("reviews");
 
         Bson idFilter = Filters.eq("_id", id);
         List<Bson> pipeline = buildPipeline(idFilter, null, null, null, null);
-        AggregateIterable<Document> carResults = carCollection.aggregate(pipeline);
-        Document carResult = carResults.first();
 
-        if (carResult == null) {
-            return null;
-        }
+        return Mono.from(carCollection.aggregate(pipeline).first())
+                .flatMap(carResult -> {
+                    if (carResult == null) {
+                        return Mono.empty();
+                    }
+                    CarModel carModel = mapCarResultToModel(carResult);
+                    Flux<ReviewDTO> reviewDTOs = getReviewsForCar(id);
+                    Flux<CarDTO> relatedCars = getRelatedCars(id, carResult);
+                    return Mono.zip(
+                            reviewDTOs.collectList(),
+                            relatedCars.collectList(),
+                            (reviews, relatedCarsList) -> new CarDetailDTO(carModel, reviews, relatedCarsList)
+                    );
+                });
 
-        CarModel carModel = mapCarResultToModel(carResult);
-        List<ReviewDTO> reviewDTOs = getReviewsForCar(id, reviewCollection);
-        List<CarDTO> relatedCars = getRelatedCars(id, carCollection, carResult);
-
-        return new CarDetailDTO(carModel, reviewDTOs, relatedCars);
     }
 
     private CarModel mapCarResultToModel(Document carResult) {
@@ -210,92 +209,65 @@ public class CarRepositoryCustomImpl implements CarRepositoryCustom {
         return carModel;
     }
 
-    private List<ReviewDTO> getReviewsForCar(ObjectId carId, MongoCollection<Document> reviewCollection) {
+    private Flux<ReviewDTO> getReviewsForCar(ObjectId carId) {
+        MongoCollection<Document> reviewCollection = getCollection("reviews");
         Bson reviewFilter = Filters.and(Filters.eq("carId", carId), Filters.eq("reviewType", "LESSEE_REVIEW"));
-        FindIterable<Document> reviewResults = reviewCollection.find(reviewFilter);
-
-        List<ReviewDTO> reviewDTOs = new ArrayList<>();
-        Set<ObjectId> lesseeIds = new HashSet<>();
-        for (Document review : reviewResults) {
-            ReviewDTO reviewDTO = new ReviewDTO(review);
-            ObjectId lesseeId = review.getObjectId("lesseeId");
-            if (lesseeId != null) {
-                lesseeIds.add(lesseeId);
-            }
-            reviewDTOs.add(reviewDTO);
-        }
-
-        if (!lesseeIds.isEmpty()) {
-            populateLesseeDetails(lesseeIds, reviewDTOs);
-        }
-
-        return reviewDTOs;
+        return Flux.from(reviewCollection.find(reviewFilter))
+                .map(ReviewDTO::new);
     }
 
-    private void populateLesseeDetails(Set<ObjectId> lesseeIds, List<ReviewDTO> reviewDTOs) {
-        MongoCollection<Document> userCollection = getCollection("users");
-        Bson userFilter = Filters.in("_id", lesseeIds);
-        FindIterable<Document> userResults = userCollection.find(userFilter);
+//    private void populateLesseeDetails(Set<ObjectId> lesseeIds, List<ReviewDTO> reviewDTOs) {
+//        MongoCollection<Document> userCollection = getCollection("users");
+//        Bson userFilter = Filters.in("_id", lesseeIds);
+//        FindIterable<Document> userResults = userCollection.find(userFilter);
+//
+//        Map<String, UserDTO> userMap = new HashMap<>();
+//        for (Document userDocument : userResults) {
+//            UserDTO userDTO = new UserDTO(userDocument);
+//            userMap.put(userDocument.getObjectId("_id").toHexString(), userDTO);
+//        }
+//
+//        for (ReviewDTO reviewDTO : reviewDTOs) {
+//            String lesseeId = reviewDTO.getLessee().getId();
+//            if (lesseeId != null) {
+//                UserDTO lesseeDTO = userMap.get(lesseeId);
+//                reviewDTO.setLessee(lesseeDTO);
+//            }
+//        }
+//    }
 
-        Map<String, UserDTO> userMap = new HashMap<>();
-        for (Document userDocument : userResults) {
-            UserDTO userDTO = new UserDTO(userDocument);
-            userMap.put(userDocument.getObjectId("_id").toHexString(), userDTO);
-        }
-
-        for (ReviewDTO reviewDTO : reviewDTOs) {
-            String lesseeId = reviewDTO.getLessee().getId();
-            if (lesseeId != null) {
-                UserDTO lesseeDTO = userMap.get(lesseeId);
-                reviewDTO.setLessee(lesseeDTO);
-            }
-        }
-    }
-
-    private List<CarDTO> getRelatedCars(ObjectId id, MongoCollection<Document> carCollection, Document carResult) {
+    private Flux<CarDTO> getRelatedCars(ObjectId id, Document carResult) {
+        MongoCollection<Document> carCollection = getCollection("cars");
         Bson relatedCarsFilter = Filters.and(
                 Filters.ne("_id", id),
                 Filters.eq("province", carResult.getString("province")),
                 Filters.eq("transmission", carResult.getString("transmission"))
         );
 
-        List<Bson> relatedCarsPipeline = Arrays.asList(
+
+        return Flux.from(carCollection.aggregate(Arrays.asList(
                 Aggregates.match(relatedCarsFilter),
                 Aggregates.project(Projections.fields(
                         Projections.computed("id", "$_id"),
                         Projections.include("name", "status", "imageUrl", "province", "location", "dailyRate", "seat", "transmission", "fuel", "fuelConsumption", "description", "features", "color", "licensePlate", "registrationNumber", "registrationDate", "registrationLocation")
                 )),
                 Aggregates.limit(5)
-        );
-
-        AggregateIterable<Document> relatedCarsResults = carCollection.aggregate(relatedCarsPipeline);
-
-        List<CarDTO> relatedCars = new ArrayList<>();
-        for (Document relatedCar : relatedCarsResults) {
-            CarDTO relatedCarDTO = modelMapper.map(relatedCar, CarDTO.class);
-            relatedCars.add(relatedCarDTO);
-        }
-
-        return relatedCars;
+        ))).map(document -> modelMapper.map(document, CarDTO.class));
     }
 
 
     @Override
-    public List<CarDTO> search(SearchCriteria criteria, Pageable pageable) {
+    public Flux<CarDTO> search(SearchCriteria criteria, Pageable pageable) {
         MongoCollection<Document> collection = getCollection("cars");
 
         Bson finalQuery = buildSearchQuery(criteria);
         List<Bson> pipeline = buildPipeline(finalQuery, pageable, new Date(criteria.getRentalStartDate()), new Date(criteria.getRentalEndDate()), criteria.getRating());
 
-        AggregateIterable<Document> results = collection.aggregate(pipeline);
-
-        List<CarDTO> carDTOs = new ArrayList<>();
-        for (Document result : results) {
-            CarDTO carDTO = modelMapper.map(result, CarDTO.class);
-            carDTO.setOwner(modelMapper.map(result.get("owner"), UserDTO.class));
-            carDTOs.add(carDTO);
-        }
-
-        return carDTOs;
+        return Flux.from(collection.aggregate(pipeline))
+                .map(result -> {
+                    CarDTO carDTO = modelMapper.map(result, CarDTO.class);
+                    carDTO.setOwner(modelMapper.map(result.get("owner"), UserDTO.class));
+                    return carDTO;
+                });
     }
 }

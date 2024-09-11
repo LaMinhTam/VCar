@@ -1,26 +1,25 @@
 package vn.edu.iuh.sv.vcarbe.service;
 
 import org.bson.types.ObjectId;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 import vn.edu.iuh.sv.vcarbe.dto.ApprovalRequest;
 import vn.edu.iuh.sv.vcarbe.dto.RentRequestDTO;
 import vn.edu.iuh.sv.vcarbe.dto.RentalContractDTO;
 import vn.edu.iuh.sv.vcarbe.dto.RentalRequestDTO;
 import vn.edu.iuh.sv.vcarbe.entity.RentRequestStatus;
-import vn.edu.iuh.sv.vcarbe.entity.RentalRequest;
 import vn.edu.iuh.sv.vcarbe.security.UserPrincipal;
 
-import java.util.List;
-
 public interface RentalRequestService {
-    RentalRequestDTO createRentalRequest(RentRequestDTO rentRequestDTO, ObjectId lesseeId);
+    Mono<RentalRequestDTO> createRentalRequest(RentRequestDTO rentRequestDTO, ObjectId lesseeId);
 
-    RentalContractDTO approveRentalContract(UserPrincipal userPrincipal, ApprovalRequest approvalRequest) throws Exception;
+    Mono<RentalContractDTO> approveRentalContract(UserPrincipal userPrincipal, ApprovalRequest approvalRequest) throws Exception;
 
-    RentalRequest rejectRentalContract(ApprovalRequest approvalRequest);
+    Mono<RentalRequestDTO> rejectRentalContract(UserPrincipal userPrincipal, ApprovalRequest approvalRequest);
 
-    List<RentalRequestDTO> getRentalRequestForLessor(ObjectId id, String sortField, boolean sortDescending, RentRequestStatus status, int page, int size);
+    Flux<RentalRequestDTO> getRentalRequestForLessor(ObjectId id, String sortField, boolean sortDescending, RentRequestStatus status, int page, int size);
 
-    List<RentalRequestDTO> getRentalRequestForLessee(ObjectId id, String sortField, boolean sortDescending, RentRequestStatus status, int page, int size);
+    Flux<RentalRequestDTO> getRentalRequestForLessee(ObjectId id, String sortField, boolean sortDescending, RentRequestStatus status, int page, int size);
 
-    RentalRequestDTO getRentalRequest(ObjectId id);
+    Mono<RentalRequestDTO> getRentalRequest(ObjectId id);
 }

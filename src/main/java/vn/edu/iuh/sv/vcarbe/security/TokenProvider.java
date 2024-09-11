@@ -10,9 +10,7 @@ import org.springframework.stereotype.Service;
 import vn.edu.iuh.sv.vcarbe.config.AppProperties;
 
 import java.security.Key;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class TokenProvider {
@@ -30,10 +28,10 @@ public class TokenProvider {
         Map<String, Object> claims = new HashMap<>();
         claims.put("email", userPrincipal.getUsername());
         claims.put("type", tokenType);
+        claims.put("roles", userPrincipal.getAuthorities());
 
         if (tokenType.equals("ACCESS")) {
             claims.put("id", userPrincipal.getId());
-            claims.put("roles", userPrincipal.getAuthorities());
         }
 
         Date now = new Date();
@@ -92,4 +90,24 @@ public class TokenProvider {
     public long getRefreshTokenExpiryMinutes() {
         return appProperties.getAuth().getTokenExpirationMsec() / 1000 / 60;
     }
+
+    public String getUsernameFromToken(String authToken) {
+        return getAllClaimsFromToken(authToken).get("email", String.class);
+    }
+    public Claims getAllClaimsFromToken(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(appProperties.getAuth().getTokenSecret().getBytes())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+    }
+
+    public List<String> getRolesFromToken(String token) {
+        Map<String, Object> claims = getAllClaimsFromToken(token);
+        List<?> roles = (List<?>) claims.get("roles");
+        return roles.stream()
+                .map(Object::toString)
+                .toList();
+    }
+
 }

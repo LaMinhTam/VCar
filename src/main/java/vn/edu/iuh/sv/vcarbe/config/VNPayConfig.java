@@ -3,6 +3,7 @@ package vn.edu.iuh.sv.vcarbe.config;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.Mac;
@@ -132,17 +133,8 @@ public class VNPayConfig {
         }
     }
 
-    public static String getIpAddress(HttpServletRequest request) {
-        String ipAdress;
-        try {
-            ipAdress = request.getHeader("X-FORWARDED-FOR");
-            if (ipAdress == null) {
-                ipAdress = request.getRemoteAddr();
-            }
-        } catch (Exception e) {
-            ipAdress = "Invalid IP:" + e.getMessage();
-        }
-        return ipAdress;
+    public static String getIpAddress(ServerHttpRequest request) {
+        return request.getRemoteAddress().getAddress().getHostAddress();
     }
 
     public static String getRandomNumber(int len) {

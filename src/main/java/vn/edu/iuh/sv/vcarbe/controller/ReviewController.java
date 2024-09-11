@@ -11,6 +11,7 @@ import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Mono;
 import vn.edu.iuh.sv.vcarbe.dto.ApiResponseWrapper;
 import vn.edu.iuh.sv.vcarbe.dto.CarReviewDTO;
 import vn.edu.iuh.sv.vcarbe.dto.LesseeReviewDTO;
@@ -26,7 +27,6 @@ import java.util.List;
 @RequestMapping("/reviews")
 @Tag(name = "Review Controller", description = "APIs related to review management")
 public class ReviewController {
-
     @Autowired
     private ReviewServiceImpl reviewService;
 
@@ -36,12 +36,13 @@ public class ReviewController {
             @ApiResponse(responseCode = "404", description = "Rental contract not found")
     })
     @PostMapping
-    public ResponseEntity<ApiResponseWrapper> addReview(
+    public Mono<ResponseEntity<ApiResponseWrapper>> addReview(
             @CurrentUser UserPrincipal userPrincipal,
             @RequestBody @Valid ReviewRequest reviewRequest) {
-        Review review = reviewService.addReview(userPrincipal, reviewRequest);
-        return ResponseEntity.ok(new ApiResponseWrapper(200, "Review added successfully", review));
+        return reviewService.addReview(userPrincipal, reviewRequest)
+                .map(review -> ResponseEntity.ok(new ApiResponseWrapper(200, "Review added successfully", review)));
     }
+
 
     @Operation(summary = "Get reviews by car ID", description = "Retrieves all reviews for a specific car")
     @ApiResponses(value = {
@@ -68,4 +69,7 @@ public class ReviewController {
         List<LesseeReviewDTO> reviews = reviewService.getReviewsByLesseeId(lesseeId);
         return ResponseEntity.ok(new ApiResponseWrapper(200, "Reviews retrieved successfully", reviews));
     }
+
+
+
 }

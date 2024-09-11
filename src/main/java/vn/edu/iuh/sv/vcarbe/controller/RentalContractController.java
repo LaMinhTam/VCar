@@ -11,15 +11,17 @@ import jakarta.validation.Valid;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Mono;
 import vn.edu.iuh.sv.vcarbe.dto.*;
+import vn.edu.iuh.sv.vcarbe.exception.AppException;
 import vn.edu.iuh.sv.vcarbe.security.CurrentUser;
 import vn.edu.iuh.sv.vcarbe.security.UserPrincipal;
 import vn.edu.iuh.sv.vcarbe.service.RentalContractService;
 import vn.edu.iuh.sv.vcarbe.service.impl.InvoiceService;
 
 import java.io.UnsupportedEncodingException;
-import java.util.List;
 
 @RestController
 @RequestMapping("/rental-contracts")
@@ -36,13 +38,14 @@ public class RentalContractController {
             @ApiResponse(responseCode = "400", description = "Invalid request or user not found")
     })
     @PostMapping("/lessee-approve")
-    public ResponseEntity<ApiResponseWrapper> createPayment(
-            HttpServletRequest req,
+    public Mono<ResponseEntity<ApiResponseWrapper>> createPayment(
+            ServerHttpRequest req,
             @CurrentUser UserPrincipal userPrincipal,
             @Valid @RequestBody SignRequest signRequest) throws UnsupportedEncodingException {
-        String paymentUrl = invoiceService.createPaymentUrl(req, userPrincipal, signRequest);
-        return ResponseEntity.ok(new ApiResponseWrapper(200, "Payment URL created", paymentUrl));
+        return invoiceService.createPaymentUrl(req, userPrincipal, signRequest)
+                .map(paymentUrl -> ResponseEntity.ok(new ApiResponseWrapper(200, "Payment URL created", paymentUrl)));
     }
+
 
     @Operation(summary = "Handle payment callback", description = "Handles the callback from VNPay after a payment is made")
     @ApiResponses(value = {
@@ -50,10 +53,11 @@ public class RentalContractController {
             @ApiResponse(responseCode = "400", description = "Invalid request or invoice not found")
     })
     @PostMapping("/payment-callback")
-    public ResponseEntity<ApiResponseWrapper> approveRentalRequest(HttpServletRequest req) throws Exception {
-        RentalContractDTO updatedContract = invoiceService.handlePaymentCallback(req);
-        return ResponseEntity.ok(new ApiResponseWrapper(200, "Payment callback handled successfully", updatedContract));
+    public Mono<ResponseEntity<ApiResponseWrapper>> approveRentalRequest(ServerHttpRequest req) {
+        return invoiceService.handlePaymentCallback(req)
+                .map(updatedContract -> ResponseEntity.ok(new ApiResponseWrapper(200, "Payment callback handled successfully", updatedContract)));
     }
+
 
     @Operation(summary = "Get rental contract by ID", description = "Fetches a rental contract by its ID")
     @ApiResponses(value = {
@@ -61,11 +65,12 @@ public class RentalContractController {
             @ApiResponse(responseCode = "404", description = "Rental contract not found")
     })
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponseWrapper> getRentalContract(
+    public Mono<ResponseEntity<ApiResponseWrapper>> getRentalContract(
             @Parameter(description = "Rental contract ID (must be a valid ObjectId)", schema = @Schema(type = "string"))
             @PathVariable ObjectId id) throws Exception {
-        RentalContractDTO rentalContract = rentalContractService.getRentalContract(id);
-        return ResponseEntity.ok(new ApiResponseWrapper(200, "Rental contract found", rentalContract));
+        return rentalContractService.getRentalContract(id)
+                .map(rentalContract -> ResponseEntity.ok(new ApiResponseWrapper(200, "Rental contract found", rentalContract)))
+                .switchIfEmpty(Mono.error(new AppException(404, "Rental contract not found")));
     }
 
     @Operation(summary = "Get rental contracts for lessor", description = "Fetches all rental contracts for the authenticated lessor with pagination and sorting options")
@@ -73,15 +78,15 @@ public class RentalContractController {
             @ApiResponse(responseCode = "200", description = "Rental contracts retrieved successfully")
     })
     @GetMapping("/lessor")
-    public ResponseEntity<ApiResponseWrapper> getRentalContractForLessor(
+    public Mono<ResponseEntity<ApiResponseWrapper>> getRentalContractForLessor(
             @CurrentUser UserPrincipal userPrincipal,
             @RequestParam(defaultValue = "createdAt") String sortField,
             @RequestParam(defaultValue = "false") boolean sortDescending,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        List<RentalContractDTO> rentalContracts = rentalContractService.getRentalContractForLessor(
-                userPrincipal.getId(), sortField, sortDescending, page, size);
-        return ResponseEntity.ok(new ApiResponseWrapper(200, "Rental contracts retrieved", rentalContracts));
+        return rentalContractService.getRentalContractForLessor(userPrincipal.getId(), sortField, sortDescending, page, size)
+                .collectList()
+                .map(rentalContracts -> ResponseEntity.ok(new ApiResponseWrapper(200, "Rental contracts retrieved", rentalContracts)));
     }
 
     @Operation(summary = "Get rental contracts for lessee", description = "Fetches all rental contracts for the authenticated lessee with pagination and sorting options")
@@ -89,14 +94,14 @@ public class RentalContractController {
             @ApiResponse(responseCode = "200", description = "Rental contracts retrieved successfully")
     })
     @GetMapping("/lessee")
-    public ResponseEntity<ApiResponseWrapper> getRentalContractForLessee(
+    public Mono<ResponseEntity<ApiResponseWrapper>> getRentalContractForLessee(
             @CurrentUser UserPrincipal userPrincipal,
             @RequestParam(defaultValue = "createdAt") String sortField,
             @RequestParam(defaultValue = "false") boolean sortDescending,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        List<RentalContractDTO> rentalContracts = rentalContractService.getRentalContractForLessee(
-                userPrincipal.getId(), sortField, sortDescending, page, size);
-        return ResponseEntity.ok(new ApiResponseWrapper(200, "Rental contracts retrieved", rentalContracts));
+        return rentalContractService.getRentalContractForLessee(userPrincipal.getId(), sortField, sortDescending, page, size)
+                .collectList()
+                .map(rentalContracts -> ResponseEntity.ok(new ApiResponseWrapper(200, "Rental contracts retrieved", rentalContracts)));
     }
 }

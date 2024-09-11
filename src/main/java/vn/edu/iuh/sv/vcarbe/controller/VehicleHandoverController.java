@@ -11,6 +11,7 @@ import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Mono;
 import vn.edu.iuh.sv.vcarbe.dto.ApiResponseWrapper;
 import vn.edu.iuh.sv.vcarbe.dto.VehicleHandoverDocumentDTO;
 import vn.edu.iuh.sv.vcarbe.dto.VehicleHandoverRequest;
@@ -23,22 +24,20 @@ import vn.edu.iuh.sv.vcarbe.service.impl.VehicleHandoverServiceImpl;
 @RequestMapping("/vehicle-handover")
 @Tag(name = "Vehicle Handover Controller", description = "APIs related to vehicle handover and return")
 public class VehicleHandoverController {
-
     @Autowired
     private VehicleHandoverServiceImpl vehicleHandoverService;
 
     @Operation(summary = "Create a new vehicle handover document", description = "Creates a new vehicle handover document for the authenticated user")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Vehicle handover document created successfully"),
-            @ApiResponse(responseCode = "403", description = "User is not authorized to create the document"),
             @ApiResponse(responseCode = "404", description = "Rental contract not found")
     })
     @PostMapping
-    public ResponseEntity<ApiResponseWrapper> createVehicleHandover(
+    public Mono<ResponseEntity<ApiResponseWrapper>> createVehicleHandover(
             @CurrentUser UserPrincipal userPrincipal,
             @RequestBody @Valid VehicleHandoverRequest request) {
-        VehicleHandoverDocumentDTO document = vehicleHandoverService.createVehicleHandover(userPrincipal, request);
-        return ResponseEntity.ok(new ApiResponseWrapper(200, "Vehicle handover document created successfully", document));
+        return vehicleHandoverService.createVehicleHandover(userPrincipal, request)
+                .map(document -> ResponseEntity.ok(new ApiResponseWrapper(200, "Vehicle handover document created successfully", document)));
     }
 
     @Operation(summary = "Approve vehicle handover by lessee", description = "Approves the vehicle handover document by the lessee")
@@ -48,12 +47,12 @@ public class VehicleHandoverController {
             @ApiResponse(responseCode = "404", description = "Vehicle handover document not found")
     })
     @PutMapping("/{id}/approve-lessee")
-    public ResponseEntity<ApiResponseWrapper> approveVehicleHandoverByLessee(
+    public Mono<ResponseEntity<ApiResponseWrapper>> approveVehicleHandoverByLessee(
             @CurrentUser UserPrincipal userPrincipal,
             @Parameter(description = "Vehicle Handover Document ID (must be a valid ObjectId)", schema = @Schema(type = "string", example = "60c72b2f9b1e8c001f0a0b4e"))
             @PathVariable ObjectId id) {
-        VehicleHandoverDocumentDTO document = vehicleHandoverService.approveByLessee(id, userPrincipal);
-        return ResponseEntity.ok(new ApiResponseWrapper(200, "Vehicle handover document approved by lessee", document));
+        return vehicleHandoverService.approveByLessee(id, userPrincipal)
+                .map(document -> ResponseEntity.ok(new ApiResponseWrapper(200, "Vehicle handover document approved by lessee", document)));
     }
 
     @Operation(summary = "Approve vehicle return by lessor", description = "Approves the vehicle return document by the lessor")
@@ -63,12 +62,12 @@ public class VehicleHandoverController {
             @ApiResponse(responseCode = "404", description = "Vehicle handover document not found")
     })
     @PutMapping("/{id}/approve-lessor")
-    public ResponseEntity<ApiResponseWrapper> approveVehicleReturnByLessor(
+    public Mono<ResponseEntity<ApiResponseWrapper>> approveVehicleReturnByLessor(
             @CurrentUser UserPrincipal userPrincipal,
             @Parameter(description = "Vehicle Handover Document ID (must be a valid ObjectId)", schema = @Schema(type = "string", example = "60c72b2f9b1e8c001f0a0b4e"))
             @PathVariable ObjectId id) {
-        VehicleHandoverDocumentDTO document = vehicleHandoverService.approveByLessor(id, userPrincipal);
-        return ResponseEntity.ok(new ApiResponseWrapper(200, "Vehicle return document approved by lessor", document));
+        return vehicleHandoverService.approveByLessor(id, userPrincipal)
+                .map(document -> ResponseEntity.ok(new ApiResponseWrapper(200, "Vehicle return document approved by lessor", document)));
     }
 
     @Operation(summary = "Update vehicle handover document with return details", description = "Updates the vehicle handover document with return details by the lessee")
@@ -78,13 +77,13 @@ public class VehicleHandoverController {
             @ApiResponse(responseCode = "404", description = "Vehicle handover document not found")
     })
     @PutMapping("/{id}/return")
-    public ResponseEntity<ApiResponseWrapper> updateVehicleHandover(
+    public Mono<ResponseEntity<ApiResponseWrapper>> updateVehicleHandover(
             @CurrentUser UserPrincipal userPrincipal,
             @Parameter(description = "Vehicle Handover Document ID (must be a valid ObjectId)", schema = @Schema(type = "string", example = "60c72b2f9b1e8c001f0a0b4e"))
             @PathVariable ObjectId id,
             @RequestBody @Valid VehicleReturnRequest request) {
-        VehicleHandoverDocumentDTO document = vehicleHandoverService.updateVehicleReturn(id, request, userPrincipal);
-        return ResponseEntity.ok(new ApiResponseWrapper(200, "Vehicle return document updated successfully", document));
+        return vehicleHandoverService.updateVehicleReturn(id, request, userPrincipal)
+                .map(document -> ResponseEntity.ok(new ApiResponseWrapper(200, "Vehicle return document updated successfully", document)));
     }
 
     @Operation(summary = "Retrieve vehicle handover document by rental contract ID", description = "Retrieves the vehicle handover document associated with a rental contract ID")
@@ -93,10 +92,10 @@ public class VehicleHandoverController {
             @ApiResponse(responseCode = "404", description = "Vehicle handover document not found")
     })
     @GetMapping("/rental-contract/{rentalContractId}")
-    public ResponseEntity<ApiResponseWrapper> getVehicleHandoverByRentalContractId(
+    public Mono<ResponseEntity<ApiResponseWrapper>> getVehicleHandoverByRentalContractId(
             @Parameter(description = "Rental Contract ID (must be a valid ObjectId)", schema = @Schema(type = "string", example = "60c72b2f9b1e8c001f0a0b4e"))
             @PathVariable ObjectId rentalContractId) {
-        VehicleHandoverDocumentDTO document = vehicleHandoverService.getVehicleHandoverByRentalContractId(rentalContractId);
-        return ResponseEntity.ok(new ApiResponseWrapper(200, "Vehicle handover document retrieved successfully", document));
+        return vehicleHandoverService.getVehicleHandoverByRentalContractId(rentalContractId)
+                .map(document -> ResponseEntity.ok(new ApiResponseWrapper(200, "Vehicle handover document retrieved successfully", document)));
     }
 }

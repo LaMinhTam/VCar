@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 import vn.edu.iuh.sv.vcarbe.dto.CarDTO;
 import vn.edu.iuh.sv.vcarbe.dto.CarDetailDTO;
 import vn.edu.iuh.sv.vcarbe.dto.SearchCriteria;
@@ -18,8 +20,6 @@ import vn.edu.iuh.sv.vcarbe.security.UserPrincipal;
 import vn.edu.iuh.sv.vcarbe.service.CarService;
 import vn.edu.iuh.sv.vcarbe.util.BeanUtils;
 
-import java.util.List;
-
 @Service
 public class CarServiceImpl implements CarService {
     @Autowired
@@ -28,44 +28,40 @@ public class CarServiceImpl implements CarService {
     private ModelMapper modelMapper;
 
     @Override
-    public CarDTO createCar(Car car) {
+    public Mono<CarDTO> createCar(Car car) {
         car.setStatus(CarStatus.AVAILABLE);
-        Car savedCar = carRepository.save(car);
-        return modelMapper.map(savedCar, CarDTO.class);
+        return carRepository.save(car)
+                .map(savedCar -> modelMapper.map(savedCar, CarDTO.class));
+    }
+
+    public Mono<CarDTO> updateCar(UserPrincipal userPrincipal, ObjectId id, Car car) {
+        return carRepository.findByOwnerAndId(userPrincipal.getId(), id)
+                .switchIfEmpty(Mono.error(new AppException(404, "Car not found")))
+                .flatMap(existingCar -> {
+                    BeanUtils.copyNonNullProperties(car, existingCar);
+                    return carRepository.save(existingCar);
+                })
+                .map(updatedCar -> modelMapper.map(updatedCar, CarDTO.class));
     }
 
     @Override
-    public CarDTO updateCar(UserPrincipal userPrincipal, ObjectId id, Car car) {
-        Car existingCar = carRepository.findByOwnerAndId(userPrincipal.getId(), id).orElseThrow(() -> new AppException(404, "Car not found with id " + id));
-
-        if (existingCar == null) {
-            car.setId(id);
-        } else {
-            BeanUtils.copyNonNullProperties(car, existingCar);
-        }
-        Car updatedCar = carRepository.save(car);
-        return modelMapper.map(updatedCar, CarDTO.class);
+    public Mono<Car> deleteCar(UserPrincipal userPrincipal, ObjectId id) {
+        return carRepository.deleteByIdAndOwner(id, userPrincipal.getId())
+                .switchIfEmpty(Mono.error(new AppException(404, "Car not found")));
     }
 
     @Override
-    public void deleteCar(UserPrincipal userPrincipal, ObjectId id) {
-        Car car = carRepository.findByOwnerAndId(userPrincipal.getId(), id)
-                .orElseThrow(() -> new AppException(404, "Car not found with id " + id));
-        carRepository.delete(car);
-    }
-
-    @Override
-    public CarDetailDTO findCarById(ObjectId id) {
+    public Mono<CarDetailDTO> findCarById(ObjectId id) {
         return carRepository.findByIdCustom(id);
     }
 
     @Override
-    public List<String> autocomplete(String query, Province province) {
+    public Flux<String> autocomplete(String query, Province province) {
         return carRepository.autocomplete(query, province);
     }
 
     @Override
-    public List<CarDTO> search(SearchCriteria criteria) {
+    public Flux<CarDTO> search(SearchCriteria criteria) {
         Pageable pageable = PageRequest.of(criteria.getPage(), criteria.getSize());
         return carRepository.search(criteria, pageable);
     }

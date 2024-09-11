@@ -8,9 +8,12 @@ import org.web3j.protocol.core.RemoteFunctionCall;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
 import org.web3j.protocol.http.HttpService;
 import org.web3j.tx.gas.StaticGasProvider;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 import vn.edu.iuh.sv.vcarbe.entity.CarRental;
 import org.web3j.tuples.generated.Tuple9;
 import vn.edu.iuh.sv.vcarbe.entity.RentalContract;
+import vn.edu.iuh.sv.vcarbe.exception.AppException;
 
 import java.math.BigInteger;
 import java.util.List;
@@ -33,8 +36,7 @@ public class BlockchainUtils {
         );
     }
 
-    public void createRentalContract(
-            RentalContract rentalContract) throws Exception {
+    public Mono<TransactionReceipt> createRentalContract(RentalContract rentalContract) {
         CarRental carRentalContract = loadCarRentalContract();
         RemoteFunctionCall<TransactionReceipt> transactionReceipt = carRentalContract.createContract(
                 rentalContract.getId().toHexString(),
@@ -47,15 +49,25 @@ public class BlockchainUtils {
                 BigInteger.valueOf((long) rentalContract.getTotalRentalValue())
         );
 
-        executeTransaction(transactionReceipt);
+        return Mono.fromCallable(() -> {
+            try {
+                return executeTransaction(transactionReceipt);
+            } catch (Exception e) {
+                throw new AppException(500, e.getMessage());
+            }
+        }).subscribeOn(Schedulers.boundedElastic());
     }
 
 
-    public void approveRentalContract(String contractId) throws Exception {
-        CarRental carRentalContract = loadCarRentalContract();
-        RemoteFunctionCall<TransactionReceipt> transactionCall = carRentalContract.approveContract(contractId);
-        executeTransaction(transactionCall);
+
+    public Mono<TransactionReceipt> approveRentalContract(String contractId) {
+        return Mono.fromCallable(() -> {
+            CarRental carRentalContract = loadCarRentalContract();
+            RemoteFunctionCall<TransactionReceipt> transactionCall = carRentalContract.approveContract(contractId);
+            return executeTransaction(transactionCall); // assuming executeTransaction returns TransactionReceipt
+        }).subscribeOn(Schedulers.boundedElastic()); // Run blocking call on a separate thread
     }
+
 
     public List getContractsByIds(List<String> contractIds) throws Exception {
         CarRental carRentalContract = loadCarRentalContract();
@@ -75,10 +87,15 @@ public class BlockchainUtils {
         return contractCall.send();
     }
 
-    public TransactionReceipt executeTransaction(RemoteFunctionCall<TransactionReceipt> transactionCall) throws Exception {
-        TransactionReceipt receipt = transactionCall.send();
+    public TransactionReceipt executeTransaction(RemoteFunctionCall<TransactionReceipt> transactionCall) {
+        TransactionReceipt receipt = null;
+        try {
+            receipt = transactionCall.send();
+        } catch (Exception e) {
+            throw new AppException(500, e.getMessage());
+        }
         if (!receipt.isStatusOK()) {
-            throw new RuntimeException("Transaction failed on blockchain");
+            throw new AppException(500, "Transaction failed with status " + receipt.getStatus());
         }
         return receipt;
     }

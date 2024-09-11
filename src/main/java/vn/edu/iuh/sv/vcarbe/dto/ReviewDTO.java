@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.bson.Document;
+import vn.edu.iuh.sv.vcarbe.entity.Review;
 
 @Data
 @AllArgsConstructor
@@ -32,6 +33,16 @@ public class ReviewDTO {
         } else {
                 reviewDTO.setLessor(new UserDTO((Document) document.get("lessorInfo")));
         }
+        return reviewDTO;
+    }
+
+    public static ReviewDTO fromReview(Review review, UserDTO lessee, UserDTO lessor) {
+        ReviewDTO reviewDTO = new ReviewDTO();
+        reviewDTO.setId(review.getId().toString());
+        reviewDTO.setComment(review.getComment());
+        reviewDTO.setRating(review.getRating());
+        reviewDTO.setLessee(lessee);
+        reviewDTO.setLessor(lessor);
         return reviewDTO;
     }
 }

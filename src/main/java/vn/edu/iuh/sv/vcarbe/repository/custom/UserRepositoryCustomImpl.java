@@ -1,46 +1,35 @@
 package vn.edu.iuh.sv.vcarbe.repository.custom;
 
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.stereotype.Repository;
+import reactor.core.publisher.Mono;
+import reactor.core.publisher.Flux;
 import vn.edu.iuh.sv.vcarbe.dto.UserDetailDTO;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 @Repository
 public class UserRepositoryCustomImpl implements UserRepositoryCustom {
 
-    private final MongoClient mongoClient;
+    private final ReactiveMongoTemplate reactiveMongoTemplate;
 
     @Autowired
-    public UserRepositoryCustomImpl(MongoClient mongoClient) {
-        this.mongoClient = mongoClient;
-    }
-
-    private MongoCollection<Document> getCollection(String collectionName) {
-        MongoDatabase database = mongoClient.getDatabase("VCar");
-        return database.getCollection(collectionName);
+    public UserRepositoryCustomImpl(ReactiveMongoTemplate reactiveMongoTemplate) {
+        this.reactiveMongoTemplate = reactiveMongoTemplate;
     }
 
     @Override
-    public UserDetailDTO getUserDetailById(ObjectId id) {
+    public Mono<UserDetailDTO> getUserDetailById(ObjectId id) {
         List<Document> aggregationPipeline = createAggregationPipeline(id);
 
-        List<Document> results = getCollection("users")
-                .aggregate(aggregationPipeline)
-                .into(new ArrayList<>());
+        return reactiveMongoTemplate.getCollection("users")
+                .flatMap(collection -> Mono.from(collection.aggregate(aggregationPipeline, Document.class)))
+                .map(UserDetailDTO::new);
 
-        if (results.isEmpty()) {
-            return null;
-        }
-
-        return new UserDetailDTO(results.get(0));
     }
 
     private List<Document> createAggregationPipeline(ObjectId userId) {
