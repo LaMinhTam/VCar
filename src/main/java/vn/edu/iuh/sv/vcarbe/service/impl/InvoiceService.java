@@ -193,7 +193,7 @@ public class InvoiceService {
     }
 
     public Mono<InvoiceDTO> getInvoiceById(UserPrincipal userPrincipal, ObjectId invoiceId) {
-        return invoiceRepository.findByInvoiceIdAndLesseeId(invoiceId, userPrincipal.getId())
+        return invoiceRepository.findByIdAndLesseeId(invoiceId, userPrincipal.getId())
                 .map(invoice -> modelMapper.map(invoice, InvoiceDTO.class));
     }
 }

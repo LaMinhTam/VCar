@@ -13,7 +13,7 @@ import java.util.Date;
 @NoArgsConstructor
 public class Invoice {
     @MongoId
-    private ObjectId invoiceId;
+    private ObjectId id;
     private ObjectId contractId;
     private ObjectId lessorId;
     private ObjectId lesseeId;

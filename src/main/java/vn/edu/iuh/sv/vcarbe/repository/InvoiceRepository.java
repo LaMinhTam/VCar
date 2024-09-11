@@ -14,5 +14,5 @@ import java.util.Optional;
 public interface InvoiceRepository extends ReactiveMongoRepository<Invoice, ObjectId> {
     Mono<Invoice> findByTxnRef(String invoiceId);
     Flux<Invoice> findByLesseeId(ObjectId lesseeId, Pageable pageable);
-    Mono<Invoice> findByInvoiceIdAndLesseeId(ObjectId invoiceId, ObjectId lesseeId);
+    Mono<Invoice> findByIdAndLesseeId(ObjectId invoiceId, ObjectId lesseeId);
 }
