@@ -1,4 +1,4 @@
-import { IRentalData, IRentalState } from "./types";
+import { IContractData, IRentalData, IRentalState } from "./types";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 const initialState: IRentalState = {
@@ -7,6 +7,8 @@ const initialState: IRentalState = {
   lesseeRequest: {} as IRentalData,
   lessorListRequest: [],
   lesseeListRequest: [],
+  lesseeListContract: [],
+  lessorListContract: [],
 };
 
 const rentalSlice = createSlice({
@@ -64,8 +66,41 @@ const rentalSlice = createSlice({
       state.loading = false;
       state.error = action.payload;
     },
-    setLoading(state, action: PayloadAction<boolean>) {
-      state.loading = action.payload;
+    getLesseeContract (state) {
+      state.loading = true;
+      state.error = null;
+    },
+    getLesseeContractSuccess (
+      state,
+      action: PayloadAction<IContractData[]>
+    ) {
+      state.loading = false;
+      state.lesseeListContract = action.payload;
+    },
+    getLesseeContractFailure (
+      state,
+      action: PayloadAction<string>
+    ) {
+      state.loading = false;
+      state.error = action.payload;
+    },
+    getLessorContract (state) {
+      state.loading = true;
+      state.error = null;
+    },
+    getLessorContractSuccess (
+      state,
+      action: PayloadAction<IContractData[]>
+    ) {
+      state.loading = false;
+      state.lessorListContract = action.payload;
+    },
+    getLessorContractFailure (
+      state,
+      action: PayloadAction<string>
+    ) {
+      state.loading = false;
+      state.error = action.payload;
     },
   },
 });
@@ -80,6 +115,12 @@ export const {
   getLessorRentRequest,
   getLessorRentRequestSuccess,
   getLessorRentRequestFailure,
+  getLesseeContract,
+  getLesseeContractSuccess,
+  getLesseeContractFailure,
+  getLessorContract,
+  getLessorContractSuccess,
+  getLessorContractFailure,
 } = rentalSlice.actions;
 
 export default rentalSlice.reducer;

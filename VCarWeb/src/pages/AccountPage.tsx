@@ -1,9 +1,9 @@
 import { CarOutlined, DeleteOutlined, DragOutlined, HeartOutlined, LockOutlined, LogoutOutlined, ShoppingCartOutlined, UserOutlined } from "@ant-design/icons";
 import { Button, Col, Divider, Row, Typography } from "antd";
 import { Link, useLocation, Outlet, useNavigate } from "react-router-dom";
-import LocationIcon from "../components/icons/LocationIcon";
 import { saveAccessToken, saveRefreshToken, saveUser } from "../utils";
 import { useAuth } from "../contexts/auth-context";
+import ContractIcon from "../components/icons/ContractIcon";
 
 const tabs = [
     {
@@ -37,10 +37,16 @@ const tabs = [
         icon: <ShoppingCartOutlined className="text-xl" />,
     },
     {
-        key: "my-address",
-        path: "/account/my-address",
-        title: "Địa chỉ của tôi",
-        icon: <LocationIcon className="text-xl" />,
+        key: "lessee-contract",
+        path: "/account/lessee-contract",
+        title: "Hợp đồng thuê xe",
+        icon: <ContractIcon className="text-xl" />,
+    },
+    {
+        key: "lessor-contract",
+        path: "/account/lessor-contract",
+        title: "Hợp đồng cho thuê xe",
+        icon: <ContractIcon className="text-xl" />,
     },
     {
         key: "change-password",

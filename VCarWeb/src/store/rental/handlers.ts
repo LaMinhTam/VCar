@@ -2,11 +2,17 @@ import { call, put } from "redux-saga/effects";
 import { AxiosResponse } from "axios";
 import { axiosPrivate } from "../../apis/axios";
 import { ENDPOINTS } from "./models";
-import { ILessorApproveRequestResponse, IRentalData, IRentalRequestParams } from "./types";
+import { IContractData, IContractParams, ILessorApproveRequestResponse, IRentalData, IRentalRequestParams } from "./types";
 import {
+  getLesseeContract,
+  getLesseeContractFailure,
+  getLesseeContractSuccess,
   getLesseeRentRequest,
   getLesseeRentRequestFailure,
   getLesseeRentRequestSuccess,
+  getLessorContract,
+  getLessorContractFailure,
+  getLessorContractSuccess,
   getLessorRentRequest,
   getLessorRentRequestFailure,
   getLessorRentRequestSuccess,
@@ -31,6 +37,12 @@ interface IApproveRentRequestResponse {
   code: number;
   message: string;
   data: ILessorApproveRequestResponse;
+}
+
+interface IContractResponse {
+  code: number;
+  message: string;
+  data: IContractData[];
 }
 
 export async function handleRentRequest(
@@ -127,5 +139,43 @@ export async function approveRentRequest(request_id: string) {
   } catch (error) {
     console.error(error);
     return { success: false, data: null };
+  }
+}
+
+export function* getLesseeContracts(action: {
+  type: string;
+  payload: IContractParams;
+}) {
+  try {
+    yield put(getLesseeContract());
+    const response: AxiosResponse<IContractResponse> = yield call(axiosPrivate.get, ENDPOINTS.GET_LESSEE_CONTRACTS, {
+      params: action.payload,
+    });
+    const { code, data } = response.data;
+    if (code === 200) {
+      yield put(getLesseeContractSuccess(data));
+    }
+  } catch (error) {
+    const typedError = error as Error;
+    yield put(getLesseeContractFailure(typedError.message));
+  }
+}
+
+export function* getLessorContracts(action: {
+  type: string;
+  payload: IContractParams;
+}) {
+  try {
+    yield put(getLessorContract());
+    const response: AxiosResponse<IContractResponse> = yield call(axiosPrivate.get, ENDPOINTS.GET_LESSOR_CONTRACTS, {
+      params: action.payload,
+    });
+    const { code, data } = response.data;
+    if (code === 200) {
+      yield put(getLessorContractSuccess(data));
+    }
+  } catch (error) {
+    const typedError = error as Error;
+    yield put(getLessorContractFailure(typedError.message));
   }
 }

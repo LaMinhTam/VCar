@@ -27,6 +27,8 @@ import MyTrips from "./modules/account/MyTrips.tsx";
 import MyAddress from "./modules/account/MyAddress.tsx";
 import ChangePassword from "./modules/account/ChangePassword.tsx";
 import MyLessee from "./modules/account/MyLessee.tsx";
+import LesseeContract from "./modules/account/LesseeContract.tsx";
+import LessorContract from "./modules/account/LessorContract.tsx";
 const router = createBrowserRouter([
   {
     element: <LayoutMain />,
@@ -66,6 +68,14 @@ const router = createBrowserRouter([
           {
             path: "my-car-lessee",
             element: <MyLessee />,
+          },
+          {
+            path: 'lessee-contract',
+            element: <LesseeContract />
+          },
+          {
+            path: 'lessor-contract',
+            element: <LessorContract />
           },
           {
             path: "my-address",
