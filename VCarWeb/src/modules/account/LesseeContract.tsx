@@ -1,15 +1,18 @@
 import { useMemo, useState } from "react";
-import { Table, Tag, Typography } from "antd";
+import { Modal, Table, Tag, Typography } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { GET_LESSEE_CONTRACTS } from "../../store/rental/action";
 import { RootState } from "../../store/store";
 import { IContractData, IContractParams } from "../../store/rental/types";
 import { TablePaginationConfig } from "antd/es/table";
 import { formatPrice } from "../../utils";
+import LesseeContractModal from "../../components/modals/LesseeContractModal";
 
 const LesseeContract = () => {
     const dispatch = useDispatch();
     const { lesseeListContract, loading } = useSelector((state: RootState) => state.rental);
+    const [modalRecord, setModalRecord] = useState<IContractData>({} as IContractData);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     const [params, setParams] = useState<IContractParams>({
         sortDescending: "",
@@ -39,13 +42,26 @@ const LesseeContract = () => {
         },
         {
             title: 'Trạng thái',
-            dataIndex: 'isLesseeSigned',
-            key: 'isLesseeSigned',
-            render: (isLesseeSigned: boolean) => (
-                <Tag color={isLesseeSigned ? 'green' : 'orange'}>
-                    {isLesseeSigned ? 'Đã ký' : 'Chưa ký'}
-                </Tag>
-            ),
+            dataIndex: 'rental_status',
+            key: 'rental_status',
+            render: (status: string) => {
+                let color = '';
+                switch (status) {
+                    case 'SIGNED':
+                        color = 'green';
+                        break;
+                    case 'PENDING':
+                        color = 'orange';
+                        break;
+                    case 'CANCELED':
+                        color = 'red';
+                        break;
+                    default:
+                        color = 'blue';
+                        break;
+                }
+                return <Tag color={color}>{status}</Tag>;
+            },
         },
         {
             title: 'Ngày tạo hợp đồng',
@@ -79,7 +95,19 @@ const LesseeContract = () => {
     ];
 
     const handleViewDetail = (record: IContractData) => {
-        // Handle view detail logic here
+        setModalRecord(record);
+        showModal();
+    };
+    const showModal = () => {
+        setIsModalOpen(true);
+    };
+
+    const handleOk = () => {
+        setIsModalOpen(false);
+    };
+
+    const handleCancel = () => {
+        setIsModalOpen(false);
     };
 
     return (
@@ -99,6 +127,9 @@ const LesseeContract = () => {
                 }}
                 onChange={handleTableChange}
             />
+            <Modal title="Chi tiết hợp đồng" open={isModalOpen} onOk={handleOk} width={860} onCancel={handleCancel}>
+                <LesseeContractModal record={modalRecord}></LesseeContractModal>
+            </Modal>
         </div>
     );
 };

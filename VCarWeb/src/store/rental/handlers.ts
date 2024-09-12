@@ -44,6 +44,11 @@ interface IContractResponse {
   message: string;
   data: IContractData[];
 }
+interface IContractByIdResponse {
+  code: number;
+  message: string;
+  data: IContractData;
+}
 
 export async function handleRentRequest(
   car_id: string,
@@ -177,5 +182,34 @@ export function* getLessorContracts(action: {
   } catch (error) {
     const typedError = error as Error;
     yield put(getLessorContractFailure(typedError.message));
+  }
+}
+
+export async function getContractById(id: string) {
+  try {
+    const response: AxiosResponse<IContractByIdResponse> = await axiosPrivate.get(ENDPOINTS.GET_CONTRACT_BY_ID(id))
+    const { code, data } = response.data;
+    if (code === 200) {
+      return { success: true, data };
+    }
+  } catch (error) {
+    const typedError = error as Error;
+    console.error(typedError.message);
+    return { success: false, data: null };
+  }
+}
+
+export async function signContract(contract_id: string) {
+  try {
+    const response: AxiosResponse<IRentRequestResponse> = await axiosPrivate.post(ENDPOINTS.LESSEE_APPROVE_CONTRACT, {
+      contract_id,
+    })
+    const { code, data } = response.data;
+    if (code === 200) {
+      return { success: true, data };
+    }
+  } catch (error) {
+    console.error(error);
+    return { success: false, data: null };
   }
 }

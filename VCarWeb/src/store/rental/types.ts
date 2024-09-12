@@ -76,5 +76,5 @@ export interface IContractData {
   extra_hourly_charge:           number;
   total_rental_value:            number;
   vehicle_hand_over_location:    string;
-  isLesseeSigned?:                boolean;
+  rental_status:                string;
 }
