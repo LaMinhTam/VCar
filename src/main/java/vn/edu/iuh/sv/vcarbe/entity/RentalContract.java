@@ -45,6 +45,9 @@ public class RentalContract extends RentalDetails {
     private String vehicleLicensePlate;
     private String vehicleName;
     private String vehicleRegistrationNumber;
+    private String vehicleColor;
+    private String vehicleBrand;
+    private int vehicleManufacturingYear;
     private String vehicleRegistrationDate;
     private String vehicleRegistrationLocation;
     private String vehicleOwnerName;
@@ -59,6 +62,8 @@ public class RentalContract extends RentalDetails {
 
     // Rental request
     private ObjectId rentalRequestId;
+    // Rental status
+    private RentalStatus rentalStatus;
 
     public RentalContract(RentalRequest rentalRequest, User lessorUser, Car car, String additionalTerms) {
         super(rentalRequest.getCarId(), rentalRequest.getLesseeId(), rentalRequest.getLessorId(), rentalRequest.getRentalStartDate(), rentalRequest.getRentalEndDate(), rentalRequest.getVehicleHandOverLocation());
@@ -70,11 +75,15 @@ public class RentalContract extends RentalDetails {
         this.vehicleName = car.getName();
         this.vehicleLicensePlate = car.getLicensePlate();
         this.vehicleRegistrationNumber = car.getRegistrationNumber();
+        this.vehicleColor = car.getColor();
+        this.vehicleBrand = car.getBrand();
+        this.vehicleManufacturingYear = car.getManufacturingYear();
         this.vehicleRegistrationDate = car.getRegistrationDate();
         this.vehicleRegistrationLocation = car.getRegistrationLocation();
         this.vehicleOwnerName = lessorUser.getDisplayName();
         this.additionalTerms = additionalTerms;
         this.rentalRequestId = rentalRequest.getId();
+        this.rentalStatus = RentalStatus.PENDING;
         setPricingDetails(car);
         calculateTotalRentalValue();
     }

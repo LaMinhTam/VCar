@@ -63,20 +63,21 @@ public class RentalContractServiceImpl implements RentalContractService {
 
     @Override
     public Mono<RentalContractDTO> signRentalContract(UserPrincipal userPrincipal, SignRequest signRequest) {
-        return rentalContractRepository.findByLesseeIdAndId(userPrincipal.getId(), signRequest.contractId())
-                .switchIfEmpty(Mono.error(new AppException(404, "Rental contract not found with id " + signRequest.contractId())))
-                .flatMap(rentalContract -> {
-                    notificationUtils.createNotification(
-                            rentalContract.getLessorId(),
-                            "Lessee has signed the contract",
-                            NotificationType.RENTAL_CONTRACT,
-                            "/rental-contracts/" + rentalContract.getId(),
-                            rentalContract.getId());
-                    return blockchainUtils.approveRentalContract(rentalContract.getId().toHexString())
-                            .flatMap(transactionReceipt -> {
-                                RentalContractDTO contractDTO = modelMapper.map(rentalContract, RentalContractDTO.class);
-                                return Mono.just(contractDTO);
-                            });
-                });
+//        return rentalContractRepository.findByLesseeIdAndId(userPrincipal.getId(), signRequest.contractId())
+//                .switchIfEmpty(Mono.error(new AppException(404, "Rental contract not found with id " + signRequest.contractId())))
+//                .flatMap(rentalContract -> {
+//                    notificationUtils.createNotification(
+//                            rentalContract.getLessorId(),
+//                            "Lessee has signed the contract",
+//                            NotificationType.RENTAL_CONTRACT,
+//                            "/rental-contracts/" + rentalContract.getId(),
+//                            rentalContract.getId());
+//                    return blockchainUtils.approveRentalContract(rentalContract.getId().toHexString())
+//                            .flatMap(transactionReceipt -> {
+//                                RentalContractDTO contractDTO = modelMapper.map(rentalContract, RentalContractDTO.class);
+//                                return Mono.just(contractDTO);
+//                            });
+//                });
+        return null;
     }
 }

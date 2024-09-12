@@ -59,42 +59,45 @@ public class InvoiceService {
                         .flatMap(lessee -> {
                             rentalContract.sign(lessee, signRequest);
 
-                            String txnRef = VNPayConfig.getRandomNumber(8);
-                            Invoice invoice = new Invoice();
-                            invoice.setContractId(rentalContract.getId());
-                            invoice.setTxnRef(txnRef);
-                            invoice.setAmount((long) (rentalContract.getTotalRentalValue() * 30L));
-                            invoice.setLesseeId(rentalContract.getLesseeId());
-                            invoice.setLessorId(rentalContract.getLessorId());
-                            invoice.setPaymentStatus(PaymentStatus.PENDING);
+                            return rentalContractRepository.save(rentalContract)
+                                    .flatMap(savedRentalContract -> {
+                                        String txnRef = VNPayConfig.getRandomNumber(8);
+                                        Invoice invoice = new Invoice();
+                                        invoice.setContractId(savedRentalContract.getId());
+                                        invoice.setTxnRef(txnRef);
+                                        invoice.setAmount((long) (savedRentalContract.getTotalRentalValue() * 30L));
+                                        invoice.setLesseeId(savedRentalContract.getLesseeId());
+                                        invoice.setLessorId(savedRentalContract.getLessorId());
+                                        invoice.setPaymentStatus(PaymentStatus.PENDING);
 
-                            Map<String, String> vnpParams = new HashMap<>();
-                            vnpParams.put("vnp_Version", vnPayConfig.getVnp_Version());
-                            vnpParams.put("vnp_Command", vnPayConfig.getVnp_Command());
-                            vnpParams.put("vnp_TmnCode", vnPayConfig.getVnp_TmnCode());
-                            vnpParams.put("vnp_Amount", String.valueOf(invoice.getAmount()));
-                            vnpParams.put("vnp_CurrCode", "VND");
-                            vnpParams.put("vnp_TxnRef", txnRef);
-                            vnpParams.put("vnp_OrderInfo", "Thanh toan don hang: " + txnRef);
-                            vnpParams.put("vnp_OrderType", "other");
-                            vnpParams.put("vnp_Locale", "vn");
-                            vnpParams.put("vnp_ReturnUrl", vnPayConfig.getVnp_ReturnUrl());
-                            vnpParams.put("vnp_IpAddr", VNPayConfig.getIpAddress(req));
+                                        Map<String, String> vnpParams = new HashMap<>();
+                                        vnpParams.put("vnp_Version", vnPayConfig.getVnp_Version());
+                                        vnpParams.put("vnp_Command", vnPayConfig.getVnp_Command());
+                                        vnpParams.put("vnp_TmnCode", vnPayConfig.getVnp_TmnCode());
+                                        vnpParams.put("vnp_Amount", String.valueOf(invoice.getAmount()));
+                                        vnpParams.put("vnp_CurrCode", "VND");
+                                        vnpParams.put("vnp_TxnRef", txnRef);
+                                        vnpParams.put("vnp_OrderInfo", "Thanh toan don hang: " + txnRef);
+                                        vnpParams.put("vnp_OrderType", "other");
+                                        vnpParams.put("vnp_Locale", "vn");
+                                        vnpParams.put("vnp_ReturnUrl", vnPayConfig.getVnp_ReturnUrl());
+                                        vnpParams.put("vnp_IpAddr", VNPayConfig.getIpAddress(req));
 
-                            Calendar cld = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));
-                            SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
-                            vnpParams.put("vnp_CreateDate", formatter.format(cld.getTime()));
-                            invoice.setCreateDate(formatter.format(cld.getTime()));
+                                        Calendar cld = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));
+                                        SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
+                                        vnpParams.put("vnp_CreateDate", formatter.format(cld.getTime()));
+                                        invoice.setCreateDate(formatter.format(cld.getTime()));
 
-                            return invoiceRepository.save(invoice)
-                                    .flatMap(savedInvoice -> {
-                                        cld.add(Calendar.MINUTE, 15);
-                                        vnpParams.put("vnp_ExpireDate", formatter.format(cld.getTime()));
+                                        return invoiceRepository.save(invoice)
+                                                .flatMap(savedInvoice -> {
+                                                    cld.add(Calendar.MINUTE, 15);
+                                                    vnpParams.put("vnp_ExpireDate", formatter.format(cld.getTime()));
 
-                                        String queryUrl = generateQueryUrl(vnpParams);
-                                        String vnpSecureHash = VNPayConfig.hmacSHA512(vnPayConfig.getSecretKey(), queryUrl);
+                                                    String queryUrl = generateQueryUrl(vnpParams);
+                                                    String vnpSecureHash = VNPayConfig.hmacSHA512(vnPayConfig.getSecretKey(), queryUrl);
 
-                                        return Mono.just(vnPayConfig.getVnp_PayUrl() + "?" + queryUrl + "&vnp_SecureHash=" + vnpSecureHash);
+                                                    return Mono.just(vnPayConfig.getVnp_PayUrl() + "?" + queryUrl + "&vnp_SecureHash=" + vnpSecureHash);
+                                                });
                                     });
                         })
                 );
@@ -129,8 +132,13 @@ public class InvoiceService {
                                 .flatMap(savedInvoice -> rentalContractRepository.findById(savedInvoice.getContractId())
                                         .switchIfEmpty(Mono.error(new AppException(HttpStatus.NOT_FOUND.value(), "Contract not found")))
                                         .flatMap(rentalContract -> {
-                                            notificationUtils.createNotification(rentalContract.getLessorId(), "Lessee has signed the contract", NotificationType.RENTAL_CONTRACT, "/rental-contracts/" + rentalContract.getId(), rentalContract.getId());
-                                            return blockchainUtils.approveRentalContract(rentalContract.getId().toHexString())
+                                            rentalContract.setRentalStatus(RentalStatus.SIGNED);
+
+                                            return rentalContractRepository.save(rentalContract)
+                                                    .doOnSuccess(updatedRentalContract -> {
+                                                        blockchainUtils.approveRentalContract(updatedRentalContract.getId().toHexString());
+                                                        notificationUtils.createNotification(rentalContract.getLessorId(), "Lessee has signed the contract", NotificationType.RENTAL_CONTRACT, "/rental-contracts/" + rentalContract.getId(), rentalContract.getId());
+                                                    })
                                                     .thenReturn(modelMapper.map(rentalContract, RentalContractDTO.class));
                                         })
                                 );

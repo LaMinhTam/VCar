@@ -59,13 +59,10 @@ public class BlockchainUtils {
     }
 
 
-
-    public Mono<TransactionReceipt> approveRentalContract(String contractId) {
-        return Mono.fromCallable(() -> {
-            CarRental carRentalContract = loadCarRentalContract();
-            RemoteFunctionCall<TransactionReceipt> transactionCall = carRentalContract.approveContract(contractId);
-            return executeTransaction(transactionCall); // assuming executeTransaction returns TransactionReceipt
-        }).subscribeOn(Schedulers.boundedElastic()); // Run blocking call on a separate thread
+    public void approveRentalContract(String contractId) {
+        CarRental carRentalContract = loadCarRentalContract();
+        RemoteFunctionCall<TransactionReceipt> transactionCall = carRentalContract.approveContract(contractId);
+        executeTransaction(transactionCall);
     }
 
 

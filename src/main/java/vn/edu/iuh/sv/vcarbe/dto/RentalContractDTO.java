@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import vn.edu.iuh.sv.vcarbe.entity.RentalStatus;
 
 import java.util.Date;
 
@@ -67,4 +68,7 @@ public class RentalContractDTO {
     private String vehicleHandOverLocation;
     private Boolean isApproved;
     private Date actionTime;
+
+    private ObjectId rentalRequestId;
+    private RentalStatus rentalStatus;
 }

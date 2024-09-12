@@ -27,6 +27,8 @@ public class Car {
     private String name;
     private int seat;
     private String color;
+    private String brand;
+    private int manufacturingYear;
     private Transmission transmission;
     private Fuel fuel;
     private double fuelConsumption;
