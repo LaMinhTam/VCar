@@ -14,4 +14,6 @@ public class CarLicense {
     private String fullName;
     private Date dob;
     private String licenseImageUrl;
+    private Date issuedDate;
+    private String issuedLocation;
 }

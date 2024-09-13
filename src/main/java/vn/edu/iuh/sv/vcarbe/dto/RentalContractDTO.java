@@ -20,21 +20,26 @@ public class RentalContractDTO {
     private Date createdAt;
 
     // Car lessee (Party A)
-    private String renterIdentityNumber;
-    private String renterIssuedDate;
-    private String renterIssuedLocation;
-    private String renterPermanentAddress;
-    private String renterContactAddress;
-    private String renterPhoneNumber;
-
+    private String lessorIdentityNumber;
+    private Date lessorIssuedDate;
+    private String lessorIssuedLocation;
+    private String lessorPermanentAddress;
+    private String lessorContactAddress;
+    private String lessorPhoneNumber;
+    private String lessorName;
     // Car lessee (Party B)
     private String lesseeIdentityNumber;
+    private Date lesseeIdentityIssuedDate;
     private String lesseePassportNumber;
+    private Date lesseePassportIssuedDate;
+    private String lesseeIdentityIssuedLocation;
     private String lesseeLicenseNumber;
+    private Date lesseeLicenseIssuedDate;
+    private String lesseeLicenseIssuedLocation;
     private String lesseePermanentAddress;
     private String lesseeContactAddress;
     private String lesseePhoneNumber;
-
+    private String lesseeName;
     // For organizations
     private String organizationRegistrationNumber;
     private String organizationHeadquarters;
@@ -69,6 +74,6 @@ public class RentalContractDTO {
     private Boolean isApproved;
     private Date actionTime;
 
-    private ObjectId rentalRequestId;
+    private String rentalRequestId;
     private RentalStatus rentalStatus;
 }

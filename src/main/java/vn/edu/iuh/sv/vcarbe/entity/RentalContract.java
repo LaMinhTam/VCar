@@ -20,20 +20,25 @@ import java.util.Date;
 public class RentalContract extends RentalDetails {
     // Car lessor (Party A)
     private String lessorIdentityNumber;
-    private String lessorIssuedDate;
+    private Date lessorIssuedDate;
     private String lessorIssuedLocation;
     private String lessorPermanentAddress;
     private String lessorContactAddress;
     private String lessorPhoneNumber;
-
+    private String lessorName;
     // For individual lessee
     private String lesseeIdentityNumber;
+    private Date lesseeIdentityIssuedDate;
     private String lesseePassportNumber;
+    private Date lesseePassportIssuedDate;
+    private String lesseeIdentityIssuedLocation;
     private String lesseeLicenseNumber;
+    private Date lesseeLicenseIssuedDate;
+    private String lesseeLicenseIssuedLocation;
     private String lesseePermanentAddress;
     private String lesseeContactAddress;
     private String lesseePhoneNumber;
-
+    private String lesseeName;
     // For organizational lessee
     private String organizationRegistrationNumber;
     private String organizationHeadquarters;
@@ -71,7 +76,10 @@ public class RentalContract extends RentalDetails {
         this.lessorIdentityNumber = lessorUser.getCitizenIdentification().getCitizenIdentificationNumber();
         this.lessorPermanentAddress = lessorUser.getCitizenIdentification().getPermanentAddress();
         this.lessorContactAddress = lessorUser.getCitizenIdentification().getContactAddress();
+        this.lessorIssuedDate = lessorUser.getCitizenIdentification().getIssuedDate();
+        this.lessorIssuedLocation = lessorUser.getCitizenIdentification().getIssuedLocation();
         this.lessorPhoneNumber = lessorUser.getPhoneNumber();
+        this.lessorName = lessorUser.getDisplayName();
         this.vehicleName = car.getName();
         this.vehicleLicensePlate = car.getLicensePlate();
         this.vehicleRegistrationNumber = car.getRegistrationNumber();
@@ -111,12 +119,17 @@ public class RentalContract extends RentalDetails {
 
     public void sign(User lesseeUser, SignRequest signRequest) {
         this.lesseeIdentityNumber = lesseeUser.getCitizenIdentification().getCitizenIdentificationNumber();
+        this.lesseeIdentityIssuedDate = lesseeUser.getCitizenIdentification().getIssuedDate();
+        this.lesseeIdentityIssuedLocation = lesseeUser.getCitizenIdentification().getIssuedLocation();
         this.lesseePassportNumber = lesseeUser.getCitizenIdentification().getPassportNumber();
+        this.lesseePassportIssuedDate = lesseeUser.getCitizenIdentification().getIssuedDate();
         this.lesseeLicenseNumber = lesseeUser.getCarLicense().getId();
+        this.lesseeLicenseIssuedDate = lesseeUser.getCarLicense().getIssuedDate();
+        this.lesseeLicenseIssuedLocation = lesseeUser.getCarLicense().getIssuedLocation();
         this.lesseePermanentAddress = lesseeUser.getCitizenIdentification().getPermanentAddress();
         this.lesseeContactAddress = lesseeUser.getCitizenIdentification().getContactAddress();
         this.lesseePhoneNumber = lesseeUser.getPhoneNumber();
-
+        this.lesseeName = lesseeUser.getDisplayName();
         this.organizationRegistrationNumber = signRequest.organizationRegistrationNumber();
         this.organizationHeadquarters = signRequest.organizationHeadquarters();
         this.legalRepresentativeName = signRequest.legalRepresentativeName();
