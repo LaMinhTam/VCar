@@ -28,11 +28,11 @@ const LesseeContractModal = ({ record }: {
         if (response?.success) {
             const vnpayUrl = response?.data;
             if (typeof vnpayUrl === 'string' || vnpayUrl instanceof URL) {
-                window.open(vnpayUrl, '_blank');
+                window.location.href = vnpayUrl.toString();
             }
         }
         setSignLoading(false);
-    }
+    };
     const handleViewContract = async () => {
         setViewLoading(true);
 

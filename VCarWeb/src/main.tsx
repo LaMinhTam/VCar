@@ -29,6 +29,7 @@ import ChangePassword from "./modules/account/ChangePassword.tsx";
 import MyLessee from "./modules/account/MyLessee.tsx";
 import LesseeContract from "./modules/account/LesseeContract.tsx";
 import LessorContract from "./modules/account/LessorContract.tsx";
+import PaymentCallBackPage from "./pages/PaymentCallBackPage.tsx";
 const router = createBrowserRouter([
   {
     element: <LayoutMain />,
@@ -87,6 +88,10 @@ const router = createBrowserRouter([
           },
         ],
       },
+      {
+        path: 'payment-callback',
+        element: <PaymentCallBackPage />
+      }
     ],
   },
   {
