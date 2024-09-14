@@ -45,6 +45,7 @@ vnp:
   vnp_ReturnUrl: ${VNP_RETURN_URL}
   vnp_ApiUrl: ${VNP_API_URL}
   vnp_Command: ${VNP_COMMAND}
+  timezone_offset: ${TIMEZONE_OFFSET}
 
 springdoc:
   api-docs:

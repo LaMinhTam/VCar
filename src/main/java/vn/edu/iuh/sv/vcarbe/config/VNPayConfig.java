@@ -30,6 +30,8 @@ public class VNPayConfig {
     private String vnp_Command;
     @Value("${vnp.vnp_ApiUrl}")
     private String vnp_ApiUrl;
+    @Value("${vnp.timezone_offset}")
+    private int timezoneOffset;
 
     public String getVnp_PayUrl() {
         return vnp_PayUrl;
@@ -57,6 +59,10 @@ public class VNPayConfig {
 
     public String getVnp_ApiUrl() {
         return vnp_ApiUrl;
+    }
+
+    public int getTimezoneOffset() {
+        return timezoneOffset;
     }
 
     public static String md5(String message) {

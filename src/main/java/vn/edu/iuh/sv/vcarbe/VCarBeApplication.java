@@ -1,6 +1,7 @@
 package vn.edu.iuh.sv.vcarbe;
 
 //import io.github.cdimascio.dotenv.Dotenv;
+
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -23,6 +24,7 @@ public class VCarBeApplication {
 //        System.setProperty("REDIS_HOST", dotenv.get("REDIS_HOST"));
 //        System.setProperty("REDIS_PORT", dotenv.get("REDIS_PORT"));
 //        System.setProperty("REDIS_PASSWORD", dotenv.get("REDIS_PASSWORD"));
+//        System.setProperty("TIMEZONE_OFFSET", dotenv.get("TIMEZONE_OFFSET"));
 
         SpringApplication.run(VCarBeApplication.class, args);
     }
