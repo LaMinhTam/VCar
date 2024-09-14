@@ -6,7 +6,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +19,7 @@ import vn.edu.iuh.sv.vcarbe.security.CurrentUser;
 import vn.edu.iuh.sv.vcarbe.security.UserPrincipal;
 import vn.edu.iuh.sv.vcarbe.service.RentalContractService;
 import vn.edu.iuh.sv.vcarbe.service.impl.InvoiceService;
+import vn.edu.iuh.sv.vcarbe.util.EthersUtils;
 
 import java.io.UnsupportedEncodingException;
 
@@ -42,10 +42,10 @@ public class RentalContractController {
             ServerHttpRequest req,
             @CurrentUser UserPrincipal userPrincipal,
             @Valid @RequestBody SignRequest signRequest) throws UnsupportedEncodingException {
+        EthersUtils.verifyMessage(signRequest.digitalSignature());
         return invoiceService.createPaymentUrl(req, userPrincipal, signRequest)
                 .map(paymentUrl -> ResponseEntity.ok(new ApiResponseWrapper(200, "Payment URL created", paymentUrl)));
     }
-
 
     @Operation(summary = "Handle payment callback", description = "Handles the callback from VNPay after a payment is made")
     @ApiResponses(value = {

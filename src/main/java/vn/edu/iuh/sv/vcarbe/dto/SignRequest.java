@@ -10,6 +10,8 @@ public record SignRequest(
         String organizationHeadquarters,
         String legalRepresentativeName,
         String legalRepresentativePosition,
-        String organizationPhoneNumber
+        String organizationPhoneNumber,
+
+        DigitalSignature digitalSignature
         ) {
 }

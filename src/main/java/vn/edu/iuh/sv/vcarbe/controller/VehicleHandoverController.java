@@ -12,13 +12,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
-import vn.edu.iuh.sv.vcarbe.dto.ApiResponseWrapper;
-import vn.edu.iuh.sv.vcarbe.dto.VehicleHandoverDocumentDTO;
-import vn.edu.iuh.sv.vcarbe.dto.VehicleHandoverRequest;
-import vn.edu.iuh.sv.vcarbe.dto.VehicleReturnRequest;
+import vn.edu.iuh.sv.vcarbe.dto.*;
 import vn.edu.iuh.sv.vcarbe.security.CurrentUser;
 import vn.edu.iuh.sv.vcarbe.security.UserPrincipal;
 import vn.edu.iuh.sv.vcarbe.service.impl.VehicleHandoverServiceImpl;
+import vn.edu.iuh.sv.vcarbe.util.EthersUtils;
 
 @RestController
 @RequestMapping("/vehicle-handover")
@@ -36,6 +34,7 @@ public class VehicleHandoverController {
     public Mono<ResponseEntity<ApiResponseWrapper>> createVehicleHandover(
             @CurrentUser UserPrincipal userPrincipal,
             @RequestBody @Valid VehicleHandoverRequest request) {
+        EthersUtils.verifyMessage(request.getDigitalSignature());
         return vehicleHandoverService.createVehicleHandover(userPrincipal, request)
                 .map(document -> ResponseEntity.ok(new ApiResponseWrapper(200, "Vehicle handover document created successfully", document)));
     }
@@ -50,7 +49,9 @@ public class VehicleHandoverController {
     public Mono<ResponseEntity<ApiResponseWrapper>> approveVehicleHandoverByLessee(
             @CurrentUser UserPrincipal userPrincipal,
             @Parameter(description = "Vehicle Handover Document ID (must be a valid ObjectId)", schema = @Schema(type = "string", example = "60c72b2f9b1e8c001f0a0b4e"))
-            @PathVariable ObjectId id) {
+            @PathVariable ObjectId id,
+            @RequestBody DigitalSignature digitalSignature) {
+        EthersUtils.verifyMessage(digitalSignature);
         return vehicleHandoverService.approveByLessee(id, userPrincipal)
                 .map(document -> ResponseEntity.ok(new ApiResponseWrapper(200, "Vehicle handover document approved by lessee", document)));
     }
@@ -65,9 +66,12 @@ public class VehicleHandoverController {
     public Mono<ResponseEntity<ApiResponseWrapper>> approveVehicleReturnByLessor(
             @CurrentUser UserPrincipal userPrincipal,
             @Parameter(description = "Vehicle Handover Document ID (must be a valid ObjectId)", schema = @Schema(type = "string", example = "60c72b2f9b1e8c001f0a0b4e"))
-            @PathVariable ObjectId id) {
-        return vehicleHandoverService.approveByLessor(id, userPrincipal)
-                .map(document -> ResponseEntity.ok(new ApiResponseWrapper(200, "Vehicle return document approved by lessor", document)));
+            @PathVariable ObjectId id,
+            @RequestBody DigitalSignature digitalSignature) {
+        EthersUtils.verifyMessage(digitalSignature);
+//        return vehicleHandoverService.approveByLessor(id, userPrincipal)
+//                .map(document -> ResponseEntity.ok(new ApiResponseWrapper(200, "Vehicle return document approved by lessor", document)));
+        return null;
     }
 
     @Operation(summary = "Update vehicle handover document with return details", description = "Updates the vehicle handover document with return details by the lessee")
@@ -82,6 +86,7 @@ public class VehicleHandoverController {
             @Parameter(description = "Vehicle Handover Document ID (must be a valid ObjectId)", schema = @Schema(type = "string", example = "60c72b2f9b1e8c001f0a0b4e"))
             @PathVariable ObjectId id,
             @RequestBody @Valid VehicleReturnRequest request) {
+        EthersUtils.verifyMessage(request.getDigitalSignature());
         return vehicleHandoverService.updateVehicleReturn(id, request, userPrincipal)
                 .map(document -> ResponseEntity.ok(new ApiResponseWrapper(200, "Vehicle return document updated successfully", document)));
     }

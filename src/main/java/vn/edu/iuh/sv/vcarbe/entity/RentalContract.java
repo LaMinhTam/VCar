@@ -5,11 +5,9 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.bson.types.ObjectId;
-import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import vn.edu.iuh.sv.vcarbe.dto.SignRequest;
 
-import java.util.Calendar;
 import java.util.Date;
 
 @Document(collection = "rental_contracts")
@@ -64,7 +62,7 @@ public class RentalContract extends RentalDetails {
     private double extraMileageCharge;
     private double extraHourlyCharge;
     private double totalRentalValue;
-
+    private String signature;
     // Rental request
     private ObjectId rentalRequestId;
     // Rental status
@@ -135,7 +133,7 @@ public class RentalContract extends RentalDetails {
         this.legalRepresentativeName = signRequest.legalRepresentativeName();
         this.legalRepresentativePosition = signRequest.legalRepresentativePosition();
         this.organizationPhoneNumber = signRequest.organizationPhoneNumber();
-
+        this.signature = signRequest.digitalSignature().signature();
         this.setUpdatedAt(new Date());
     }
 }

@@ -16,4 +16,5 @@ public class VehicleReturnRequest {
     private int fuelLevel;
     private String personalItems;
     private List<String> returnedItems;
+    private DigitalSignature digitalSignature;
 }

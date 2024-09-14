@@ -19,4 +19,5 @@ public class VehicleHandoverRequest {
     private int fuelLevel;
     private String personalItems;
     private List<Collateral> collateral;
+    private DigitalSignature digitalSignature;
 }
