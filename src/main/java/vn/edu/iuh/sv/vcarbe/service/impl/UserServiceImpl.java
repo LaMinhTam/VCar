@@ -46,7 +46,7 @@ public class UserServiceImpl implements UserService {
     public Mono<UserDTO> updateCarLicense(ObjectId userId, UpdateCarLicenseDTO updateCarLicenseDTO) {
         return getUserByIdFromRepository(userId)
                 .flatMap(user -> {
-                    CarLicense license = new CarLicense(updateCarLicenseDTO.id(), updateCarLicenseDTO.fullName(), updateCarLicenseDTO.dob(), updateCarLicenseDTO.licenseImageUrl());
+                    CarLicense license = new CarLicense(updateCarLicenseDTO.id(), updateCarLicenseDTO.fullName(), updateCarLicenseDTO.dob(), updateCarLicenseDTO.licenseImageUrl(), updateCarLicenseDTO.issuedDate(), updateCarLicenseDTO.issuedLocation());
                     user.setCarLicense(license);
                     return userRepository.save(user);
                 })
