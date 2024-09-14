@@ -84,7 +84,7 @@ public class InvoiceService {
                                         vnpParams.put("vnp_IpAddr", VNPayConfig.getIpAddress(req));
 
                                         Calendar cld = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));
-                                        cld.add(Calendar.HOUR, vnPayConfig.getTimezoneOffset())
+                                        cld.add(Calendar.HOUR, vnPayConfig.getTimezoneOffset());
                                         SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
                                         vnpParams.put("vnp_CreateDate", formatter.format(cld.getTime()));
                                         invoice.setCreateDate(formatter.format(cld.getTime()));
