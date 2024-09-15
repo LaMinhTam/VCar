@@ -14,6 +14,10 @@ interface CarCardProps {
 const CarCard: React.FC<CarCardProps> = ({ car }) => {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const handleRentNow = () => {
+    localStorage.setItem("STORAGE_RENT_CAR_ID", car.id);
+    navigate("/checkout");
+  }
 
   return (
     <div className="overflow-hidden bg-white rounded-lg shadow-md">
@@ -60,7 +64,7 @@ const CarCard: React.FC<CarCardProps> = ({ car }) => {
             {car?.daily_rate?.toLocaleString()} {t("currency")} /{" "}
             <span className="text-filter-range">{t("day")}</span>
           </span>
-          <button className="px-4 py-2 text-white rounded bg-primary-default hover:bg-primary-dark">
+          <button className="px-4 py-2 text-white rounded bg-primary-default hover:bg-primary-dark" onClick={handleRentNow}>
             {t("rentNow")}
           </button>
         </div>

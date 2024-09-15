@@ -1,8 +1,8 @@
-import { Avatar, Button, Col, Divider, Row, Tag, Typography } from "antd";
+import { Avatar, Button, Col, Divider, Modal, Row, Tag, Typography } from "antd";
 import { IContractData } from "../../store/rental/types";
 import RentalSummary from "../../modules/checkout/RentalSummary";
-import { calculateDays, getUserInfoFromCookie } from "../../utils";
-import { useEffect, useState } from "react";
+import { calculateDays, getUserInfoFromCookie, handleMetaMaskSignature } from "../../utils";
+import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { GET_CAR_BY_ID } from "../../store/car/action";
 import { RootState } from "../../store/store";
@@ -12,6 +12,8 @@ import { signContract } from "../../store/rental/handlers";
 import PizZip from 'pizzip';
 import Docxtemplater from 'docxtemplater';
 import { saveAs } from 'file-saver';
+import SignatureCanvas from 'react-signature-canvas';
+import { message } from "antd";
 
 const LesseeContractModal = ({ record }: {
     record: IContractData;
@@ -21,9 +23,21 @@ const LesseeContractModal = ({ record }: {
     const [viewLoading, setViewLoading] = useState(false);
     const numberOfDays = calculateDays(record?.rental_start_date, record?.rental_end_date);
     const { carDetail } = useSelector((state: RootState) => state.car);
+    const [isSignaturePadVisible, setIsSignaturePadVisible] = useState(false);
+    const sigCanvas = useRef<SignatureCanvas>(null);
     const { car } = carDetail;
     const handleSignContract = async () => {
         setSignLoading(true);
+        const signatureResult = await handleMetaMaskSignature(userInfo.display_name);
+        if (!signatureResult) {
+            message.error("Failed to get signature from MetaMask");
+            setSignLoading(false);
+            return;
+        }
+        const { account, signature, msg } = signatureResult;
+        console.log("handleSignContract ~ msg:", msg)
+        console.log("handleSignContract ~ signature:", signature)
+        console.log("handleSignContract ~ account:", account)
         const response = await signContract(record?.id);
         if (response?.success) {
             const vnpayUrl = response?.data;
@@ -226,6 +240,20 @@ const LesseeContractModal = ({ record }: {
                     totalDays={numberOfDays}
                 ></RentalSummary>
             </Col>
+            <Modal
+                title="Sign to Approve"
+                visible={isSignaturePadVisible}
+                onOk={handleSignContract}
+                onCancel={() => setIsSignaturePadVisible(false)}
+                okText="Approve"
+                cancelText="Cancel"
+            >
+                <SignatureCanvas
+                    ref={sigCanvas}
+                    penColor="black"
+                    canvasProps={{ width: 500, height: 200, className: 'sigCanvas' }}
+                />
+            </Modal>
         </Row>
     );
 };

@@ -1,8 +1,8 @@
-import { Avatar, Button, Col, Divider, Row, Tag, Typography } from "antd";
+import { useState, useEffect, useRef } from 'react';
+import { Avatar, Button, Col, Divider, Row, Tag, Typography, Modal } from "antd";
 import { IRentalData, IRentalRequestParams } from "../../store/rental/types";
 import RentalSummary from "../../modules/checkout/RentalSummary";
-import { calculateDays } from "../../utils";
-import { useEffect, useState } from "react";
+import { calculateDays, getUserInfoFromCookie, handleMetaMaskSignature } from "../../utils";
 import { useDispatch, useSelector } from "react-redux";
 import { GET_CAR_BY_ID } from "../../store/car/action";
 import { RootState } from "../../store/store";
@@ -12,6 +12,7 @@ import { IUser } from "../../store/auth/types";
 import { axiosPrivate } from "../../apis/axios";
 import { approveRentRequest, rejectRentRequest } from "../../store/rental/handlers";
 import { toast } from "react-toastify";
+import SignatureCanvas from 'react-signature-canvas';
 
 const LesseeDetailDialog = ({ record, setIsModalOpen, params, setParams }: {
     record: IRentalData;
@@ -19,16 +20,20 @@ const LesseeDetailDialog = ({ record, setIsModalOpen, params, setParams }: {
     params: IRentalRequestParams;
     setParams: (params: IRentalRequestParams) => void;
 }) => {
+    const userInfo = getUserInfoFromCookie();
     const numberOfDays = calculateDays(record?.rental_start_date, record?.rental_end_date);
     const [user, setUser] = useState<IUser>();
     const { carDetail } = useSelector((state: RootState) => state.car);
     const { car } = carDetail;
     const [approveLoading, setApproveLoading] = useState(false);
     const [rejectLoading, setRejectLoading] = useState(false);
+    const [isSignaturePadVisible, setIsSignaturePadVisible] = useState(false);
+    const sigCanvas = useRef<SignatureCanvas>(null);
     const dispatch = useDispatch();
+
     useEffect(() => {
         dispatch({ type: GET_CAR_BY_ID, payload: record?.car_id });
-    }, [dispatch, record?.car_id])
+    }, [dispatch, record?.car_id]);
 
     useEffect(() => {
         async function fetchUser() {
@@ -42,10 +47,12 @@ const LesseeDetailDialog = ({ record, setIsModalOpen, params, setParams }: {
             }
         }
         fetchUser();
-    }, [record?.lessee_id])
+    }, [record?.lessee_id]);
 
     const handleApproveRentRequest = async () => {
         setApproveLoading(true);
+        // You can send the signature to your backend if needed
+        const { account, signature, message } = await handleMetaMaskSignature(userInfo?.display_name || '');
         const response = await approveRentRequest(record.id);
         if (response?.success) {
             setApproveLoading(false);
@@ -58,7 +65,7 @@ const LesseeDetailDialog = ({ record, setIsModalOpen, params, setParams }: {
             toast.error('Duyệt yêu cầu thuê xe thất bại!');
             setApproveLoading(false);
         }
-    }
+    };
 
     const handleRejectRentRequest = async () => {
         setRejectLoading(true);
@@ -74,7 +81,7 @@ const LesseeDetailDialog = ({ record, setIsModalOpen, params, setParams }: {
             toast.error('Từ chối yêu cầu thuê xe thất bại!');
             setRejectLoading(false);
         }
-    }
+    };
 
     if (!record) return null;
     return (
@@ -118,7 +125,7 @@ const LesseeDetailDialog = ({ record, setIsModalOpen, params, setParams }: {
                         <Divider className="m-0"></Divider>
                         {record.status === 'PENDING' && <Col span={24}>
                             <div className="flex items-center justify-end gap-x-3">
-                                <Button type="primary" onClick={handleApproveRentRequest} loading={approveLoading} disabled={rejectLoading}>APPROVE</Button>
+                                <Button type="primary" onClick={() => setIsSignaturePadVisible(true)} loading={approveLoading} disabled={rejectLoading}>APPROVE</Button>
                                 <Button type="primary" danger onClick={handleRejectRentRequest} loading={rejectLoading} disabled={approveLoading}>REJECT</Button>
                             </div>
                         </Col>}
@@ -131,6 +138,20 @@ const LesseeDetailDialog = ({ record, setIsModalOpen, params, setParams }: {
                     totalDays={numberOfDays}
                 ></RentalSummary>
             </Col>
+            <Modal
+                title="Sign to Approve"
+                visible={isSignaturePadVisible}
+                onOk={handleApproveRentRequest}
+                onCancel={() => setIsSignaturePadVisible(false)}
+                okText="Approve"
+                cancelText="Cancel"
+            >
+                <SignatureCanvas
+                    ref={sigCanvas}
+                    penColor="black"
+                    canvasProps={{ width: 500, height: 200, className: 'sigCanvas' }}
+                />
+            </Modal>
         </Row>
     );
 };

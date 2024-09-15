@@ -1,10 +1,11 @@
 import Cookies from "js-cookie";
-
+import { ethers } from 'ethers';
 import { jwtDecode } from "jwt-decode";
 import { IUser } from "../store/auth/types";
 import CryptoJS from "crypto-js";
 import numeral from "numeral";
 import moment from "moment";
+import { message } from "antd";
 
 const accessTokenKey = "VCAR_ACCESS_TOKEN";
 const refreshTokenKey = "VCAR_REFRESH_TOKEN";
@@ -136,4 +137,26 @@ export const calculateDays = (
   const differenceInMilliseconds = endTimestamp - startTimestamp;
   const numberOfDays = differenceInMilliseconds / millisecondsPerDay;
   return parseFloat(numberOfDays.toFixed(1));
+};
+
+export const handleMetaMaskSignature = async (username: string) => {
+  if (window?.ethereum && username) {
+      try {
+          const provider = new ethers.BrowserProvider(window?.ethereum);
+          const accounts = await provider.send("eth_requestAccounts", []);
+          const account = accounts[0];
+          const message = `Approve rental request for ${username}`;
+          const signature = await provider.send("personal_sign", [message, account]);
+          return {
+              account,
+              signature,
+              msg: message,
+          };
+      } catch (error) {
+          console.error(error);
+          message.error('Failed to sign with MetaMask');
+      }
+  } else {
+      message.error('MetaMask is not installed or user data is missing');
+  }
 };
