@@ -18,6 +18,7 @@ import vn.edu.iuh.sv.vcarbe.entity.RentalRequest;
 import vn.edu.iuh.sv.vcarbe.security.CurrentUser;
 import vn.edu.iuh.sv.vcarbe.security.UserPrincipal;
 import vn.edu.iuh.sv.vcarbe.service.RentalRequestService;
+import vn.edu.iuh.sv.vcarbe.util.EthersUtils;
 
 import java.util.List;
 
@@ -54,7 +55,8 @@ public class RentalRequestController {
     @PostMapping("/approve")
     public Mono<ResponseEntity<ApiResponseWrapper>> approveRentalRequest(
             @CurrentUser UserPrincipal userPrincipal,
-            @Valid @RequestBody ApprovalRequest approvalRequest) throws Exception {
+            @RequestBody ApprovalRequest approvalRequest) throws Exception {
+        EthersUtils.verifyMessage(approvalRequest.digitalSignature());
         return rentalRequestService.approveRentalContract(userPrincipal, approvalRequest)
                 .map(updatedContract -> ResponseEntity.ok(new ApiResponseWrapper(200, "Rental contract approved successfully", updatedContract)));
     }
