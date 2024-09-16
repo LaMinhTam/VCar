@@ -3,9 +3,6 @@ package vn.edu.iuh.sv.vcarbe.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.bson.types.ObjectId;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
 import vn.edu.iuh.sv.vcarbe.entity.RentalStatus;
 
 import java.util.Date;
@@ -15,8 +12,8 @@ import java.util.Date;
 @NoArgsConstructor
 public class RentalContractDTO {
     private String id;
-    private String owner;
-    private String lessee;
+    private String lessorId;
+    private String lesseeId;
     private Date createdAt;
 
     // Car lessee (Party A)
