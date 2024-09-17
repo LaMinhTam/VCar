@@ -58,14 +58,18 @@ export interface ILessorApproveRequestResponse {
 
 export interface IContractData {
   id:                            string;
-  owner:                         string;
-  lessee:                        string;
+  lessor_id:                     string;
+  lessee_id:                     string;
   created_at:                    number;
+  lessor_identity_number:        string;
+  lessor_permanent_address:      string;
+  lessor_contact_address:        string;
+  lessor_phone_number:           string;
   car_id:                        string;
   vehicle_license_plate:         string;
   vehicle_manufacturing_year:    number;
   vehicle_registration_number:   string;
-  vehicle_registration_date:     string;
+  vehicle_registration_date:     Date;
   vehicle_registration_location: string;
   vehicle_owner_name:            string;
   rental_price_per_day:          number;
@@ -76,8 +80,10 @@ export interface IContractData {
   extra_hourly_charge:           number;
   total_rental_value:            number;
   vehicle_hand_over_location:    string;
-  rental_status:                string;
+  rental_request_id:             string;
+  rental_status:                 string;
 }
+
 
 export interface IDigitalSignature {
   signature: string;

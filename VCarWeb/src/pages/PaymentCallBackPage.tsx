@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { axiosPrivate } from '../apis/axios';
 import { Spin, Typography } from 'antd';
 import { toast } from 'react-toastify';
@@ -7,7 +7,7 @@ const PaymentCallBackPage = () => {
     const [loading, setLoading] = useState(true);
     const [isPaymentSuccess, setIsPaymentSuccess] = useState(false);
 
-    useEffect(() => {
+    useMemo(() => {
         const url = window.location.href;
         const [, queryString] = url.split('?');
         async function confirmPayment() {

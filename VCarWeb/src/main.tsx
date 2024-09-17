@@ -1,4 +1,4 @@
-import { StrictMode, Suspense } from "react";
+import { Suspense } from "react";
 import { createRoot } from "react-dom/client";
 import { Provider } from "react-redux";
 import "./index.scss";
@@ -106,22 +106,20 @@ const router = createBrowserRouter([
 ]);
 
 createRoot(document.getElementById("root")!).render(
-  <StrictMode>
-    <Provider store={store}>
-      <AuthProvider value={{} as AuthContextType}>
-        <App>
-          <Suspense
-            fallback={
-              <div className="flex items-center justify-center w-full h-screen mx-auto">
-                <Loading />
-              </div>
-            }
-          >
-            <RouterProvider router={router}></RouterProvider>
-          </Suspense>
-        </App>
-        <ToastContainer bodyClassName="font-primary text-sm"></ToastContainer>
-      </AuthProvider>
-    </Provider>
-  </StrictMode>
+  <Provider store={store}>
+    <AuthProvider value={{} as AuthContextType}>
+      <App>
+        <Suspense
+          fallback={
+            <div className="flex items-center justify-center w-full h-screen mx-auto">
+              <Loading />
+            </div>
+          }
+        >
+          <RouterProvider router={router}></RouterProvider>
+        </Suspense>
+      </App>
+      <ToastContainer bodyClassName="font-primary text-sm"></ToastContainer>
+    </AuthProvider>
+  </Provider>
 );
