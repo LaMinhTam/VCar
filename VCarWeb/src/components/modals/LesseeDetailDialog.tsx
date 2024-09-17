@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Avatar, Button, Col, Divider, Row, Tag, Typography, Modal } from "antd";
+import { Avatar, Button, Col, Divider, Row, Tag, Typography, Modal, message } from "antd";
 import { IRentalData, IRentalRequestParams } from "../../store/rental/types";
 import RentalSummary from "../../modules/checkout/RentalSummary";
 import { calculateDays, getUserInfoFromCookie, handleMetaMaskSignature } from "../../utils";
@@ -52,8 +52,18 @@ const LesseeDetailDialog = ({ record, setIsModalOpen, params, setParams }: {
     const handleApproveRentRequest = async () => {
         setApproveLoading(true);
         // You can send the signature to your backend if needed
-        const { account, signature, message } = await handleMetaMaskSignature(userInfo?.display_name || '');
-        const response = await approveRentRequest(record.id);
+        const signatureResult = await handleMetaMaskSignature(userInfo.id);
+        if (!signatureResult) {
+            message.error("Failed to get signature from MetaMask");
+            setApproveLoading(false);
+            return;
+        }
+        const { account, signature, msg } = signatureResult;
+        const response = await approveRentRequest(record.id, {
+            address: account,
+            signature,
+            message: msg,
+        });
         if (response?.success) {
             setApproveLoading(false);
             setIsModalOpen(false);
@@ -141,7 +151,11 @@ const LesseeDetailDialog = ({ record, setIsModalOpen, params, setParams }: {
             <Modal
                 title="Sign to Approve"
                 visible={isSignaturePadVisible}
-                onOk={handleApproveRentRequest}
+                onOk={() => {
+                    sigCanvas.current?.clear();
+                    setIsSignaturePadVisible(false);
+                    handleApproveRentRequest();
+                }}
                 onCancel={() => setIsSignaturePadVisible(false)}
                 okText="Approve"
                 cancelText="Cancel"

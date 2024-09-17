@@ -6,6 +6,8 @@ import CryptoJS from "crypto-js";
 import numeral from "numeral";
 import moment from "moment";
 import { message } from "antd";
+import axios from "axios";
+import { Dispatch } from "@reduxjs/toolkit";
 
 const accessTokenKey = "VCAR_ACCESS_TOKEN";
 const refreshTokenKey = "VCAR_REFRESH_TOKEN";
@@ -160,3 +162,71 @@ export const handleMetaMaskSignature = async (username: string) => {
       message.error('MetaMask is not installed or user data is missing');
   }
 };
+
+// export const handleUploadFile = async (
+//   formData: FormData,
+//   dispatch: Dispatch<any>
+// ) => {
+//   try {
+//       const response = await axios.post(
+//           `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/upload`,
+//           formData,
+//           {
+//               onUploadProgress: (progressEvent) => {
+//                   if (typeof progressEvent.total === "number") {
+//                       const percentCompleted = Math.round(
+//                           (progressEvent.loaded * 100) / progressEvent.total
+//                       );
+//                       dispatch(setProgress(percentCompleted));
+//                   } else {
+//                       toast.warn("Total size is undefined.");
+//                       dispatch(setProgress(0));
+//                   }
+//               },
+//           }
+//       );
+//       const imageUrl = response.data.secure_url;
+//       if (imageUrl) {
+//           return imageUrl;
+//       }
+//   } catch (error) {
+//       console.error("Error uploading file:", error);
+//   }
+// };
+
+// export const handleDeleteFile = async (fileUrl: string) => {
+//   try {
+//       const urlParts = fileUrl.split("/");
+//       const fileName = urlParts[urlParts.length - 1];
+//       const [publicId] = fileName.split(".");
+//       const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+//       const timestamp = new Date().getTime();
+//       const signature = generateSHA1(
+//           generateSignature(
+//               publicId,
+//               process.env.NEXT_PUBLIC_CLOUDINARY_API_SECRET as string,
+//               timestamp
+//           )
+//       );
+
+//       const response = await axiosInstance.post(
+//           `https://api.cloudinary.com/v1_1/${cloudName}/image/destroy`,
+//           {
+//               public_id: publicId,
+//               timestamp,
+//               api_key: process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY,
+//               signature,
+//           }
+//       );
+//       console.log("handleDeleteFile ~ response:", response);
+
+//       // Check the response
+//       if (response.data.result === "ok") {
+//           return true;
+//       } else {
+//           return false;
+//       }
+//   } catch (error) {
+//       console.error("Error deleting file:", error);
+//   }
+// };

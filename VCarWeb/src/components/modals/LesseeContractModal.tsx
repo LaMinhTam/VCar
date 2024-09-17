@@ -28,17 +28,18 @@ const LesseeContractModal = ({ record }: {
     const { car } = carDetail;
     const handleSignContract = async () => {
         setSignLoading(true);
-        const signatureResult = await handleMetaMaskSignature(userInfo.display_name);
+        const signatureResult = await handleMetaMaskSignature(userInfo.id);
         if (!signatureResult) {
             message.error("Failed to get signature from MetaMask");
             setSignLoading(false);
             return;
         }
         const { account, signature, msg } = signatureResult;
-        console.log("handleSignContract ~ msg:", msg)
-        console.log("handleSignContract ~ signature:", signature)
-        console.log("handleSignContract ~ account:", account)
-        const response = await signContract(record?.id);
+        const response = await signContract(record?.id, {
+            signature,
+            message: msg,
+            address: account
+        });
         if (response?.success) {
             const vnpayUrl = response?.data;
             if (typeof vnpayUrl === 'string' || vnpayUrl instanceof URL) {
@@ -63,60 +64,6 @@ const LesseeContractModal = ({ record }: {
             paragraphLoop: true,
             linebreaks: true,
         });
-
-        // Dữ liệu mẫu để thay thế trong file hợp đồng
-        // const data = {
-        //     Day: new Date().getDate(),
-        //     Month: new Date().getMonth() + 1,
-        //     Year: new Date().getFullYear(),
-        //     DiaDiem: 'Hồ Chí Minh',
-        //     TenBenA: 'Công ty TNHH VCar',
-        //     CMNDBenA: '123456789',
-        //     A1_D: '01',
-        //     A1_M: '01',
-        //     A1_Y: '2020',
-        //     A1_Z: 'Hồ Chí Minh',
-        //     DiaChiBenA: '123 Đường ABC, Quận XYZ, TP.HCM',
-        //     DienThoaiBenA: '0123456789',
-        //     TenBenB: 'Nguyễn Văn A',
-        //     CMNDBenB: '987654321',
-        //     B1_D: '01',
-        //     B1_M: '01',
-        //     B1_Y: '2020',
-        //     B1_Z: 'Hà Nội',
-        //     PassportBenB: 'P123456',
-        //     B2_D: '01',
-        //     B2_M: '01',
-        //     B2_Y: '2020',
-        //     B2_Z: 'Hà Nội',
-        //     GPLXBenB: 'G123456',
-        //     B3_D: '01',
-        //     B3_M: '01',
-        //     B3_Y: '2020',
-        //     B3_Z: 'Hà Nội',
-        //     DiaChiBenB: '456 Đường XYZ, Quận ABC, TP.HCM',
-        //     DienThoaiBenB: '0987654321',
-        //     BienSoXe: '51A-12345',
-        //     NhanHieu: 'Toyota',
-        //     NamSanXuat: '2021',
-        //     MauXe: 'Đen',
-        //     SoDKXe: '123456789',
-        //     NgayCapGiayDK: '01/01/2021',
-        //     NoiCapGiayDK: 'Hồ Chí Minh',
-        //     TenChuXe: 'Công ty TNHH VCar',
-        //     DonGiaThue: '1.000.000',
-        //     GioiHanQuangDuong: '300',
-        //     PhiVuotQuangDuong: '5.000',
-        //     GioBDThue: '08',
-        //     PhutBDThue: '00',
-        //     NgayBDThue: '01/01/2023',
-        //     GioKTThue: '08',
-        //     PhutKTThue: '00',
-        //     NgayKTThue: '05/01/2023',
-        //     PhiVuotTGThue: '100.000',
-        //     TongTienThue: '10.000.000',
-        //     DiaDiemBanGiaoXe: '123 Đường ABC, Quận XYZ, TP.HCM'
-        // };
 
         // Điền dữ liệu vào template
         const data = {
@@ -225,12 +172,12 @@ const LesseeContractModal = ({ record }: {
                                         record.rental_status === 'CANCELED' ? 'red' : 'blue'
                             }>{record.rental_status}</Tag></Typography.Title>
                         </Col>
-                        {record.rental_status === 'PENDING' && <Col span={24}>
+                        <Col span={24}>
                             <div className="flex items-center justify-end gap-x-3">
-                                <Button type="primary" onClick={handleSignContract} loading={signLoading} disabled={viewLoading}>SIGN</Button>
+                                {record.rental_status === 'PENDING' && <Button type="primary" onClick={() => setIsSignaturePadVisible(true)} loading={signLoading}>Sign Contract</Button>}
                                 <Button type="primary" danger onClick={handleViewContract} loading={viewLoading} disabled={signLoading}>View Contract</Button>
                             </div>
-                        </Col>}
+                        </Col>
                     </Row>
                 </div>
             </Col>
@@ -243,7 +190,11 @@ const LesseeContractModal = ({ record }: {
             <Modal
                 title="Sign to Approve"
                 visible={isSignaturePadVisible}
-                onOk={handleSignContract}
+                onOk={() => {
+                    sigCanvas.current?.clear();
+                    setIsSignaturePadVisible(false);
+                    handleSignContract();
+                }}
                 onCancel={() => setIsSignaturePadVisible(false)}
                 okText="Approve"
                 cancelText="Cancel"

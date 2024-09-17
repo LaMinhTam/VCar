@@ -1,19 +1,21 @@
 import { useEffect, useState } from 'react';
 import { axiosPrivate } from '../apis/axios';
-import { Typography } from 'antd';
+import { Spin, Typography } from 'antd';
 import { toast } from 'react-toastify';
 
 const PaymentCallBackPage = () => {
     const [loading, setLoading] = useState(true);
-    const url = window.location.href;
-    const [queryString] = url.split('?');
+    const [isPaymentSuccess, setIsPaymentSuccess] = useState(false);
 
     useEffect(() => {
+        const url = window.location.href;
+        const [, queryString] = url.split('?');
         async function confirmPayment() {
             try {
                 const response = await axiosPrivate.post(`/rental-contracts/payment-callback?${queryString}`);
                 const { code } = response.data;
                 if (code === 200) {
+                    setIsPaymentSuccess(true);
                     toast.success('Thanh toán thành công');
                     setLoading(false);
                 }
@@ -26,15 +28,15 @@ const PaymentCallBackPage = () => {
         if (queryString) {
             confirmPayment();
         }
-    }, [queryString]);
+    }, []);
 
     return (
         <div>
             {loading ? (
-                <p>Loading...</p>
+                <div className='flex items-center justify-center'><Spin size="large"></Spin></div>
             ) : (
                 <div>
-                    <p>Thanh toán thành công</p>
+                    <p>Thanh toán {isPaymentSuccess ? 'thành công' : 'thất bại'}</p>
                     <Typography.Link href='/'>Về trang chủ</Typography.Link>
                 </div>
             )}

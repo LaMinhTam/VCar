@@ -2,7 +2,7 @@ import { call, put } from "redux-saga/effects";
 import { AxiosResponse } from "axios";
 import { axiosPrivate } from "../../apis/axios";
 import { ENDPOINTS } from "./models";
-import { IContractData, IContractParams, ILessorApproveRequestResponse, IRentalData, IRentalRequestParams } from "./types";
+import { IContractData, IContractParams, IDigitalSignature, ILessorApproveRequestResponse, IRentalData, IRentalRequestParams } from "./types";
 import {
   getLesseeContract,
   getLesseeContractFailure,
@@ -132,10 +132,11 @@ export async function rejectRentRequest(request_id: string) {
   }
 }
 
-export async function approveRentRequest(request_id: string) {
+export async function approveRentRequest(request_id: string, digital_signature: IDigitalSignature) {
   try {
     const response: AxiosResponse<IApproveRentRequestResponse> = await axiosPrivate.post(ENDPOINTS.LESSOR_APPROVE_REQUEST, {
       request_id,
+      digital_signature
     })
     const { code, data } = response.data;
     if (code === 200) {
@@ -199,10 +200,11 @@ export async function getContractById(id: string) {
   }
 }
 
-export async function signContract(contract_id: string) {
+export async function signContract(contract_id: string, digital_signature: IDigitalSignature) {
   try {
     const response: AxiosResponse<IRentRequestResponse> = await axiosPrivate.post(ENDPOINTS.LESSEE_APPROVE_CONTRACT, {
       contract_id,
+      digital_signature
     })
     const { code, data } = response.data;
     if (code === 200) {

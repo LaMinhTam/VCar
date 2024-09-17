@@ -38,7 +38,6 @@ const LoginPage = () => {
     if (res?.success) {
       const meResponse: AxiosResponse<IMeResponse> =
         await axiosPrivate.get(ENDPOINTS.GET_ME);
-      console.log("onFinish ~ meResponse:", meResponse)
       if (meResponse.data.code === 200) {
         saveUserInfoToCookie(meResponse.data.data, res?.token ?? "");
       }

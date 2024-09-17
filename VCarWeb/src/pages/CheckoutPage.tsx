@@ -63,7 +63,6 @@ const CheckoutPage = () => {
             return;
         } else {
             const response = await handleRentRequest(carId ?? '', startTimestamp!, endTimestamp!, province);
-            console.log("onRent ~ response:", response)
             if (response?.success) {
                 navigate('/account/my-trips')
                 toast.success('Đã gửi yêu cầu thuê xe. Vui lòng chờ xác nhận từ chủ xe!');

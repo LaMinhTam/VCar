@@ -20,7 +20,6 @@ const CarSession = ({ title, type }: {
         dispatch({ type: GET_CARS, payload: params });
     }, [dispatch, params]);
     useEffect(() => {
-        console.log("CarSession ~ type", type)
         switch (type) {
             case "popular":
                 setParams({ ...params, size: 4, maxRate: 1000000, rating: 5 });

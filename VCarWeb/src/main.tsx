@@ -89,7 +89,7 @@ const router = createBrowserRouter([
         ],
       },
       {
-        path: 'payment-callback',
+        path: 'payment_callback',
         element: <PaymentCallBackPage />
       }
     ],

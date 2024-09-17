@@ -78,3 +78,9 @@ export interface IContractData {
   vehicle_hand_over_location:    string;
   rental_status:                string;
 }
+
+export interface IDigitalSignature {
+  signature: string;
+  message: string;
+  address: string;
+}
