@@ -60,17 +60,15 @@ public class RentalContractDTO {
     private double rentalPricePerDay;
     private int mileageLimitPerDay;
     private double extraMileageCharge;
-
     private Date rentalStartDate;
-
     private Date rentalEndDate;
-
     private double extraHourlyCharge;
     private double totalRentalValue;
     private String vehicleHandOverLocation;
     private Boolean isApproved;
     private Date actionTime;
-
     private String rentalRequestId;
     private RentalStatus rentalStatus;
+    private String lesseeSignature;
+    private String lessorSignature;
 }

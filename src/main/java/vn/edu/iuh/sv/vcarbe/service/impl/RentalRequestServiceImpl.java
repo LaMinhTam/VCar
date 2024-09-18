@@ -78,7 +78,7 @@ public class RentalRequestServiceImpl implements RentalRequestService {
                         .flatMap(car -> userRepository.findById(rentalRequest.getLessorId())
                                 .switchIfEmpty(Mono.error(new AppException(404, "Lessor not found with id " + rentalRequest.getLessorId())))
                                 .flatMap(lessorUser -> {
-                                    RentalContract rentalContract = new RentalContract(rentalRequest, lessorUser, car, approvalRequest.additionalTerms());
+                                    RentalContract rentalContract = new RentalContract(rentalRequest, lessorUser, car, approvalRequest);
                                     return rentalContractRepository.save(rentalContract)
                                             .flatMap(savedContract -> {
                                                 notificationUtils.createNotification(

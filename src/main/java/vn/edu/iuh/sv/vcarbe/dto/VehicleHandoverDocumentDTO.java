@@ -37,4 +37,8 @@ public class VehicleHandoverDocumentDTO {
     private List<String> returnedItems;
     private boolean lesseeApproved;
     private boolean lessorApproved;
+    private String lesseeSignature;
+    private String lessorSignature;
+    private String returnLesseeSignature;
+    private String returnLessorSignature;
 }

@@ -52,7 +52,7 @@ public class VehicleHandoverController {
             @PathVariable ObjectId id,
             @RequestBody DigitalSignature digitalSignature) {
         EthersUtils.verifyMessage(digitalSignature);
-        return vehicleHandoverService.approveByLessee(id, userPrincipal)
+        return vehicleHandoverService.approveByLessee(id, userPrincipal, digitalSignature)
                 .map(document -> ResponseEntity.ok(new ApiResponseWrapper(200, "Vehicle handover document approved by lessee", document)));
     }
 
@@ -69,9 +69,8 @@ public class VehicleHandoverController {
             @PathVariable ObjectId id,
             @RequestBody DigitalSignature digitalSignature) {
         EthersUtils.verifyMessage(digitalSignature);
-//        return vehicleHandoverService.approveByLessor(id, userPrincipal)
-//                .map(document -> ResponseEntity.ok(new ApiResponseWrapper(200, "Vehicle return document approved by lessor", document)));
-        return null;
+        return vehicleHandoverService.approveByLessor(id, userPrincipal, digitalSignature)
+                .map(document -> ResponseEntity.ok(new ApiResponseWrapper(200, "Vehicle return document approved by lessor", document)));
     }
 
     @Operation(summary = "Update vehicle handover document with return details", description = "Updates the vehicle handover document with return details by the lessee")

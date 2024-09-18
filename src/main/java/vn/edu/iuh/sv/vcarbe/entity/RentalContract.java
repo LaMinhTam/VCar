@@ -6,6 +6,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.mapping.Document;
+import vn.edu.iuh.sv.vcarbe.dto.ApprovalRequest;
 import vn.edu.iuh.sv.vcarbe.dto.SignRequest;
 
 import java.util.Date;
@@ -62,13 +63,14 @@ public class RentalContract extends RentalDetails {
     private double extraMileageCharge;
     private double extraHourlyCharge;
     private double totalRentalValue;
-    private String signature;
+    private String lesseeSignature;
+    private String lessorSignature;
     // Rental request
     private ObjectId rentalRequestId;
     // Rental status
     private RentalStatus rentalStatus;
 
-    public RentalContract(RentalRequest rentalRequest, User lessorUser, Car car, String additionalTerms) {
+    public RentalContract(RentalRequest rentalRequest, User lessorUser, Car car, ApprovalRequest approvalRequest) {
         super(rentalRequest.getCarId(), rentalRequest.getLesseeId(), rentalRequest.getLessorId(), rentalRequest.getRentalStartDate(), rentalRequest.getRentalEndDate(), rentalRequest.getVehicleHandOverLocation());
 
         this.lessorIdentityNumber = lessorUser.getCitizenIdentification().getCitizenIdentificationNumber();
@@ -87,9 +89,10 @@ public class RentalContract extends RentalDetails {
         this.vehicleRegistrationDate = car.getRegistrationDate();
         this.vehicleRegistrationLocation = car.getRegistrationLocation();
         this.vehicleOwnerName = lessorUser.getDisplayName();
-        this.additionalTerms = additionalTerms;
+        this.additionalTerms = approvalRequest.additionalTerms();
         this.rentalRequestId = rentalRequest.getId();
         this.rentalStatus = RentalStatus.PENDING;
+        this.lessorSignature = approvalRequest.digitalSignature().signature_url();
         setPricingDetails(car);
         calculateTotalRentalValue();
     }
@@ -133,7 +136,7 @@ public class RentalContract extends RentalDetails {
         this.legalRepresentativeName = signRequest.legalRepresentativeName();
         this.legalRepresentativePosition = signRequest.legalRepresentativePosition();
         this.organizationPhoneNumber = signRequest.organizationPhoneNumber();
-        this.signature = signRequest.digitalSignature().signature();
+        this.lesseeSignature = signRequest.digitalSignature().signature_url();
         this.setUpdatedAt(new Date());
     }
 }

@@ -5,6 +5,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
+import vn.edu.iuh.sv.vcarbe.dto.DigitalSignature;
 import vn.edu.iuh.sv.vcarbe.dto.VehicleHandoverDocumentDTO;
 import vn.edu.iuh.sv.vcarbe.dto.VehicleHandoverRequest;
 import vn.edu.iuh.sv.vcarbe.dto.VehicleReturnRequest;
@@ -42,28 +43,31 @@ public class VehicleHandoverServiceImpl implements VehicleHandoverService {
                     document.setFuelLevel(request.getFuelLevel());
                     document.setPersonalItems(request.getPersonalItems());
                     document.setCollateral(request.getCollateral());
+                    document.setLessorSignature(request.getDigitalSignature().signature_url());
                     return vehicleHandoverRepository.save(document)
                             .map(savedHandover -> modelMapper.map(savedHandover, VehicleHandoverDocumentDTO.class));
                 });
     }
 
     @Override
-    public Mono<VehicleHandoverDocumentDTO> approveByLessee(ObjectId id, UserPrincipal userPrincipal) {
+    public Mono<VehicleHandoverDocumentDTO> approveByLessee(ObjectId id, UserPrincipal userPrincipal, DigitalSignature digitalSignature) {
         return vehicleHandoverRepository.findByIdAndLesseeId(id, userPrincipal.getId())
                 .switchIfEmpty(Mono.error(new AppException(404, "Vehicle handover document not found with id " + id)))
                 .flatMap(document -> {
                     document.setLesseeApproved(true);
+                    document.setLesseeSignature(document.getLesseeSignature());
                     return vehicleHandoverRepository.save(document)
                             .map(savedHandover -> modelMapper.map(savedHandover, VehicleHandoverDocumentDTO.class));
                 });
     }
 
     @Override
-    public Mono<VehicleHandoverDocumentDTO> approveByLessor(ObjectId id, UserPrincipal userPrincipal) {
+    public Mono<VehicleHandoverDocumentDTO> approveByLessor(ObjectId id, UserPrincipal userPrincipal, DigitalSignature digitalSignature) {
         return vehicleHandoverRepository.findByIdAndLessorId(id, userPrincipal.getId())
                 .switchIfEmpty(Mono.error(new AppException(404, "Vehicle handover document not found with id " + id)))
                 .flatMap(document -> {
                     document.setLessorApproved(true);
+                    document.setReturnLessorSignature(digitalSignature.signature_url());
                     return vehicleHandoverRepository.save(document)
                             .map(savedHandover -> modelMapper.map(savedHandover, VehicleHandoverDocumentDTO.class));
                 });
@@ -82,6 +86,7 @@ public class VehicleHandoverServiceImpl implements VehicleHandoverService {
                     document.setReturnOdometerReading(request.getOdometerReading());
                     document.setReturnFuelLevel(request.getFuelLevel());
                     document.setReturnPersonalItems(request.getPersonalItems());
+                    document.setReturnLesseeSignature(request.getDigitalSignature().signature_url());
                     return vehicleHandoverRepository.save(document)
                             .map(savedHandover -> modelMapper.map(savedHandover, VehicleHandoverDocumentDTO.class));
                 });
