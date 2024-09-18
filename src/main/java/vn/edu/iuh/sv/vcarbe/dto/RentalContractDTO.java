@@ -48,6 +48,7 @@ public class RentalContractDTO {
     private String carId;
     private String vehicleLicensePlate;
     private String vehicleBrand;
+    private int vehicleSeat;
     private int vehicleManufacturingYear;
     private String vehicleColor;
     private String vehicleRegistrationNumber;

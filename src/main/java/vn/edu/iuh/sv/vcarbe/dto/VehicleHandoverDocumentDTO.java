@@ -16,6 +16,9 @@ public class VehicleHandoverDocumentDTO {
     private String vehicleId;
     private String lesseeId;
     private String lessorId;
+    private String lessorName;
+    private String lesseeName;
+    private String location;
     private String rentalContractId;
     private Date handoverDate;
     private int handoverHour;
@@ -41,4 +44,11 @@ public class VehicleHandoverDocumentDTO {
     private String lessorSignature;
     private String returnLesseeSignature;
     private String returnLessorSignature;
+    //Car info
+    private String carBrand;
+    private String carType;
+    private String carColor;
+    private int carManufacturingYear;
+    private String carLicensePlate;
+    private int carSeat;
 }

@@ -34,6 +34,15 @@ public class VehicleHandoverServiceImpl implements VehicleHandoverService {
                     document.setLesseeId(rentalContract.getLesseeId());
                     document.setLessorId(rentalContract.getLessorId());
                     document.setRentalContractId(request.getRentalContractId());
+                    document.setLessorName(rentalContract.getLessorName());
+                    document.setLesseeName(rentalContract.getLesseeName());
+                    document.setLocation(rentalContract.getVehicleHandOverLocation());
+                    document.setCarBrand(rentalContract.getVehicleBrand());
+                    document.setCarName(rentalContract.getVehicleName());
+                    document.setCarColor(rentalContract.getVehicleColor());
+                    document.setCarManufacturingYear(rentalContract.getVehicleManufacturingYear());
+                    document.setCarLicensePlate(rentalContract.getVehicleLicensePlate());
+                    document.setCarSeat(rentalContract.getVehicleSeat());
                     document.setHandoverDate(request.getHandoverDate());
                     document.setHandoverHour(request.getHandoverHour());
                     document.setInitialConditionNormal(request.isInitialConditionNormal());

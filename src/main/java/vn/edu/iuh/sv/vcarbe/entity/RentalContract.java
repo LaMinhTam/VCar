@@ -51,6 +51,7 @@ public class RentalContract extends RentalDetails {
     private String vehicleRegistrationNumber;
     private String vehicleColor;
     private String vehicleBrand;
+    private int vehicleSeat;
     private int vehicleManufacturingYear;
     private String vehicleRegistrationDate;
     private String vehicleRegistrationLocation;
@@ -85,6 +86,7 @@ public class RentalContract extends RentalDetails {
         this.vehicleRegistrationNumber = car.getRegistrationNumber();
         this.vehicleColor = car.getColor();
         this.vehicleBrand = car.getBrand();
+        this.vehicleSeat = car.getSeat();
         this.vehicleManufacturingYear = car.getManufacturingYear();
         this.vehicleRegistrationDate = car.getRegistrationDate();
         this.vehicleRegistrationLocation = car.getRegistrationLocation();

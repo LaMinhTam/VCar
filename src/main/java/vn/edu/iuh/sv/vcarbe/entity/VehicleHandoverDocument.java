@@ -20,6 +20,9 @@ public class VehicleHandoverDocument {
     private ObjectId vehicleId;
     private ObjectId lesseeId;
     private ObjectId lessorId;
+    private String lessorName;
+    private String lesseeName;
+    private String location;
     private ObjectId rentalContractId;
     private Date handoverDate;
     private int handoverHour;
@@ -45,4 +48,11 @@ public class VehicleHandoverDocument {
     private String lessorSignature;
     private String returnLesseeSignature;
     private String returnLessorSignature;
+    //Car info
+    private String carBrand;
+    private String carName;
+    private String carColor;
+    private int carManufacturingYear;
+    private String carLicensePlate;
+    private int carSeat;
 }
