@@ -94,7 +94,7 @@ public class RentalContract extends RentalDetails {
         this.additionalTerms = approvalRequest.additionalTerms();
         this.rentalRequestId = rentalRequest.getId();
         this.rentalStatus = RentalStatus.PENDING;
-        this.lessorSignature = approvalRequest.digitalSignature().signature_url();
+        this.lessorSignature = approvalRequest.digitalSignature().signatureUrl();
         setPricingDetails(car);
         calculateTotalRentalValue();
     }
@@ -138,7 +138,7 @@ public class RentalContract extends RentalDetails {
         this.legalRepresentativeName = signRequest.legalRepresentativeName();
         this.legalRepresentativePosition = signRequest.legalRepresentativePosition();
         this.organizationPhoneNumber = signRequest.organizationPhoneNumber();
-        this.lesseeSignature = signRequest.digitalSignature().signature_url();
+        this.lesseeSignature = signRequest.digitalSignature().signatureUrl();
         this.setUpdatedAt(new Date());
     }
 }
