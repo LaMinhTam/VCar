@@ -1,3 +1,4 @@
+
 export const ENDPOINTS = {
   // [REQUEST]
   RENT_REQUEST: "/rental-requests/rent",
@@ -10,6 +11,12 @@ export const ENDPOINTS = {
   GET_LESSOR_CONTRACTS: "/rental-contracts/lessor",
   GET_CONTRACT_BY_ID: (id: string) => `/rental-contracts/${id}`,
   LESSEE_APPROVE_CONTRACT: "/rental-contracts/lessee-approve",
+  // [HANDOVER]
+  CREATE_VEHICLE_HANDOVER: "/vehicle-handover",
+  LESSEE_APPROVE_HANDOVER: (id: string) => `/vehicle-handover/${id}/approve-lessee`,
+  LESSEE_RETURN_VEHICLE: (id: string) => `/vehicle-handover/${id}/return`,
+  LESSOR_APPROVE_RETURN: (id: string) => `/vehicle-handover/${id}/approve-lessor`,
+  GET_VEHICLE_HANDOVER_BY_CONTRACT_ID: (id: string) => `/vehicle-handover/rental-contract/${id}`,
 };
 
 export const RentalRequestParams = {

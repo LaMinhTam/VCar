@@ -1,14 +1,14 @@
-import { Avatar, Button, Col, Divider, Modal, Row, Tag, Typography } from "antd";
-import { IContractData } from "../../store/rental/types";
+import { Avatar, Button, Col, Divider, Modal, Row, Spin, Tag, Typography } from "antd";
+import { IContractData, IVehicleHandoverResponseData } from "../../store/rental/types";
 import RentalSummary from "../../modules/checkout/RentalSummary";
-import { calculateDays, getUserInfoFromCookie, handleMetaMaskSignature } from "../../utils";
+import { calculateDays, getUserInfoFromCookie, handleMetaMaskSignature, handleUploadSignature } from "../../utils";
 import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { GET_CAR_BY_ID } from "../../store/car/action";
 import { RootState } from "../../store/store";
 import { DEFAULT_AVATAR } from "../../config/apiConfig";
 import { MailOutlined, PhoneOutlined } from "@ant-design/icons";
-import { signContract } from "../../store/rental/handlers";
+import { getVehicleHandoverByContractId, lesseeApproveHandover, signContract } from "../../store/rental/handlers";
 import PizZip from 'pizzip';
 import Docxtemplater from 'docxtemplater';
 import { saveAs } from 'file-saver';
@@ -18,14 +18,53 @@ import { message } from "antd";
 const LesseeContractModal = ({ record }: {
     record: IContractData;
 }) => {
+    const [loading, setLoading] = useState(false);
+    const [vehicleHandover, setVehicleHandover] = useState<IVehicleHandoverResponseData>({} as IVehicleHandoverResponseData);
     const userInfo = getUserInfoFromCookie();
     const [signLoading, setSignLoading] = useState(false);
     const [viewLoading, setViewLoading] = useState(false);
     const numberOfDays = calculateDays(record?.rental_start_date, record?.rental_end_date);
     const { carDetail } = useSelector((state: RootState) => state.car);
     const [isSignaturePadVisible, setIsSignaturePadVisible] = useState(false);
+
     const sigCanvas = useRef<SignatureCanvas>(null);
     const { car } = carDetail;
+    const handleApproveVehicleHandover = async () => {
+        setSignLoading(true);
+        const signatureResult = await handleMetaMaskSignature(userInfo.id);
+        if (!signatureResult) {
+            message.error("Failed to get signature from MetaMask");
+            setSignLoading(false);
+            return;
+        }
+        const { account, signature, msg } = signatureResult;
+        if (sigCanvas?.current) {
+            const imageUrl = await handleUploadSignature(sigCanvas, dispatch, record?.id, userInfo.id, setLoading);
+            if (imageUrl) {
+                const response = await lesseeApproveHandover({
+                    signature,
+                    message: msg,
+                    address: account,
+                    signature_url: imageUrl
+                }, vehicleHandover?.id);
+                console.log(response?.data);
+                if (response?.success) {
+                    message.success("Approved vehicle handover successfully");
+                    setSignLoading(false);
+                    setVehicleHandover(response?.data as IVehicleHandoverResponseData);
+                    return;
+                } else {
+                    message.error("Failed to approve vehicle handover");
+                    setSignLoading(false);
+                    return;
+                }
+            } else {
+                message.error("Failed to upload signature");
+                setSignLoading(false);
+                return;
+            }
+        }
+    }
     const handleSignContract = async () => {
         setSignLoading(true);
         const signatureResult = await handleMetaMaskSignature(userInfo.id);
@@ -128,84 +167,118 @@ const LesseeContractModal = ({ record }: {
     };
     const dispatch = useDispatch();
     useEffect(() => {
+        setLoading(true);
         dispatch({ type: GET_CAR_BY_ID, payload: record?.car_id });
+        setLoading(false);
     }, [dispatch, record?.car_id])
+
+    useEffect(() => {
+        async function fetchVehicleHandover() {
+            const response = await getVehicleHandoverByContractId(record?.id);
+            if (response?.success) {
+                setLoading(false);
+                setVehicleHandover(response?.data as IVehicleHandoverResponseData);
+            } else {
+                setLoading(false);
+            }
+        }
+        fetchVehicleHandover();
+    }, [record?.id])
+
     if (!record) return null;
     return (
-        <Row gutter={[12, 0]} justify={"start"}>
-            <Col span={12}>
-                <div className='w-full h-full p-4 rounded-lg shadow-md'>
-                    <Typography.Title level={4}>Chủ xe</Typography.Title>
-                    <Divider></Divider>
-                    <div className='flex items-start gap-x-2'>
-                        <Avatar size={"large"} src={DEFAULT_AVATAR} className='cursor-pointer' alt='Avatar'></Avatar>
-                        <div>
-                            <Typography.Title level={5} className='cursor-pointer'>{car?.owner?.display_name}</Typography.Title>
-                            <div className='flex flex-col gap-y-2'>
-                                <Typography.Text><PhoneOutlined className='mr-2 text-xl' />{car?.owner?.phone_number}</Typography.Text>
-                                <Typography.Text><MailOutlined className='mr-2 text-xl' />{car?.owner?.email}</Typography.Text>
+        <>
+            {loading ? <div className='flex items-center justify-center'><Spin size="large"></Spin></div> : (<Row gutter={[12, 0]} justify={"start"}>
+                <Col span={12}>
+                    <div className='w-full h-full p-4 rounded-lg shadow-md'>
+                        <Typography.Title level={4}>Chủ xe</Typography.Title>
+                        <Divider></Divider>
+                        <div className='flex items-start gap-x-2'>
+                            <Avatar size={"large"} src={DEFAULT_AVATAR} className='cursor-pointer' alt='Avatar'></Avatar>
+                            <div>
+                                <Typography.Title level={5} className='cursor-pointer'>{car?.owner?.display_name}</Typography.Title>
+                                <div className='flex flex-col gap-y-2'>
+                                    <Typography.Text><PhoneOutlined className='mr-2 text-xl' />{car?.owner?.phone_number}</Typography.Text>
+                                    <Typography.Text><MailOutlined className='mr-2 text-xl' />{car?.owner?.email}</Typography.Text>
+                                </div>
                             </div>
+                            <Button type='primary' className='ml-auto'>Nhắn tin</Button>
                         </div>
-                        <Button type='primary' className='ml-auto'>Nhắn tin</Button>
+                        <Divider></Divider>
+                        <Row gutter={[0, 12]}>
+                            <Col span={24}>
+                                <Typography.Title level={5}>Ngày bắt đầu thuê:</Typography.Title>
+                                <Typography.Text>{new Date(record?.rental_start_date).toLocaleString()}</Typography.Text>
+                            </Col>
+                            <Divider className="m-0"></Divider>
+                            <Col span={24}>
+                                <Typography.Title level={5}>Ngày kết thúc thuê:</Typography.Title>
+                                <Typography.Text>{new Date(record?.rental_end_date).toLocaleString()}</Typography.Text>
+                            </Col>
+                            <Divider className="m-0"></Divider>
+                            <Col span={24}>
+                                <Typography.Title level={5}>Địa điểm lấy xe:</Typography.Title>
+                                <Typography.Text>{record?.vehicle_hand_over_location}</Typography.Text>
+                            </Col>
+                            <Divider className="m-0"></Divider>
+                            <Col span={24}>
+                                <Typography.Title level={5}>Trạng thái: <Tag color={
+                                    record.rental_status === 'SIGNED' ? 'green' :
+                                        record.rental_status === 'PENDING' ? 'orange' :
+                                            record.rental_status === 'CANCELED' ? 'red' : 'blue'
+                                }>{record.rental_status}</Tag></Typography.Title>
+                            </Col>
+                        </Row>
                     </div>
-                    <Divider></Divider>
-                    <Row gutter={[0, 12]}>
-                        <Col span={24}>
-                            <Typography.Title level={5}>Ngày bắt đầu thuê:</Typography.Title>
-                            <Typography.Text>{new Date(record?.rental_start_date).toLocaleString()}</Typography.Text>
-                        </Col>
-                        <Divider className="m-0"></Divider>
-                        <Col span={24}>
-                            <Typography.Title level={5}>Ngày kết thúc thuê:</Typography.Title>
-                            <Typography.Text>{new Date(record?.rental_end_date).toLocaleString()}</Typography.Text>
-                        </Col>
-                        <Divider className="m-0"></Divider>
-                        <Col span={24}>
-                            <Typography.Title level={5}>Địa điểm lấy xe:</Typography.Title>
-                            <Typography.Text>{record?.vehicle_hand_over_location}</Typography.Text>
-                        </Col>
-                        <Divider className="m-0"></Divider>
-                        <Col span={24}>
-                            <Typography.Title level={5}>Trạng thái: <Tag color={
-                                record.rental_status === 'SIGNED' ? 'green' :
-                                    record.rental_status === 'PENDING' ? 'orange' :
-                                        record.rental_status === 'CANCELED' ? 'red' : 'blue'
-                            }>{record.rental_status}</Tag></Typography.Title>
-                        </Col>
-                        <Col span={24}>
-                            <div className="flex items-center justify-end gap-x-3">
-                                {record.rental_status === 'PENDING' && <Button type="primary" onClick={() => setIsSignaturePadVisible(true)} loading={signLoading}>Sign Contract</Button>}
-                                <Button type="primary" danger onClick={handleViewContract} loading={viewLoading} disabled={signLoading}>View Contract</Button>
-                            </div>
-                        </Col>
-                    </Row>
-                </div>
-            </Col>
-            <Col span={12}>
-                <RentalSummary
-                    car={car}
-                    totalDays={numberOfDays}
-                ></RentalSummary>
-            </Col>
-            <Modal
-                title="Sign to Approve"
-                visible={isSignaturePadVisible}
-                onOk={() => {
-                    sigCanvas.current?.clear();
-                    setIsSignaturePadVisible(false);
-                    handleSignContract();
-                }}
-                onCancel={() => setIsSignaturePadVisible(false)}
-                okText="Approve"
-                cancelText="Cancel"
-            >
-                <SignatureCanvas
-                    ref={sigCanvas}
-                    penColor="black"
-                    canvasProps={{ width: 500, height: 200, className: 'sigCanvas' }}
-                />
-            </Modal>
-        </Row>
+                </Col>
+                <Col span={12}>
+                    <RentalSummary
+                        car={car}
+                        totalDays={numberOfDays}
+                    ></RentalSummary>
+                </Col>
+                <Divider className="m-2"></Divider>
+                <Col span={8} offset={16}>
+                    <Typography.Title level={5}>Trạng thái xe: <Tag color={
+                        vehicleHandover?.lessee_approved ? 'green' : 'orange'
+                    }>{vehicleHandover?.lessee_approved ? 'Đã bàn giao' : 'Chưa bàn giao'}</Tag></Typography.Title>
+                </Col>
+                <Divider className="m-0"></Divider>
+                <Col span={24}>
+                    <Col span={24}>
+                        <div className="flex items-center justify-end h-10 rounded-lg gap-x-3 bg-lite">
+                            {record?.rental_status === 'SIGNED' && vehicleHandover?.id && <Button type="text">View handover document</Button>}
+                            <Button type="text" danger onClick={handleViewContract} loading={viewLoading} disabled={signLoading}>View Contract</Button>
+                            {record?.rental_status === 'SIGNED' && !vehicleHandover?.lessee_approved && <Button type="primary" loading={signLoading} onClick={() => setIsSignaturePadVisible(true)}>Approve handover</Button>}
+                            {record?.rental_status === 'SIGNED' && vehicleHandover?.lessee_approved && <Button type="primary">Return Vehicle</Button>}
+                            {record.rental_status === 'PENDING' && <Button type="primary" onClick={() => setIsSignaturePadVisible(true)} loading={signLoading}>Sign Contract</Button>}
+                        </div>
+                    </Col>
+                </Col>
+                <Modal
+                    title="Sign to Approve"
+                    open={isSignaturePadVisible}
+                    onOk={() => {
+                        sigCanvas.current?.clear();
+                        setIsSignaturePadVisible(false);
+                        if (record?.rental_status === 'SIGNED' && !vehicleHandover?.lessee_approved) {
+                            handleApproveVehicleHandover();
+                        } else {
+                            handleSignContract();
+                        }
+                    }}
+                    onCancel={() => setIsSignaturePadVisible(false)}
+                    okText="Approve"
+                    cancelText="Cancel"
+                >
+                    <SignatureCanvas
+                        ref={sigCanvas}
+                        penColor="black"
+                        canvasProps={{ width: 500, height: 200, className: 'sigCanvas' }}
+                    />
+                </Modal>
+            </Row>)}
+        </>
     );
 };
 

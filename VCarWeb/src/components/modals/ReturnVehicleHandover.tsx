@@ -11,7 +11,7 @@ import { HandoverFieldTypes, IVehicleHandover, IVehicleHandoverResponseData } fr
 import { createVehicleHandover } from '../../store/rental/handlers';
 
 
-const CreateVehicleHandover = ({ form, rental_contract_id, setCreateHandoverLoading, setVehicleHandover }: {
+const ReturnVehicleHandover = ({ form, rental_contract_id, setCreateHandoverLoading, setVehicleHandover }: {
     form: FormInstance<HandoverFieldTypes>
     rental_contract_id: string
     setCreateHandoverLoading: (loading: boolean) => void
@@ -104,7 +104,7 @@ const CreateVehicleHandover = ({ form, rental_contract_id, setCreateHandoverLoad
                 <Col span={12}>
                     <Form.Item
                         name="handover_date"
-                        label="Thời gian bàn giao"
+                        label="Thời gian trả xe"
                         rules={[{
                             required: true,
                             message: t("require"),
@@ -247,4 +247,4 @@ const CreateVehicleHandover = ({ form, rental_contract_id, setCreateHandoverLoad
     );
 };
 
-export default CreateVehicleHandover;
+export default ReturnVehicleHandover;

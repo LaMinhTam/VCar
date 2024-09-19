@@ -6,6 +6,7 @@ export interface IRentalState {
   lesseeListRequest: IRentalData[];
   lesseeListContract: IContractData[];
   lessorListContract: IContractData[];
+  uploadProgress: number;
 }
 
 export interface IRentalData {
@@ -89,4 +90,62 @@ export interface IDigitalSignature {
   signature: string;
   message: string;
   address: string;
+  signature_url?: string;
+}
+
+export interface IVehicleHandover {
+  rental_contract_id: string;
+  handover_date: string;
+  initial_condition_normal: boolean;
+  vehicle_condition: string;
+  damages: string[];
+  odometer_reading: number;
+  fuel_level: number;
+  personal_items: string;
+  collateral: Collateral[];
+  digital_signature: IDigitalSignature;
+}
+
+export interface HandoverFieldTypes {
+  handover_date: string;
+  vehicle_condition: string;
+  damages: string[];
+  odometer_reading: number;
+  fuel_level: number;
+  personal_items: string;
+  collateral: Collateral[];
+}
+
+export interface IVehicleHandoverResponseData {
+  id:                        string;
+  lessee_id:                 string;
+  lessor_id:                 string;
+  lessor_name:               string;
+  lessee_name:               string;
+  location:                  string;
+  rental_contract_id:        string;
+  handover_date:             number;
+  handover_hour:             number;
+  initial_condition_normal:  boolean;
+  vehicle_condition:         string;
+  damages:                   string[];
+  odometer_reading:          number;
+  fuel_level:                number;
+  personal_items:            string;
+  collateral:                Collateral[];
+  return_hour:               number;
+  condition_matches_initial: boolean;
+  return_odometer_reading:   number;
+  return_fuel_level:         number;
+  lessee_approved:           boolean;
+  lessor_approved:           boolean;
+  lessor_signature:          string;
+  car_manufacturing_year:    number;
+  car_license_plate:         string;
+  car_seat:                  number;
+}
+
+export interface Collateral {
+  type:    string;
+  details: string;
 }

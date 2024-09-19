@@ -1,3 +1,4 @@
+import { SignatureCanvas } from 'react-signature-canvas';
 import Cookies from "js-cookie";
 import { ethers } from 'ethers';
 import { jwtDecode } from "jwt-decode";
@@ -7,7 +8,10 @@ import numeral from "numeral";
 import moment from "moment";
 import { message } from "antd";
 import axios from "axios";
-import { Dispatch } from "@reduxjs/toolkit";
+import { toast } from "react-toastify";
+import { setUploadProgress } from "../store/rental/reducers";
+import { AppDispatch } from "../store/store";
+import { RefObject } from "react";
 
 const accessTokenKey = "VCAR_ACCESS_TOKEN";
 const refreshTokenKey = "VCAR_REFRESH_TOKEN";
@@ -128,6 +132,10 @@ export const formatDate = (date: string) => {
   return moment(date).format("DD/MM/YYYY HH:mm");
 };
 
+export const convertDateToTimestamp = (date: string) => {
+  return moment(date).valueOf();
+}
+
 export const calculateDays = (
   startTimestamp: number | null,
   endTimestamp: number | null
@@ -163,36 +171,63 @@ export const handleMetaMaskSignature = async (username: string) => {
   }
 };
 
-// export const handleUploadFile = async (
-//   formData: FormData,
-//   dispatch: Dispatch<any>
-// ) => {
-//   try {
-//       const response = await axios.post(
-//           `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/upload`,
-//           formData,
-//           {
-//               onUploadProgress: (progressEvent) => {
-//                   if (typeof progressEvent.total === "number") {
-//                       const percentCompleted = Math.round(
-//                           (progressEvent.loaded * 100) / progressEvent.total
-//                       );
-//                       dispatch(setProgress(percentCompleted));
-//                   } else {
-//                       toast.warn("Total size is undefined.");
-//                       dispatch(setProgress(0));
-//                   }
-//               },
-//           }
-//       );
-//       const imageUrl = response.data.secure_url;
-//       if (imageUrl) {
-//           return imageUrl;
-//       }
-//   } catch (error) {
-//       console.error("Error uploading file:", error);
-//   }
-// };
+export async function handleUploadSignature(sigCanvas: RefObject<SignatureCanvas>, dispatch: AppDispatch, rental_contract_id: string, userId: string, setLoading: (value: boolean) => void) {
+  try {
+    const dataUrl = sigCanvas?.current?.getTrimmedCanvas()?.toDataURL('image/png');
+    const blob = await (await fetch(dataUrl)).blob();
+    // Check if the blob size exceeds 10MB
+    const size = blob.size / 1024 / 1024;
+    if (size > 10) {
+      message.error("File size must be less than 10MB");
+      setLoading(false);
+      return;
+    }
+    const timestamp = Date.now();
+    const fileName = `signature_${userId}_${timestamp}.png`;
+
+    const formData = new FormData();
+    formData.append('file', blob, fileName);
+    formData.append('upload_preset', import.meta.env.VITE_CLOUDINARY_PRESET_NAME || '');
+    formData.append('public_id', fileName);
+    formData.append('folder', `contracts/${rental_contract_id}`);
+    const imageUrl = await handleUploadFile(formData, dispatch);
+    return imageUrl;
+  } catch (error) {
+    console.error("Error uploading signature:", error);
+    return '';
+  }
+}
+
+export const handleUploadFile = async (
+  formData: FormData,
+  dispatch: AppDispatch
+) => {
+  try {
+      const response = await axios.post(
+          `https://api.cloudinary.com/v1_1/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/upload`,
+          formData,
+          {
+              onUploadProgress: (progressEvent) => {
+                  if (typeof progressEvent.total === "number") {
+                      const percentCompleted = Math.round(
+                          (progressEvent.loaded * 100) / progressEvent.total
+                      );
+                      dispatch(setUploadProgress(percentCompleted));
+                  } else {
+                      toast.warn("Total size is undefined.");
+                      dispatch(setUploadProgress(0));
+                  }
+              },
+          }
+      );
+      const imageUrl = response.data.secure_url;
+      if (imageUrl) {
+          return imageUrl;
+      }
+  } catch (error) {
+      console.error("Error uploading file:", error);
+  }
+};
 
 // export const handleDeleteFile = async (fileUrl: string) => {
 //   try {

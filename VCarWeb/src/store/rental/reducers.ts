@@ -9,6 +9,7 @@ const initialState: IRentalState = {
   lesseeListRequest: [],
   lesseeListContract: [],
   lessorListContract: [],
+  uploadProgress: 0,
 };
 
 const rentalSlice = createSlice({
@@ -102,6 +103,9 @@ const rentalSlice = createSlice({
       state.loading = false;
       state.error = action.payload;
     },
+    setUploadProgress: (state, action: PayloadAction<number>) => {
+      state.uploadProgress = action.payload;
+    },
   },
 });
 
@@ -121,6 +125,7 @@ export const {
   getLessorContract,
   getLessorContractSuccess,
   getLessorContractFailure,
+  setUploadProgress,
 } = rentalSlice.actions;
 
 export default rentalSlice.reducer;

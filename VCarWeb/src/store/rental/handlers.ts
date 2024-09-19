@@ -2,7 +2,7 @@ import { call, put } from "redux-saga/effects";
 import { AxiosResponse } from "axios";
 import { axiosPrivate } from "../../apis/axios";
 import { ENDPOINTS } from "./models";
-import { IContractData, IContractParams, IDigitalSignature, ILessorApproveRequestResponse, IRentalData, IRentalRequestParams } from "./types";
+import { IContractData, IContractParams, IDigitalSignature, ILessorApproveRequestResponse, IRentalData, IRentalRequestParams, IVehicleHandover, IVehicleHandoverResponseData } from "./types";
 import {
   getLesseeContract,
   getLesseeContractFailure,
@@ -48,6 +48,12 @@ interface IContractByIdResponse {
   code: number;
   message: string;
   data: IContractData;
+}
+
+interface IVehicleHandoverResponse {
+  code: number;
+  message: string;
+  data: IVehicleHandoverResponseData;
 }
 
 export async function handleRentRequest(
@@ -208,6 +214,49 @@ export async function signContract(contract_id: string, digital_signature: IDigi
     })
     const { code, data } = response.data;
     if (code === 200) {
+      return { success: true, data };
+    }
+  } catch (error) {
+    console.error(error);
+    return { success: false, data: null };
+  }
+}
+
+export async function createVehicleHandover (bodyData: IVehicleHandover) {
+  try {
+    const response: AxiosResponse<IVehicleHandoverResponse>
+      = await axiosPrivate.post(ENDPOINTS.CREATE_VEHICLE_HANDOVER, bodyData);
+    const { code, data } = response.data;
+    if(code === 200) {
+      return { success: true, data };
+    }
+  } catch (error) {
+    console.error(error);
+    return { success: false, data: null };
+  }
+}
+
+export async function getVehicleHandoverByContractId (contract_id: string) {
+  try {
+    const response: AxiosResponse<IVehicleHandoverResponse>
+      = await axiosPrivate.get(ENDPOINTS.GET_VEHICLE_HANDOVER_BY_CONTRACT_ID(contract_id));
+    const { code, data } = response.data;
+    if(code === 200) {
+      return { success: true, data };
+    }
+  } catch (error) {
+    console.error(error);
+    return { success: false, data: null };
+  }
+}
+
+export async function lesseeApproveHandover(digital_signature: IDigitalSignature, handover_id: string) {
+  try {
+    const response: AxiosResponse<IVehicleHandoverResponse> = await axiosPrivate.put(ENDPOINTS.LESSEE_APPROVE_HANDOVER(handover_id), {
+      ...digital_signature
+    });
+    const { code, data } = response.data;
+    if(code === 200) {
       return { success: true, data };
     }
   } catch (error) {

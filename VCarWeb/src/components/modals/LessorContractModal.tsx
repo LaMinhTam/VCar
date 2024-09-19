@@ -1,5 +1,5 @@
-import { Avatar, Button, Col, Divider, Modal, Row, Tag, Typography } from "antd";
-import { IContractData } from "../../store/rental/types";
+import { Avatar, Button, Col, Divider, Form, Modal, Row, Spin, Tag, Typography } from "antd";
+import { IContractData, IVehicleHandoverResponseData } from "../../store/rental/types";
 import RentalSummary from "../../modules/checkout/RentalSummary";
 import { calculateDays } from "../../utils";
 import { useEffect, useState } from "react";
@@ -14,17 +14,23 @@ import { saveAs } from 'file-saver';
 import { IUser } from "../../store/auth/types";
 import { axiosPrivate } from "../../apis/axios";
 import CreateVehicleHandover from "./CreateVehicleHandover";
+import { getVehicleHandoverByContractId } from "../../store/rental/handlers";
 
 const LessorContractModal = ({ record }: {
     record: IContractData;
 }) => {
+    const [loading, setLoading] = useState(false);
+    const [vehicleHandover, setVehicleHandover] = useState<IVehicleHandoverResponseData>({} as IVehicleHandoverResponseData);
+    const [createHandoverLoading, setCreateHandoverLoading] = useState(false);
     const [viewLoading, setViewLoading] = useState(false);
     const [lesseeInfo, setLesseeInfo] = useState<IUser>();
     const numberOfDays = calculateDays(record?.rental_start_date, record?.rental_end_date);
     const { carDetail } = useSelector((state: RootState) => state.car);
     const { car } = carDetail;
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const handleOk = () => {
+    const [handoverForm] = Form.useForm();
+    const handleOk = async () => {
+        handoverForm.submit();
         setIsModalOpen(false);
     };
 
@@ -112,17 +118,35 @@ const LessorContractModal = ({ record }: {
     };
     const dispatch = useDispatch();
     useEffect(() => {
+        setLoading(true);
         dispatch({ type: GET_CAR_BY_ID, payload: record?.car_id });
+        setLoading(false);
     }, [dispatch, record?.car_id])
+
+    useEffect(() => {
+        async function fetchVehicleHandover() {
+            const response = await getVehicleHandoverByContractId(record?.id);
+            if (response?.success) {
+                setLoading(false);
+                setVehicleHandover(response?.data as IVehicleHandoverResponseData);
+            } else {
+                setLoading(false);
+            }
+        }
+        fetchVehicleHandover();
+    }, [record?.id])
 
     useEffect(() => {
         async function fetchUser() {
             try {
+                setLoading(true);
                 const response = await axiosPrivate.get(`/users/${record?.lessee_id}`);
                 if (response.data.code === 200) {
+                    setLoading(false);
                     setLesseeInfo(response.data.data);
                 }
             } catch (error) {
+                setLoading(false);
                 console.error(error);
             }
         }
@@ -131,7 +155,7 @@ const LessorContractModal = ({ record }: {
     if (!record) return null;
     return (
         <>
-            <Row gutter={[12, 12]} justify={"start"}>
+            {loading ? <div className='flex items-center justify-center'><Spin size="large"></Spin></div> : <><Row gutter={[12, 12]} justify={"start"}>
                 <Col span={12}>
                     <div className='w-full h-full p-4 rounded-lg shadow-md'>
                         <Typography.Title level={4}>Chủ xe</Typography.Title>
@@ -165,11 +189,11 @@ const LessorContractModal = ({ record }: {
                             </Col>
                             <Divider className="m-0"></Divider>
                             <Col span={24}>
-                                <Typography.Title level={5}>Trạng thái: <Tag color={
-                                    record.rental_status === 'SIGNED' ? 'green' :
-                                        record.rental_status === 'PENDING' ? 'orange' :
-                                            record.rental_status === 'CANCELED' ? 'red' : 'blue'
-                                }>{record.rental_status}</Tag></Typography.Title>
+                                <Typography.Title level={5}>Trạng thái hợp đồng: <Tag color={
+                                    record?.rental_status === 'SIGNED' ? 'green' :
+                                        record?.rental_status === 'PENDING' ? 'orange' :
+                                            record?.rental_status === 'CANCELED' ? 'red' : 'blue'
+                                }>{record?.rental_status}</Tag></Typography.Title>
                             </Col>
                         </Row>
                     </div>
@@ -180,19 +204,26 @@ const LessorContractModal = ({ record }: {
                         totalDays={numberOfDays}
                     ></RentalSummary>
                 </Col>
+                <Divider className="m-2"></Divider>
+                <Col span={8} offset={16}>
+                    <Typography.Title level={5}>Trạng thái xe: <Tag color={
+                        vehicleHandover?.lessee_approved ? 'green' : 'orange'
+                    }>{vehicleHandover?.lessee_approved ? 'Đã bàn giao' : 'Chưa bàn giao'}</Tag></Typography.Title>
+                </Col>
+                <Divider className="m-0"></Divider>
                 <Col span={24}>
                     <Col span={24}>
                         <div className="flex items-center justify-end h-10 rounded-lg gap-x-3 bg-lite">
                             <Button type="text" onClick={handleViewContract} loading={viewLoading}>View Contract</Button>
-                            {record?.rental_status === 'SIGNED' && <Button type="text">View handover document</Button>}
-                            {record?.rental_status === 'SIGNED' && <Button type="primary" onClick={() => setIsModalOpen(true)}>Create Handover</Button>}
+                            {record?.rental_status === 'SIGNED' && vehicleHandover?.id && <Button type="text">View handover document</Button>}
+                            {record?.rental_status === 'SIGNED' && !vehicleHandover?.id && <Button type="primary" onClick={() => setIsModalOpen(true)}>Create Handover</Button>}
                         </div>
                     </Col>
                 </Col>
             </Row>
-            <Modal title="Tạo biên bản bàn giao" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
-                <CreateVehicleHandover></CreateVehicleHandover>
-            </Modal>
+                <Modal title="Tạo biên bản bàn giao" open={isModalOpen} onOk={handleOk} onCancel={handleCancel} okButtonProps={{ loading: createHandoverLoading }}>
+                    <CreateVehicleHandover form={handoverForm} rental_contract_id={record.id} setCreateHandoverLoading={setCreateHandoverLoading} setVehicleHandover={setVehicleHandover} />
+                </Modal></>}
         </>
     );
 };
