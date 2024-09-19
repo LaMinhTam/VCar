@@ -1,6 +1,7 @@
 package vn.edu.iuh.sv.vcarbe.service;
 
 import org.bson.types.ObjectId;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import vn.edu.iuh.sv.vcarbe.dto.DigitalSignature;
 import vn.edu.iuh.sv.vcarbe.dto.VehicleHandoverDocumentDTO;
@@ -18,4 +19,8 @@ public interface VehicleHandoverService {
     Mono<VehicleHandoverDocumentDTO> updateVehicleReturn(ObjectId id, VehicleReturnRequest request, UserPrincipal userPrincipal);
 
     Mono<VehicleHandoverDocumentDTO> getVehicleHandoverByRentalContractId(ObjectId rentalContractId);
+
+    Flux<VehicleHandoverDocumentDTO> getVehicleHandoverForLessor(ObjectId id, String sortField, boolean sortDescending, int page, int size);
+
+    Flux<VehicleHandoverDocumentDTO> getVehicleHandoverForLessee(ObjectId id, String sortField, boolean sortDescending, int page, int size);
 }

@@ -3,7 +3,11 @@ package vn.edu.iuh.sv.vcarbe.service.impl;
 import org.bson.types.ObjectId;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import vn.edu.iuh.sv.vcarbe.dto.DigitalSignature;
 import vn.edu.iuh.sv.vcarbe.dto.VehicleHandoverDocumentDTO;
@@ -108,4 +112,17 @@ public class VehicleHandoverServiceImpl implements VehicleHandoverService {
                 .map(document -> modelMapper.map(document, VehicleHandoverDocumentDTO.class));
     }
 
+    @Override
+    public Flux<VehicleHandoverDocumentDTO> getVehicleHandoverForLessor(ObjectId id, String sortField, boolean sortDescending, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, sortDescending ? Sort.by(Sort.Order.desc(sortField)) : Sort.by(Sort.Order.asc(sortField)));
+        return vehicleHandoverRepository.findByLessorId(id, pageable)
+                .map(document -> modelMapper.map(document, VehicleHandoverDocumentDTO.class));
+    }
+
+    @Override
+    public Flux<VehicleHandoverDocumentDTO> getVehicleHandoverForLessee(ObjectId id, String sortField, boolean sortDescending, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, sortDescending ? Sort.by(Sort.Order.desc(sortField)) : Sort.by(Sort.Order.asc(sortField)));
+        return vehicleHandoverRepository.findByLesseeId(id, pageable)
+                .map(document -> modelMapper.map(document, VehicleHandoverDocumentDTO.class));
+    }
 }
