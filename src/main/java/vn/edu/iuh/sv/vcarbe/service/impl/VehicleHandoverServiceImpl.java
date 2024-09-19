@@ -13,6 +13,7 @@ import vn.edu.iuh.sv.vcarbe.dto.DigitalSignature;
 import vn.edu.iuh.sv.vcarbe.dto.VehicleHandoverDocumentDTO;
 import vn.edu.iuh.sv.vcarbe.dto.VehicleHandoverRequest;
 import vn.edu.iuh.sv.vcarbe.dto.VehicleReturnRequest;
+import vn.edu.iuh.sv.vcarbe.entity.HandoverStatus;
 import vn.edu.iuh.sv.vcarbe.entity.VehicleHandoverDocument;
 import vn.edu.iuh.sv.vcarbe.exception.AppException;
 import vn.edu.iuh.sv.vcarbe.repository.RentalContractRepository;
@@ -57,6 +58,7 @@ public class VehicleHandoverServiceImpl implements VehicleHandoverService {
                     document.setPersonalItems(request.getPersonalItems());
                     document.setCollateral(request.getCollateral());
                     document.setLessorSignature(request.getDigitalSignature().signatureUrl());
+                    document.setStatus(HandoverStatus.CREATED);
                     return vehicleHandoverRepository.save(document)
                             .map(savedHandover -> modelMapper.map(savedHandover, VehicleHandoverDocumentDTO.class));
                 });
@@ -69,6 +71,7 @@ public class VehicleHandoverServiceImpl implements VehicleHandoverService {
                 .flatMap(document -> {
                     document.setLesseeApproved(true);
                     document.setLesseeSignature(digitalSignature.signatureUrl());
+                    document.setStatus(HandoverStatus.RENDING);
                     return vehicleHandoverRepository.save(document)
                             .map(savedHandover -> modelMapper.map(savedHandover, VehicleHandoverDocumentDTO.class));
                 });
@@ -81,6 +84,7 @@ public class VehicleHandoverServiceImpl implements VehicleHandoverService {
                 .flatMap(document -> {
                     document.setLessorApproved(true);
                     document.setReturnLessorSignature(digitalSignature.signatureUrl());
+                    document.setStatus(HandoverStatus.RETURNED);
                     return vehicleHandoverRepository.save(document)
                             .map(savedHandover -> modelMapper.map(savedHandover, VehicleHandoverDocumentDTO.class));
                 });
@@ -100,6 +104,7 @@ public class VehicleHandoverServiceImpl implements VehicleHandoverService {
                     document.setReturnFuelLevel(request.getFuelLevel());
                     document.setReturnPersonalItems(request.getPersonalItems());
                     document.setReturnLesseeSignature(request.getDigitalSignature().signatureUrl());
+                    document.setStatus(HandoverStatus.RETURNING);
                     return vehicleHandoverRepository.save(document)
                             .map(savedHandover -> modelMapper.map(savedHandover, VehicleHandoverDocumentDTO.class));
                 });

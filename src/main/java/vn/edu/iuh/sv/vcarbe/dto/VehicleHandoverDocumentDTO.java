@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import vn.edu.iuh.sv.vcarbe.entity.Collateral;
+import vn.edu.iuh.sv.vcarbe.entity.HandoverStatus;
 
 import java.util.Date;
 import java.util.List;
@@ -51,4 +52,5 @@ public class VehicleHandoverDocumentDTO {
     private int carManufacturingYear;
     private String carLicensePlate;
     private int carSeat;
+    private HandoverStatus status;
 }

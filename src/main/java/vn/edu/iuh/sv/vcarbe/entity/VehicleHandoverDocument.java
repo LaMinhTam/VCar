@@ -55,4 +55,5 @@ public class VehicleHandoverDocument {
     private int carManufacturingYear;
     private String carLicensePlate;
     private int carSeat;
+    private HandoverStatus status;
 }
