@@ -106,6 +106,18 @@ export interface IVehicleHandover {
   digital_signature: IDigitalSignature;
 }
 
+export interface IReturnHandover {
+  return_date: number;
+  condition_matches_initial: boolean;
+  vehicle_condition: string;
+  damages: string[];
+  odometer_reading: number;
+  fuel_level: number;
+  personal_items: string;
+  returned_items: string[];
+  digital_signature: IDigitalSignature;
+}
+
 export interface HandoverFieldTypes {
   handover_date: string;
   vehicle_condition: string;
@@ -114,6 +126,15 @@ export interface HandoverFieldTypes {
   fuel_level: number;
   personal_items: string;
   collateral: Collateral[];
+}
+
+export interface ReturnHandoverFieldTypes {
+  return_date: string;
+  vehicle_condition: string;
+  odometer_reading: number;
+  fuel_level: number;
+  personal_items: string;
+  condition_matches_initial: boolean;
 }
 
 export interface IVehicleHandoverResponseData {
@@ -143,6 +164,7 @@ export interface IVehicleHandoverResponseData {
   car_manufacturing_year:    number;
   car_license_plate:         string;
   car_seat:                  number;
+  status:                   string;
 }
 
 export interface Collateral {

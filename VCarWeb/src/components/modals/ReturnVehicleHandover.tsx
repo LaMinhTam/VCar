@@ -1,20 +1,19 @@
 import { useRef, useState } from 'react';
-import { Col, DatePicker, Row, Form, Input, Select, Button, Tag, Space, message, FormProps, FormInstance } from 'antd';
-import { CloseCircleOutlined, PlusOutlined } from '@ant-design/icons';
+import { Col, DatePicker, Row, Form, Input, Select, Button, Tag, Space, message, FormProps, FormInstance, Checkbox } from 'antd';
+import { PlusOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 
 const { Option } = Select;
 import SignatureCanvas from 'react-signature-canvas';
 import { convertDateToTimestamp, getUserInfoFromCookie, handleMetaMaskSignature, handleUploadSignature } from '../../utils';
 import { useDispatch } from 'react-redux';
-import { HandoverFieldTypes, IVehicleHandover, IVehicleHandoverResponseData } from '../../store/rental/types';
-import { createVehicleHandover } from '../../store/rental/handlers';
+import { IVehicleHandoverResponseData, ReturnHandoverFieldTypes } from '../../store/rental/types';
+import { lesseeReturnVehicle } from '../../store/rental/handlers';
 
-
-const ReturnVehicleHandover = ({ form, rental_contract_id, setCreateHandoverLoading, setVehicleHandover }: {
-    form: FormInstance<HandoverFieldTypes>
-    rental_contract_id: string
-    setCreateHandoverLoading: (loading: boolean) => void
+const ReturnVehicleHandover = ({ form, vehicle_handover_id, setReturnVehicleLoading, setVehicleHandover }: {
+    form: FormInstance<ReturnHandoverFieldTypes>
+    vehicle_handover_id: string
+    setReturnVehicleLoading: (loading: boolean) => void
     setVehicleHandover: (data: IVehicleHandoverResponseData) => void
 }) => {
     const { t } = useTranslation();
@@ -22,7 +21,8 @@ const ReturnVehicleHandover = ({ form, rental_contract_id, setCreateHandoverLoad
     const userInfo = getUserInfoFromCookie();
     const [damages, setDamages] = useState<string[]>([]);
     const [damageInput, setDamageInput] = useState<string>('');
-    const [collateral, setCollateral] = useState<{ type: string; details: string }[]>([]);
+    const [returnedItems, setReturnedItems] = useState<string[]>([]);
+    const [returnedItemInput, setReturnedItemInput] = useState<string>('');
     const sigCanvas = useRef<SignatureCanvas>(null);
 
     const addDamage = () => {
@@ -36,19 +36,22 @@ const ReturnVehicleHandover = ({ form, rental_contract_id, setCreateHandoverLoad
         setDamages(damages.filter((_, i) => i !== index));
     };
 
-    const addCollateral = () => {
-        setCollateral([...collateral, { type: '', details: '' }]);
+    const addReturnedItem = () => {
+        if (returnedItemInput.trim()) {
+            setReturnedItems([...returnedItems, returnedItemInput]);
+            setReturnedItemInput('');
+        }
     };
 
-    const removeCollateral = (index: number) => {
-        setCollateral(collateral.filter((_, i) => i !== index));
+    const removeReturnedItem = (index: number) => {
+        setReturnedItems(returnedItems.filter((_, i) => i !== index));
     };
 
-    const onFinish = async (values: HandoverFieldTypes) => {
-        setCreateHandoverLoading(true);
-
+    const onFinish = async (values: ReturnHandoverFieldTypes) => {
+        console.log("onFinish ~ values:", values)
+        setReturnVehicleLoading(true);
         if (sigCanvas?.current) {
-            const imageUrl = await handleUploadSignature(sigCanvas, dispatch, rental_contract_id, userInfo.id, setCreateHandoverLoading);
+            const imageUrl = await handleUploadSignature(sigCanvas, dispatch, vehicle_handover_id, userInfo.id, setReturnVehicleLoading);
             if (imageUrl) {
                 const signatureResult = await handleMetaMaskSignature(userInfo.id);
                 if (!signatureResult) {
@@ -61,33 +64,34 @@ const ReturnVehicleHandover = ({ form, rental_contract_id, setCreateHandoverLoad
                     address: signatureResult.account,
                     signature_url: imageUrl
                 };
-                const requestBody: IVehicleHandover = {
+                const requestBody = {
                     ...values,
-                    rental_contract_id,
-                    handover_date: convertDateToTimestamp(values.handover_date).toString(),
-                    initial_condition_normal: true,
-                    digital_signature,
-                }
-                const response = await createVehicleHandover(requestBody);
+                    return_date: convertDateToTimestamp(values.return_date),
+                    damages,
+                    returned_items: returnedItems,
+                    digital_signature
+                };
+                const response = await lesseeReturnVehicle(requestBody, vehicle_handover_id);
                 if (response?.success) {
                     setVehicleHandover(response?.data as IVehicleHandoverResponseData);
-                    setCreateHandoverLoading(false);
-                    message.success('Create vehicle handover successfully');
+                    setReturnVehicleLoading(false);
+                    message.success('Create return vehicle handover successfully');
                 } else {
-                    setCreateHandoverLoading(false);
-                    message.error('Failed to create vehicle handover');
+                    setReturnVehicleLoading(false);
+                    message.error('Failed to create return vehicle handover');
                 }
             } else {
-                setCreateHandoverLoading(false);
+                setReturnVehicleLoading(false);
                 message.error('Failed to upload signature');
             }
         } else {
             message.error('Failed to get signature');
-            setCreateHandoverLoading(false);
+            setReturnVehicleLoading(false);
         }
+        setReturnVehicleLoading(false);
     };
 
-    const onFinishFailed: FormProps<HandoverFieldTypes>["onFinishFailed"] = (
+    const onFinishFailed: FormProps<ReturnHandoverFieldTypes>["onFinishFailed"] = (
         errorInfo
     ) => {
         console.log("Failed:", errorInfo);
@@ -102,27 +106,27 @@ const ReturnVehicleHandover = ({ form, rental_contract_id, setCreateHandoverLoad
         >
             <Row gutter={[16, 16]}>
                 <Col span={12}>
-                    <Form.Item
-                        name="handover_date"
+                    <Form.Item<ReturnHandoverFieldTypes>
+                        name="return_date"
                         label="Thời gian trả xe"
+                        required
                         rules={[{
                             required: true,
                             message: t("require"),
-                        }]}
-                    >
+                        }]}>
                         <DatePicker showTime />
                     </Form.Item>
                 </Col>
 
                 <Col span={12}>
-                    <Form.Item
+                    <Form.Item<ReturnHandoverFieldTypes>
                         name="vehicle_condition"
                         label="Tình trạng xe"
+                        required
                         rules={[{
                             required: true,
                             message: t("require"),
-                        }]}
-                    >
+                        }]}>
                         <Select className="w-full">
                             <Option value="normal">Bình thường</Option>
                             <Option value="damage">Hư hỏng</Option>
@@ -131,24 +135,51 @@ const ReturnVehicleHandover = ({ form, rental_contract_id, setCreateHandoverLoad
                 </Col>
 
                 <Col span={12}>
-                    <Form.Item
+                    <Form.Item<ReturnHandoverFieldTypes>
                         name="odometer_reading"
                         label="Số km đã đi"
+                        required
                         rules={[{
                             required: true,
                             message: t("require"),
-                        }]}
-                    >
+                        }]}>
                         <Input type="number" placeholder="Nhập số km đã đi" />
                     </Form.Item>
                 </Col>
 
                 <Col span={12}>
-                    <Form.Item
+                    <Form.Item<ReturnHandoverFieldTypes>
+                        name="fuel_level"
+                        label="Mức nhiên liệu"
+                        required
+                        rules={[{
+                            required: true,
+                            message: t("require"),
+                        }]}>
+                        <Input type="number" placeholder="Nhập mức nhiên liệu" />
+                    </Form.Item>
+                </Col>
+
+                <Col span={12}>
+                    <Form.Item<ReturnHandoverFieldTypes>
                         name="personal_items"
-                        label="Đồ dùng cá nhân"
-                    >
+                        label="Đồ dùng cá nhân">
                         <Input placeholder="Nhập đồ dùng cá nhân" />
+                    </Form.Item>
+                </Col>
+
+                <Col span={24}>
+                    <Form.Item<ReturnHandoverFieldTypes>
+                        name={"condition_matches_initial"}
+                        required
+                        label="Tình trạng xe trả khớp với tình trạng ban đầu"
+                        valuePropName="checked"
+                        rules={[{
+                            required: true,
+                            message: t("require"),
+                        }]}
+                    >
+                        <Checkbox></Checkbox>
                     </Form.Item>
                 </Col>
 
@@ -160,9 +191,7 @@ const ReturnVehicleHandover = ({ form, rental_contract_id, setCreateHandoverLoad
                                     key={index}
                                     closable
                                     onClose={() => removeDamage(index)}
-                                    className="flex items-center justify-between"
-                                    color='#f50'
-                                >
+                                    color='#f50'>
                                     {damage}
                                 </Tag>
                             ))}
@@ -182,53 +211,39 @@ const ReturnVehicleHandover = ({ form, rental_contract_id, setCreateHandoverLoad
                 </Col>
 
                 <Col span={24}>
-                    <Form.Item
-                        label="Tài sản thế chấp"
+                    <Form.Item label="Tài sản trả lại">
+                        <Space direction="horizontal" wrap className="w-full">
+                            {returnedItems.map((item, index) => (
+                                <Tag
+                                    key={index}
+                                    closable
+                                    onClose={() => removeReturnedItem(index)}
+                                    color='#2db7f5'>
+                                    {item}
+                                </Tag>
+                            ))}
+                        </Space>
+                        <Space direction="horizontal" className={`${returnedItems?.length > 0 ? 'mt-2' : ''} w-full`}>
+                            <Input
+                                value={returnedItemInput}
+                                onChange={(e) => setReturnedItemInput(e.target.value)}
+                                placeholder="Nhập tài sản trả lại"
+                                className="w-full"
+                            />
+                            <Button type="dashed" onClick={addReturnedItem} icon={<PlusOutlined />}>
+                                Thêm tài sản
+                            </Button>
+                        </Space>
+                    </Form.Item>
+                </Col>
+                <Col span={24}>
+                    <Form.Item label="Chữ ký bàn giao"
+                        required
                         rules={[{
                             required: true,
                             message: t("require"),
                         }]}
                     >
-                        <Space direction="vertical" className="w-full">
-                            {collateral.map((item, index) => (
-                                <Tag
-                                    key={index}
-                                    closable
-                                    onClose={() => removeCollateral(index)}
-                                    className="flex items-center justify-between"
-                                    closeIcon={<CloseCircleOutlined style={{ fontSize: '30px' }} />}
-                                >
-                                    <Input
-                                        value={item.type}
-                                        onChange={(e) => {
-                                            const newCollateral = [...collateral];
-                                            newCollateral[index].type = e.target.value;
-                                            setCollateral(newCollateral);
-                                        }}
-                                        placeholder="Loại tài sản"
-                                        className="w-full"
-                                    />
-                                    <Input
-                                        value={item.details}
-                                        onChange={(e) => {
-                                            const newCollateral = [...collateral];
-                                            newCollateral[index].details = e.target.value;
-                                            setCollateral(newCollateral);
-                                        }}
-                                        placeholder="Chi tiết tài sản"
-                                        className="w-full"
-                                    />
-                                </Tag>
-                            ))}
-                            <Button type="dashed" onClick={addCollateral} icon={<PlusOutlined />}>
-                                Thêm tài sản thế chấp
-                            </Button>
-                        </Space>
-                    </Form.Item>
-                </Col>
-
-                <Col span={24}>
-                    <Form.Item label="Chữ ký bàn giao">
                         <SignatureCanvas
                             ref={sigCanvas}
                             penColor="black"

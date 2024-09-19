@@ -16,6 +16,7 @@ const DashboardHeader = () => {
     const { t } = useTranslation();
     const onSearch: SearchProps['onSearch'] = (value, _e, info) => console.log(info?.source, value);
     const { isLogged } = useAuth();
+    console.log("DashboardHeader ~ isLogged:", isLogged)
     return (
         <Header className="fixed left-0 right-0 z-50 flex items-center justify-between shadow-md bg-lite">
             <div className="flex items-center justify-center gap-x-5">

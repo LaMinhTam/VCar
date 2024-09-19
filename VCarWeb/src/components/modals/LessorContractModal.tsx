@@ -1,8 +1,8 @@
-import { Avatar, Button, Col, Divider, Form, Modal, Row, Spin, Tag, Typography } from "antd";
+import { Avatar, Button, Col, Divider, Form, message, Modal, Row, Spin, Tag, Typography } from "antd";
 import { IContractData, IVehicleHandoverResponseData } from "../../store/rental/types";
 import RentalSummary from "../../modules/checkout/RentalSummary";
-import { calculateDays } from "../../utils";
-import { useEffect, useState } from "react";
+import { calculateDays, getUserInfoFromCookie, handleMetaMaskSignature, handleUploadSignature } from "../../utils";
+import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { GET_CAR_BY_ID } from "../../store/car/action";
 import { RootState } from "../../store/store";
@@ -14,21 +14,25 @@ import { saveAs } from 'file-saver';
 import { IUser } from "../../store/auth/types";
 import { axiosPrivate } from "../../apis/axios";
 import CreateVehicleHandover from "./CreateVehicleHandover";
-import { getVehicleHandoverByContractId } from "../../store/rental/handlers";
+import SignatureCanvas from 'react-signature-canvas';
+import { getVehicleHandoverByContractId, lessorApproveReturn } from "../../store/rental/handlers";
 
 const LessorContractModal = ({ record }: {
     record: IContractData;
 }) => {
+    const userInfo = getUserInfoFromCookie();
     const [loading, setLoading] = useState(false);
     const [vehicleHandover, setVehicleHandover] = useState<IVehicleHandoverResponseData>({} as IVehicleHandoverResponseData);
     const [createHandoverLoading, setCreateHandoverLoading] = useState(false);
     const [viewLoading, setViewLoading] = useState(false);
     const [lesseeInfo, setLesseeInfo] = useState<IUser>();
     const numberOfDays = calculateDays(record?.rental_start_date, record?.rental_end_date);
+    const [isSignaturePadVisible, setIsSignaturePadVisible] = useState(false);
     const { carDetail } = useSelector((state: RootState) => state.car);
     const { car } = carDetail;
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [handoverForm] = Form.useForm();
+    const sigCanvas = useRef<SignatureCanvas>(null);
     const handleOk = async () => {
         handoverForm.submit();
         setIsModalOpen(false);
@@ -37,6 +41,43 @@ const LessorContractModal = ({ record }: {
     const handleCancel = () => {
         setIsModalOpen(false);
     };
+
+    const handleApproveReturn = async () => {
+        setLoading(true);
+        const signatureResult = await handleMetaMaskSignature(userInfo.id);
+        if (!signatureResult) {
+            message.error("Failed to get signature from MetaMask");
+            setLoading(false);
+            return;
+        }
+        const { account, signature, msg } = signatureResult;
+        if (sigCanvas?.current) {
+            const imageUrl = await handleUploadSignature(sigCanvas, dispatch, record?.id, userInfo.id, setLoading);
+            if (imageUrl) {
+                const response = await lessorApproveReturn({
+                    signature,
+                    message: msg,
+                    address: account,
+                    signature_url: imageUrl
+                }, vehicleHandover?.id);
+                console.log(response?.data);
+                if (response?.success) {
+                    message.success("Approved vehicle handover successfully");
+                    setLoading(false);
+                    setVehicleHandover(response?.data as IVehicleHandoverResponseData);
+                    return;
+                } else {
+                    message.error("Failed to approve vehicle handover");
+                    setLoading(false);
+                    return;
+                }
+            } else {
+                message.error("Failed to upload signature");
+                setLoading(false);
+                return;
+            }
+        }
+    }
 
     const handleViewContract = async () => {
         setViewLoading(true);
@@ -155,7 +196,8 @@ const LessorContractModal = ({ record }: {
     if (!record) return null;
     return (
         <>
-            {loading ? <div className='flex items-center justify-center'><Spin size="large"></Spin></div> : <><Row gutter={[12, 12]} justify={"start"}>
+            {loading && <div className='flex items-center justify-center'><Spin size="large"></Spin></div>}
+            <Row gutter={[12, 12]} justify={"start"}>
                 <Col span={12}>
                     <div className='w-full h-full p-4 rounded-lg shadow-md'>
                         <Typography.Title level={4}>Chủ xe</Typography.Title>
@@ -205,10 +247,13 @@ const LessorContractModal = ({ record }: {
                     ></RentalSummary>
                 </Col>
                 <Divider className="m-2"></Divider>
-                <Col span={8} offset={16}>
+                <Col span={10} offset={14}>
                     <Typography.Title level={5}>Trạng thái xe: <Tag color={
                         vehicleHandover?.lessee_approved ? 'green' : 'orange'
                     }>{vehicleHandover?.lessee_approved ? 'Đã bàn giao' : 'Chưa bàn giao'}</Tag></Typography.Title>
+                    <Typography.Title level={5}>Trạng thái đơn thuê: <Tag color={
+                        vehicleHandover?.status === 'RETURNED' ? 'green' : 'orange'
+                    }>{vehicleHandover?.status === 'RETURNED' ? 'Đã hoàn thành' : 'Chưa hoàn thành'}</Tag></Typography.Title>
                 </Col>
                 <Divider className="m-0"></Divider>
                 <Col span={24}>
@@ -217,13 +262,32 @@ const LessorContractModal = ({ record }: {
                             <Button type="text" onClick={handleViewContract} loading={viewLoading}>View Contract</Button>
                             {record?.rental_status === 'SIGNED' && vehicleHandover?.id && <Button type="text">View handover document</Button>}
                             {record?.rental_status === 'SIGNED' && !vehicleHandover?.id && <Button type="primary" onClick={() => setIsModalOpen(true)}>Create Handover</Button>}
+                            {record?.rental_status === 'SIGNED' && vehicleHandover?.status === 'RETURNING' && <Button type="primary" onClick={() => setIsSignaturePadVisible(true)}>Approve Return</Button>}
                         </div>
                     </Col>
                 </Col>
             </Row>
-                <Modal title="Tạo biên bản bàn giao" open={isModalOpen} onOk={handleOk} onCancel={handleCancel} okButtonProps={{ loading: createHandoverLoading }}>
-                    <CreateVehicleHandover form={handoverForm} rental_contract_id={record.id} setCreateHandoverLoading={setCreateHandoverLoading} setVehicleHandover={setVehicleHandover} />
-                </Modal></>}
+            <Modal title="Tạo biên bản bàn giao" open={isModalOpen} onOk={handleOk} onCancel={handleCancel} okButtonProps={{ loading: createHandoverLoading }}>
+                <CreateVehicleHandover form={handoverForm} rental_contract_id={record.id} setCreateHandoverLoading={setCreateHandoverLoading} setVehicleHandover={setVehicleHandover} />
+            </Modal>
+            <Modal
+                title="Sign to Approve"
+                open={isSignaturePadVisible}
+                onOk={() => {
+                    sigCanvas.current?.clear();
+                    setIsSignaturePadVisible(false);
+                    handleApproveReturn();
+                }}
+                onCancel={() => setIsSignaturePadVisible(false)}
+                okText="Approve"
+                cancelText="Cancel"
+            >
+                <SignatureCanvas
+                    ref={sigCanvas}
+                    penColor="black"
+                    canvasProps={{ width: 500, height: 200, className: 'sigCanvas' }}
+                />
+            </Modal>
         </>
     );
 };

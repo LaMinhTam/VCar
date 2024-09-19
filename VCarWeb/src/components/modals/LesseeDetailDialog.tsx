@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Avatar, Button, Col, Divider, Row, Tag, Typography, Modal, message } from "antd";
 import { IRentalData, IRentalRequestParams } from "../../store/rental/types";
 import RentalSummary from "../../modules/checkout/RentalSummary";
-import { calculateDays, getUserInfoFromCookie, handleMetaMaskSignature } from "../../utils";
+import { calculateDays, getUserInfoFromCookie, handleMetaMaskSignature, handleUploadSignature } from "../../utils";
 import { useDispatch, useSelector } from "react-redux";
 import { GET_CAR_BY_ID } from "../../store/car/action";
 import { RootState } from "../../store/store";
@@ -59,21 +59,32 @@ const LesseeDetailDialog = ({ record, setIsModalOpen, params, setParams }: {
             return;
         }
         const { account, signature, msg } = signatureResult;
-        const response = await approveRentRequest(record.id, {
-            address: account,
-            signature,
-            message: msg,
-        });
-        if (response?.success) {
-            setApproveLoading(false);
-            setIsModalOpen(false);
-            setParams({
-                ...params,
-            });
-            toast.success('Đã duyệt yêu cầu thuê xe!');
-        } else {
-            toast.error('Duyệt yêu cầu thuê xe thất bại!');
-            setApproveLoading(false);
+        if (sigCanvas?.current) {
+            const imageUrl = await handleUploadSignature(sigCanvas, dispatch, record?.id, userInfo.id, setApproveLoading);
+            if (imageUrl) {
+
+                const response = await approveRentRequest(record.id, {
+                    address: account,
+                    signature,
+                    message: msg,
+                    signature_url: imageUrl,
+                });
+                if (response?.success) {
+                    setApproveLoading(false);
+                    setIsModalOpen(false);
+                    setParams({
+                        ...params,
+                    });
+                    toast.success('Đã duyệt yêu cầu thuê xe!');
+                } else {
+                    toast.error('Duyệt yêu cầu thuê xe thất bại!');
+                    setApproveLoading(false);
+                }
+            } else {
+                message.error("Failed to upload signature");
+                setApproveLoading(false);
+                return;
+            }
         }
     };
 

@@ -14,6 +14,8 @@ import Docxtemplater from 'docxtemplater';
 import { saveAs } from 'file-saver';
 import SignatureCanvas from 'react-signature-canvas';
 import { message } from "antd";
+import ReturnVehicleHandover from "./ReturnVehicleHandover";
+import { useForm } from "antd/es/form/Form";
 
 const LesseeContractModal = ({ record }: {
     record: IContractData;
@@ -24,8 +26,10 @@ const LesseeContractModal = ({ record }: {
     const [signLoading, setSignLoading] = useState(false);
     const [viewLoading, setViewLoading] = useState(false);
     const numberOfDays = calculateDays(record?.rental_start_date, record?.rental_end_date);
-    const { carDetail } = useSelector((state: RootState) => state.car);
+    const { carDetail, loading: carLoading } = useSelector((state: RootState) => state.car);
     const [isSignaturePadVisible, setIsSignaturePadVisible] = useState(false);
+    const [openReturnModal, setOpenReturnModal] = useState(false);
+    const [returnHandoverForm] = useForm();
 
     const sigCanvas = useRef<SignatureCanvas>(null);
     const { car } = carDetail;
@@ -74,18 +78,28 @@ const LesseeContractModal = ({ record }: {
             return;
         }
         const { account, signature, msg } = signatureResult;
-        const response = await signContract(record?.id, {
-            signature,
-            message: msg,
-            address: account
-        });
-        if (response?.success) {
-            const vnpayUrl = response?.data;
-            if (typeof vnpayUrl === 'string' || vnpayUrl instanceof URL) {
-                window.location.href = vnpayUrl.toString();
+        if (sigCanvas?.current) {
+            const imageUrl = await handleUploadSignature(sigCanvas, dispatch, record?.id, userInfo.id, setLoading);
+            if (imageUrl) {
+                const response = await signContract(record?.id, {
+                    signature,
+                    message: msg,
+                    address: account,
+                    signature_url: imageUrl
+                });
+                if (response?.success) {
+                    const vnpayUrl = response?.data;
+                    if (typeof vnpayUrl === 'string' || vnpayUrl instanceof URL) {
+                        window.location.href = vnpayUrl.toString();
+                    }
+                }
+                setSignLoading(false);
+            } else {
+                message.error("Failed to upload signature");
+                setSignLoading(false);
+                return;
             }
         }
-        setSignLoading(false);
     };
     const handleViewContract = async () => {
         setViewLoading(true);
@@ -165,11 +179,22 @@ const LesseeContractModal = ({ record }: {
 
         setViewLoading(false);
     };
+    const handleReturnVehicle = async () => {
+        try {
+            // Trigger form validation
+            await returnHandoverForm.validateFields();
+
+            // If the form is valid, submit the form
+            returnHandoverForm.submit();
+            setOpenReturnModal(false);
+        } catch (errorInfo) {
+            console.log("Failed:", errorInfo);
+            message.error("Please fill in all required fields");
+        }
+    };
     const dispatch = useDispatch();
     useEffect(() => {
-        setLoading(true);
         dispatch({ type: GET_CAR_BY_ID, payload: record?.car_id });
-        setLoading(false);
     }, [dispatch, record?.car_id])
 
     useEffect(() => {
@@ -188,7 +213,8 @@ const LesseeContractModal = ({ record }: {
     if (!record) return null;
     return (
         <>
-            {loading ? <div className='flex items-center justify-center'><Spin size="large"></Spin></div> : (<Row gutter={[12, 0]} justify={"start"}>
+            {(loading || carLoading) && <div className='flex items-center justify-center'><Spin size="large"></Spin></div>}
+            {record.id && <Row gutter={[12, 0]} justify={"start"}>
                 <Col span={12}>
                     <div className='w-full h-full p-4 rounded-lg shadow-md'>
                         <Typography.Title level={4}>Chủ xe</Typography.Title>
@@ -238,10 +264,13 @@ const LesseeContractModal = ({ record }: {
                     ></RentalSummary>
                 </Col>
                 <Divider className="m-2"></Divider>
-                <Col span={8} offset={16}>
+                <Col span={10} offset={14}>
                     <Typography.Title level={5}>Trạng thái xe: <Tag color={
                         vehicleHandover?.lessee_approved ? 'green' : 'orange'
                     }>{vehicleHandover?.lessee_approved ? 'Đã bàn giao' : 'Chưa bàn giao'}</Tag></Typography.Title>
+                    <Typography.Title level={5}>Trạng thái đơn thuê: <Tag color={
+                        vehicleHandover?.status === 'RETURNED' ? 'green' : 'orange'
+                    }>{vehicleHandover?.status === 'RETURNED' ? 'Đã hoàn thành' : 'Chưa hoàn thành'}</Tag></Typography.Title>
                 </Col>
                 <Divider className="m-0"></Divider>
                 <Col span={24}>
@@ -249,8 +278,8 @@ const LesseeContractModal = ({ record }: {
                         <div className="flex items-center justify-end h-10 rounded-lg gap-x-3 bg-lite">
                             {record?.rental_status === 'SIGNED' && vehicleHandover?.id && <Button type="text">View handover document</Button>}
                             <Button type="text" danger onClick={handleViewContract} loading={viewLoading} disabled={signLoading}>View Contract</Button>
-                            {record?.rental_status === 'SIGNED' && !vehicleHandover?.lessee_approved && <Button type="primary" loading={signLoading} onClick={() => setIsSignaturePadVisible(true)}>Approve handover</Button>}
-                            {record?.rental_status === 'SIGNED' && vehicleHandover?.lessee_approved && <Button type="primary">Return Vehicle</Button>}
+                            {record?.rental_status === 'SIGNED' && vehicleHandover?.status === 'CREATED' && <Button type="primary" loading={signLoading} onClick={() => setIsSignaturePadVisible(true)}>Approve handover</Button>}
+                            {record?.rental_status === 'SIGNED' && vehicleHandover?.status === 'RENDING' && <Button type="primary" onClick={() => setOpenReturnModal(true)} disabled={loading}>Return Vehicle</Button>}
                             {record.rental_status === 'PENDING' && <Button type="primary" onClick={() => setIsSignaturePadVisible(true)} loading={signLoading}>Sign Contract</Button>}
                         </div>
                     </Col>
@@ -277,7 +306,20 @@ const LesseeContractModal = ({ record }: {
                         canvasProps={{ width: 500, height: 200, className: 'sigCanvas' }}
                     />
                 </Modal>
-            </Row>)}
+                <Modal
+                    title="Tạo biên bản giao trả xe"
+                    open={openReturnModal}
+                    onOk={handleReturnVehicle}
+                    onCancel={() => setOpenReturnModal(false)}
+                >
+                    <ReturnVehicleHandover
+                        form={returnHandoverForm}
+                        setVehicleHandover={setVehicleHandover}
+                        setReturnVehicleLoading={setLoading}
+                        vehicle_handover_id={vehicleHandover?.id}
+                    ></ReturnVehicleHandover>
+                </Modal>
+            </Row>}
         </>
     );
 };

@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { JSX } from "react/jsx-runtime";
 import { AuthContextType } from "../types/common";
-import { getAccessToken, isTokenExpire } from "../utils";
+import { getAccessToken, isTokenExpire, saveAccessToken, saveRefreshToken, saveUser } from "../utils";
 
 const AuthContext = React.createContext<AuthContextType>(
   {} as AuthContextType
@@ -17,6 +17,9 @@ export function AuthProvider(
     if (accessToken && !isTokenExpire(accessToken)) {
       setIsLogged(true);
     } else {
+      saveAccessToken("");
+      saveRefreshToken("");
+      saveUser("");
       setIsLogged(false);
     }
   }, [accessToken])

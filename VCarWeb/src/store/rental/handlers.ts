@@ -2,7 +2,7 @@ import { call, put } from "redux-saga/effects";
 import { AxiosResponse } from "axios";
 import { axiosPrivate } from "../../apis/axios";
 import { ENDPOINTS } from "./models";
-import { IContractData, IContractParams, IDigitalSignature, ILessorApproveRequestResponse, IRentalData, IRentalRequestParams, IVehicleHandover, IVehicleHandoverResponseData } from "./types";
+import { IContractData, IContractParams, IDigitalSignature, ILessorApproveRequestResponse, IRentalData, IRentalRequestParams, IReturnHandover, IVehicleHandover, IVehicleHandoverResponseData } from "./types";
 import {
   getLesseeContract,
   getLesseeContractFailure,
@@ -253,6 +253,34 @@ export async function getVehicleHandoverByContractId (contract_id: string) {
 export async function lesseeApproveHandover(digital_signature: IDigitalSignature, handover_id: string) {
   try {
     const response: AxiosResponse<IVehicleHandoverResponse> = await axiosPrivate.put(ENDPOINTS.LESSEE_APPROVE_HANDOVER(handover_id), {
+      ...digital_signature
+    });
+    const { code, data } = response.data;
+    if(code === 200) {
+      return { success: true, data };
+    }
+  } catch (error) {
+    console.error(error);
+    return { success: false, data: null };
+  }
+}
+
+export async function lesseeReturnVehicle(bodyRequest: IReturnHandover, handover_id: string) {
+  try {
+    const response: AxiosResponse<IVehicleHandoverResponse> = await axiosPrivate.put(ENDPOINTS.LESSEE_RETURN_VEHICLE(handover_id), bodyRequest);
+    const { code, data } = response.data;
+    if(code === 200) {
+      return { success: true, data };
+    }
+  } catch (error) {
+    console.error(error);
+    return { success: false, data: null };
+  }
+}
+
+export async function lessorApproveReturn(digital_signature: IDigitalSignature, handover_id: string) {
+  try {
+    const response: AxiosResponse<IVehicleHandoverResponse> = await axiosPrivate.put(ENDPOINTS.LESSOR_APPROVE_RETURN(handover_id), {
       ...digital_signature
     });
     const { code, data } = response.data;
