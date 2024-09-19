@@ -270,4 +270,20 @@ public class CarRepositoryCustomImpl implements CarRepositoryCustom {
                     return carDTO;
                 });
     }
+
+    @Override
+    public Flux<CarDTO> findByOwner(ObjectId id) {
+        MongoCollection<Document> carCollection = getCollection("cars");
+
+        Bson ownerFilter = Filters.eq("owner", id);
+
+        Bson projection = Projections.fields(
+                Projections.computed("id", "$_id"),
+                Projections.include("name", "status", "imageUrl", "province", "location", "dailyRate", "seat", "transmission", "fuel", "fuelConsumption", "description", "features", "color", "licensePlate", "registrationNumber", "registrationDate", "registrationLocation")
+        );
+
+        return Flux.from(carCollection.find(ownerFilter).projection(projection))
+                .map(document -> modelMapper.map(document, CarDTO.class));
+    }
+
 }

@@ -60,6 +60,8 @@ public class SecurityConfig {
                         .permitAll()
                         .pathMatchers(HttpMethod.GET, "/cars/**", "/reviews/**")
                         .permitAll()
+                        .pathMatchers(HttpMethod.GET, "/cars/owned")
+                        .authenticated()
                         .anyExchange()
                         .authenticated());
 

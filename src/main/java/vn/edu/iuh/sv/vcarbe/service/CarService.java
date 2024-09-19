@@ -22,4 +22,6 @@ public interface CarService {
     Flux<String> autocomplete(String query, Province province);
 
     Flux<CarDTO> search(SearchCriteria criteria);
+
+    Flux<CarDTO> getCarsByOwner(UserPrincipal userPrincipal);
 }

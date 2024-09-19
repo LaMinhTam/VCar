@@ -42,6 +42,18 @@ public class CarController {
                 .map(createdCar -> ResponseEntity.ok(new ApiResponseWrapper(200, "Car created successfully", createdCar)));
     }
 
+    @Operation(summary = "Get cars owned by the authenticated user", description = "Retrieves cars owned by the authenticated user")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Cars retrieved successfully")
+    })
+    @GetMapping("/owned")
+    public Mono<ResponseEntity<ApiResponseWrapper>> getCarsByOwner(
+            @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        return carService.getCarsByOwner(userPrincipal)
+                .collectList()
+                .map(cars -> ResponseEntity.ok(new ApiResponseWrapper(200, "success", cars)));
+    }
+
     @Operation(summary = "Update car details", description = "Updates the details of an existing car owned by the authenticated user")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Car updated successfully"),

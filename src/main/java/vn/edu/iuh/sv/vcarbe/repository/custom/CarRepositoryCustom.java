@@ -17,4 +17,6 @@ public interface CarRepositoryCustom {
     Mono<CarDetailDTO> findByIdCustom(ObjectId id);
 
     Flux<CarDTO> search(SearchCriteria criteria, Pageable pageable);
+
+    Flux<CarDTO> findByOwner(ObjectId id);
 }

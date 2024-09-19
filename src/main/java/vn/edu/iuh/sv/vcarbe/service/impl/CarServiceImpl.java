@@ -65,4 +65,9 @@ public class CarServiceImpl implements CarService {
         Pageable pageable = PageRequest.of(criteria.getPage(), criteria.getSize());
         return carRepository.search(criteria, pageable);
     }
+
+    @Override
+    public Flux<CarDTO> getCarsByOwner(UserPrincipal userPrincipal) {
+        return carRepository.findByOwner(userPrincipal.getId());
+    }
 }
