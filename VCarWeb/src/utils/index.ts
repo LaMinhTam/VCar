@@ -1,4 +1,3 @@
-import { SignatureCanvas } from 'react-signature-canvas';
 import Cookies from "js-cookie";
 import { ethers } from 'ethers';
 import { jwtDecode } from "jwt-decode";
@@ -12,6 +11,7 @@ import { toast } from "react-toastify";
 import { setUploadProgress } from "../store/rental/reducers";
 import { AppDispatch } from "../store/store";
 import { RefObject } from "react";
+import SignatureCanvas from 'react-signature-canvas';
 
 const accessTokenKey = "VCAR_ACCESS_TOKEN";
 const refreshTokenKey = "VCAR_REFRESH_TOKEN";
@@ -168,6 +168,16 @@ export const handleMetaMaskSignature = async (username: string) => {
       }
   } else {
       message.error('MetaMask is not installed or user data is missing');
+  }
+};
+
+export const fetchImageFromUrl = async (url: string): Promise<ArrayBuffer> => {
+  try {
+    const response = await axios.get(url, { responseType: 'arraybuffer' });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching image from URL:', error);
+    throw error;
   }
 };
 

@@ -138,33 +138,37 @@ export interface ReturnHandoverFieldTypes {
 }
 
 export interface IVehicleHandoverResponseData {
-  id:                        string;
-  lessee_id:                 string;
-  lessor_id:                 string;
-  lessor_name:               string;
-  lessee_name:               string;
-  location:                  string;
-  rental_contract_id:        string;
-  handover_date:             number;
-  handover_hour:             number;
-  initial_condition_normal:  boolean;
-  vehicle_condition:         string;
-  damages:                   string[];
-  odometer_reading:          number;
-  fuel_level:                number;
-  personal_items:            string;
-  collateral:                Collateral[];
-  return_hour:               number;
-  condition_matches_initial: boolean;
-  return_odometer_reading:   number;
-  return_fuel_level:         number;
-  lessee_approved:           boolean;
-  lessor_approved:           boolean;
-  lessor_signature:          string;
-  car_manufacturing_year:    number;
-  car_license_plate:         string;
-  car_seat:                  number;
-  status:                   string;
+        id:                        string;
+        lessee_id:                 string;
+        lessor_id:                 string;
+        lessor_name:               string;
+        lessee_name:               string;
+        location:                  string;
+        rental_contract_id:        string;
+        handover_date:             number;
+        handover_hour:             number;
+        initial_condition_normal:  boolean;
+        vehicle_condition:         string;
+        odometer_reading:          number;
+        fuel_level:                number;
+        personal_items:            string;
+        return_date:               number;
+        return_hour:               number;
+        condition_matches_initial: boolean;
+        return_vehicle_condition:  string;
+        return_damages:            string[];
+        return_odometer_reading:   number;
+        return_fuel_level:         number;
+        lessee_approved:           boolean;
+        lessor_approved:           boolean;
+        lessee_signature:          string;
+        lessor_signature:          string;
+        return_lessee_signature:   string;
+        return_lessor_signature:   string;
+        car_manufacturing_year:    number;
+        car_license_plate:         string;
+        car_seat:                  number;
+        status:                    string;
 }
 
 export interface Collateral {

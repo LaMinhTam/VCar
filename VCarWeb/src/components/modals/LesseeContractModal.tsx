@@ -1,7 +1,7 @@
 import { Avatar, Button, Col, Divider, Modal, Row, Spin, Tag, Typography } from "antd";
 import { IContractData, IVehicleHandoverResponseData } from "../../store/rental/types";
 import RentalSummary from "../../modules/checkout/RentalSummary";
-import { calculateDays, getUserInfoFromCookie, handleMetaMaskSignature, handleUploadSignature } from "../../utils";
+import { calculateDays, fetchImageFromUrl, getUserInfoFromCookie, handleMetaMaskSignature, handleUploadSignature } from "../../utils";
 import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { GET_CAR_BY_ID } from "../../store/car/action";
@@ -16,6 +16,7 @@ import SignatureCanvas from 'react-signature-canvas';
 import { message } from "antd";
 import ReturnVehicleHandover from "./ReturnVehicleHandover";
 import { useForm } from "antd/es/form/Form";
+import ImageModule from 'docxtemplater-image-module-free';
 
 const LesseeContractModal = ({ record }: {
     record: IContractData;
@@ -25,6 +26,7 @@ const LesseeContractModal = ({ record }: {
     const userInfo = getUserInfoFromCookie();
     const [signLoading, setSignLoading] = useState(false);
     const [viewLoading, setViewLoading] = useState(false);
+    const [viewHandoverLoading, setViewHandoverLoading] = useState(false);
     const numberOfDays = calculateDays(record?.rental_start_date, record?.rental_end_date);
     const { carDetail, loading: carLoading } = useSelector((state: RootState) => state.car);
     const [isSignaturePadVisible, setIsSignaturePadVisible] = useState(false);
@@ -100,6 +102,90 @@ const LesseeContractModal = ({ record }: {
                 return;
             }
         }
+    };
+    const handleViewHandoverDocument = async () => {
+        setViewHandoverLoading(true);
+
+        // Load template from public folder
+        const templateUrl = "/vehicle_handover_template.docx";
+        const response = await fetch(templateUrl);
+        const content = await response.arrayBuffer();
+
+        // Initialize PizZip
+        const zip = new PizZip(content);
+
+        // Initialize ImageModule
+        const imageOpts = {
+            centered: false,
+            getImage: async (tagValue: string) => {
+                // Use utility function to fetch image from URL
+                const imageBuffer = await fetchImageFromUrl(tagValue);
+                console.log("getImage: ~ imageBuffer:", imageBuffer)
+                return imageBuffer;
+            },
+            getSize: () => [150, 50] as [number, number] // Set image size, can be customized
+        };
+
+        const doc = new Docxtemplater(zip, {
+            modules: [new ImageModule(imageOpts)],
+            paragraphLoop: true,
+            linebreaks: true,
+        });
+
+        // Load signature URLs from vehicleHandover (assuming they are in the data)
+        const data = {
+            D: new Date(vehicleHandover?.handover_date).getDate() || '',
+            M: new Date(vehicleHandover?.handover_date).getMonth() + 1 || '',
+            Y: new Date(vehicleHandover?.handover_date).getFullYear() || '',
+            Location: vehicleHandover?.location || '',
+            Lessor: vehicleHandover?.lessor_name || '',
+            Lessee: vehicleHandover?.lessee_name || '',
+            CarLabel: car?.name || '',
+            CarType: 'Sedan',
+            CarPaint: 'Black',
+            CarYearManufacture: vehicleHandover?.car_manufacturing_year || '',
+            CarLicensePlate: vehicleHandover?.car_license_plate || '',
+            CarSeat: vehicleHandover?.car_seat || '',
+            RHour: vehicleHandover?.handover_hour || '',
+            RDay: new Date(vehicleHandover?.handover_date).getDate() || '',
+            RMonth: new Date(vehicleHandover?.handover_date).getMonth() + 1 || '',
+            RYear: new Date(vehicleHandover?.handover_date).getFullYear() || '',
+            X: vehicleHandover?.initial_condition_normal ? 'X' : '',
+            Odo: vehicleHandover?.odometer_reading || '',
+            Fuel: vehicleHandover?.fuel_level || '',
+            PersonalItems: vehicleHandover?.personal_items || '',
+            x1: 'X',
+            x2: '',
+            CMND: '',
+            MotoType: '',
+            MotoLicensePlate: '',
+            MotoLicense: '',
+            MoneyCollateral: '',
+            OtherCollateral: '',
+            // Insert signatures from URL into the docx file
+            LessorHandoverSign: vehicleHandover?.lessor_signature || '',
+            LesseeHandoverSign: vehicleHandover?.lessee_signature || '',
+            LessorReturnSign: vehicleHandover?.return_lessor_signature || '',
+            LesseeReturnSign: vehicleHandover?.return_lessee_signature || '',
+            ReHour: vehicleHandover?.return_hour || '',
+            ReDay: new Date(vehicleHandover?.return_date).getDate() || '',
+            ReMonth: new Date(vehicleHandover?.return_date).getMonth() + 1 || '',
+            ReYear: new Date(vehicleHandover?.return_date).getFullYear() || '',
+            x3: vehicleHandover?.condition_matches_initial ? 'X' : '',
+            ReOdo: vehicleHandover?.return_odometer_reading || '',
+            ReFuel: vehicleHandover?.return_fuel_level || '',
+            RePersonalItem: vehicleHandover?.personal_items || '',
+            x4: '',
+        };
+
+        // Render data into template
+        doc.render(data);
+
+        // Export filled contract
+        const blob = doc.getZip().generate({ type: 'blob' });
+        saveAs(blob, 'bien-ban-ban-giao-xe.docx');
+
+        setViewHandoverLoading(false);
     };
     const handleViewContract = async () => {
         setViewLoading(true);
@@ -276,7 +362,7 @@ const LesseeContractModal = ({ record }: {
                 <Col span={24}>
                     <Col span={24}>
                         <div className="flex items-center justify-end h-10 rounded-lg gap-x-3 bg-lite">
-                            {record?.rental_status === 'SIGNED' && vehicleHandover?.id && <Button type="text">View handover document</Button>}
+                            {record?.rental_status === 'SIGNED' && vehicleHandover?.id && <Button type="text" onClick={handleViewHandoverDocument} loading={viewHandoverLoading}>View handover document</Button>}
                             <Button type="text" danger onClick={handleViewContract} loading={viewLoading} disabled={signLoading}>View Contract</Button>
                             {record?.rental_status === 'SIGNED' && vehicleHandover?.status === 'CREATED' && <Button type="primary" loading={signLoading} onClick={() => setIsSignaturePadVisible(true)}>Approve handover</Button>}
                             {record?.rental_status === 'SIGNED' && vehicleHandover?.status === 'RENDING' && <Button type="primary" onClick={() => setOpenReturnModal(true)} disabled={loading}>Return Vehicle</Button>}
