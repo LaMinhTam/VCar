@@ -9,7 +9,6 @@ import { GET_LESSOR_REQUESTS } from "../../store/rental/action";
 import LesseeDetailDialog from "../../components/modals/LesseeDetailDialog";
 
 const MyLessee = () => {
-
     const { lessorListRequest, loading } = useSelector((state: RootState) => state.rental);
     const dispatch = useDispatch();
     const [modalRecord, setModalRecord] = useState<IRentalData>({} as IRentalData);
@@ -140,7 +139,7 @@ const MyLessee = () => {
                 }}
                 onChange={handleTableChange}
             />
-            <Modal title="Chi tiết yêu cầu" open={isModalOpen} onOk={handleOk} width={860} onCancel={handleCancel}>
+            <Modal title="Chi tiết yêu cầu" open={isModalOpen} onOk={handleOk} width={860} onCancel={handleCancel} loading>
                 <LesseeDetailDialog record={modalRecord} setIsModalOpen={setIsModalOpen} setParams={setParams} params={params}></LesseeDetailDialog>
             </Modal>
         </div>
