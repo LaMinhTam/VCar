@@ -1,7 +1,7 @@
 package vn.edu.iuh.sv.vcarbe.service;
 
 import org.bson.types.ObjectId;
-import reactor.core.publisher.Flux;
+import org.springframework.data.domain.Page;
 import reactor.core.publisher.Mono;
 import vn.edu.iuh.sv.vcarbe.dto.ApprovalRequest;
 import vn.edu.iuh.sv.vcarbe.dto.RentRequestDTO;
@@ -17,9 +17,9 @@ public interface RentalRequestService {
 
     Mono<RentalRequestDTO> rejectRentalContract(UserPrincipal userPrincipal, ApprovalRequest approvalRequest);
 
-    Flux<RentalRequestDTO> getRentalRequestForLessor(ObjectId id, String sortField, boolean sortDescending, RentRequestStatus status, int page, int size);
+    Mono<Page<RentalRequestDTO>> getRentalRequestForLessor(ObjectId id, String sortField, boolean sortDescending, RentRequestStatus status, int page, int size);
 
-    Flux<RentalRequestDTO> getRentalRequestForLessee(ObjectId id, String sortField, boolean sortDescending, RentRequestStatus status, int page, int size);
+    Mono<Page<RentalRequestDTO>> getRentalRequestForLessee(ObjectId id, String sortField, boolean sortDescending, RentRequestStatus status, int page, int size);
 
     Mono<RentalRequestDTO> getRentalRequest(ObjectId id);
 }

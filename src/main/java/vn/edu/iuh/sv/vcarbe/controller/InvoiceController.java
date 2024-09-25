@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 import vn.edu.iuh.sv.vcarbe.dto.ApiResponseWrapper;
+import vn.edu.iuh.sv.vcarbe.dto.ApiResponseWrapperWithMeta;
+import vn.edu.iuh.sv.vcarbe.dto.PaginationMetadata;
 import vn.edu.iuh.sv.vcarbe.security.CurrentUser;
 import vn.edu.iuh.sv.vcarbe.security.UserPrincipal;
 import vn.edu.iuh.sv.vcarbe.service.impl.InvoiceService;
@@ -28,15 +30,23 @@ public class InvoiceController {
             @ApiResponse(responseCode = "401", description = "Unauthorized request")
     })
     @GetMapping
-    public Mono<ApiResponseWrapper> getUserInvoices(
+    public Mono<ApiResponseWrapperWithMeta> getUserInvoices(
             @CurrentUser UserPrincipal userPrincipal,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "createdAt") String sortBy,
             @RequestParam(defaultValue = "asc") String sortDir) {
-        return invoiceService.getUserInvoices(userPrincipal, page, size, sortBy, sortDir)
-                .collectList()
-                .map(invoices -> new ApiResponseWrapper(200, "success", invoices));
+        return invoiceService.getUserInvoices(userPrincipal, page, size, sortBy, sortDir).map(paginatedInvoices -> {
+            PaginationMetadata pagination = new PaginationMetadata(
+                    paginatedInvoices.getNumber(),
+                    paginatedInvoices.getSize(),
+                    paginatedInvoices.getTotalElements(),
+                    paginatedInvoices.getTotalPages(),
+                    paginatedInvoices.hasPrevious(),
+                    paginatedInvoices.hasNext()
+            );
+            return new ApiResponseWrapperWithMeta(200, "success", paginatedInvoices.getContent(), pagination);
+        });
     }
 
     @Operation(summary = "Get invoice by ID", description = "Retrieves an invoice by its ID for the authenticated user")

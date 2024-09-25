@@ -1,16 +1,12 @@
 package vn.edu.iuh.sv.vcarbe.service.impl;
 
-import jakarta.servlet.http.HttpServletRequest;
 import org.bson.types.ObjectId;
 import org.modelmapper.ModelMapper;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import vn.edu.iuh.sv.vcarbe.config.VNPayConfig;
 import vn.edu.iuh.sv.vcarbe.dto.InvoiceDTO;
@@ -30,6 +26,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class InvoiceService {
@@ -194,11 +191,18 @@ public class InvoiceService {
         return fields;
     }
 
-    public Flux<InvoiceDTO> getUserInvoices(UserPrincipal userPrincipal, int page, int size, String sortBy, String sortDir) {
+    public Mono<Page<InvoiceDTO>> getUserInvoices(UserPrincipal userPrincipal, int page, int size, String sortBy, String sortDir) {
         Sort sort = Sort.by(Sort.Direction.fromString(sortDir.toUpperCase()), sortBy);
         Pageable pageable = PageRequest.of(page, size, sort);
         return invoiceRepository.findByLesseeId(userPrincipal.getId(), pageable)
-                .map(invoice -> modelMapper.map(invoice, InvoiceDTO.class));
+                .collectList()
+                .flatMap(invoices ->
+                        invoiceRepository.countByLesseeId(userPrincipal.getId())
+                                .map(total -> new PageImpl<>(
+                                        invoices.stream()
+                                                .map(invoice -> modelMapper.map(invoice, InvoiceDTO.class))
+                                                .toList(), pageable, total))
+                );
     }
 
     public Mono<InvoiceDTO> getInvoiceById(UserPrincipal userPrincipal, ObjectId invoiceId) {

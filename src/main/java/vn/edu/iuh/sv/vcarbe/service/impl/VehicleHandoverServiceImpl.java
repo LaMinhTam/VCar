@@ -3,11 +3,8 @@ package vn.edu.iuh.sv.vcarbe.service.impl;
 import org.bson.types.ObjectId;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import vn.edu.iuh.sv.vcarbe.dto.DigitalSignature;
 import vn.edu.iuh.sv.vcarbe.dto.VehicleHandoverDocumentDTO;
@@ -20,6 +17,8 @@ import vn.edu.iuh.sv.vcarbe.repository.RentalContractRepository;
 import vn.edu.iuh.sv.vcarbe.repository.VehicleHandoverRepository;
 import vn.edu.iuh.sv.vcarbe.security.UserPrincipal;
 import vn.edu.iuh.sv.vcarbe.service.VehicleHandoverService;
+
+import java.util.List;
 
 @Service
 public class VehicleHandoverServiceImpl implements VehicleHandoverService {
@@ -118,16 +117,32 @@ public class VehicleHandoverServiceImpl implements VehicleHandoverService {
     }
 
     @Override
-    public Flux<VehicleHandoverDocumentDTO> getVehicleHandoverForLessor(ObjectId id, String sortField, boolean sortDescending, int page, int size) {
+    public Mono<Page<VehicleHandoverDocumentDTO>> getVehicleHandoverForLessor(ObjectId id, String sortField, boolean sortDescending, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, sortDescending ? Sort.by(Sort.Order.desc(sortField)) : Sort.by(Sort.Order.asc(sortField)));
+
         return vehicleHandoverRepository.findByLessorId(id, pageable)
-                .map(document -> modelMapper.map(document, VehicleHandoverDocumentDTO.class));
+                .collectList()
+                .flatMap(documents -> {
+                    long total = documents.size(); // You might want to get the actual count from the database
+                    List<VehicleHandoverDocumentDTO> dtos = documents.stream()
+                            .map(document -> modelMapper.map(document, VehicleHandoverDocumentDTO.class))
+                            .toList();
+                    return Mono.just(new PageImpl<>(dtos, pageable, total));
+                });
     }
 
     @Override
-    public Flux<VehicleHandoverDocumentDTO> getVehicleHandoverForLessee(ObjectId id, String sortField, boolean sortDescending, int page, int size) {
+    public Mono<Page<VehicleHandoverDocumentDTO>> getVehicleHandoverForLessee(ObjectId id, String sortField, boolean sortDescending, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, sortDescending ? Sort.by(Sort.Order.desc(sortField)) : Sort.by(Sort.Order.asc(sortField)));
+
         return vehicleHandoverRepository.findByLesseeId(id, pageable)
-                .map(document -> modelMapper.map(document, VehicleHandoverDocumentDTO.class));
+                .collectList()
+                .flatMap(documents -> {
+                    long total = documents.size();
+                    List<VehicleHandoverDocumentDTO> dtos = documents.stream()
+                            .map(document -> modelMapper.map(document, VehicleHandoverDocumentDTO.class))
+                            .toList();
+                    return Mono.just(new PageImpl<>(dtos, pageable, total));
+                });
     }
 }

@@ -12,9 +12,9 @@ import java.util.Optional;
 
 public interface RentalContractRepository extends ReactiveMongoRepository<RentalContract, ObjectId> {
     Flux<RentalContract> findByLessorId(ObjectId owner, Pageable pageable);
-
     Flux<RentalContract> findByLesseeId(ObjectId lessee, Pageable pageable);
-
     Mono<RentalContract> findByLesseeIdAndId(ObjectId lessee, ObjectId id);
     Mono<RentalContract> findByLessorIdAndId(ObjectId lessor, ObjectId id);
+    Mono<Long> countByLessorId(ObjectId id);
+    Mono<Long> countByLesseeId(ObjectId id);
 }

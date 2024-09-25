@@ -108,7 +108,7 @@ public class VehicleHandoverController {
             @ApiResponse(responseCode = "200", description = "Vehicle handover documents retrieved successfully")
     })
     @GetMapping("/lessor")
-    public Mono<ResponseEntity<ApiResponseWrapper>> getVehicleHandoverForLessor(
+    public Mono<ResponseEntity<ApiResponseWrapperWithMeta>> getVehicleHandoverForLessor(
             @CurrentUser UserPrincipal userPrincipal,
             @Parameter(description = "Sort field", schema = @Schema(type = "string", example = "createdAt"))
             @RequestParam(defaultValue = "createdAt") String sortField,
@@ -119,8 +119,17 @@ public class VehicleHandoverController {
             @Parameter(description = "Page size", schema = @Schema(type = "integer", example = "10"))
             @RequestParam(defaultValue = "10") int size) {
         return vehicleHandoverService.getVehicleHandoverForLessor(userPrincipal.getId(), sortField, sortDescending, page, size)
-                .collectList()
-                .map(documents -> ResponseEntity.ok(new ApiResponseWrapper(200, "Vehicle handover documents retrieved successfully", documents)));
+                .map(pageData -> {
+                    PaginationMetadata pagination = new PaginationMetadata(
+                            pageData.getNumber(),
+                            pageData.getSize(),
+                            pageData.getTotalElements(),
+                            pageData.getTotalPages(),
+                            pageData.hasPrevious(),
+                            pageData.hasNext()
+                    );
+                    return ResponseEntity.ok(new ApiResponseWrapperWithMeta(200, "Vehicle handover documents retrieved successfully", pageData.getContent(), pagination));
+                });
     }
 
     @Operation(summary = "Get all vehicle handover documents for lessee", description = "Fetches all vehicle handover documents for the authenticated lessee with pagination and sorting options")
@@ -128,7 +137,7 @@ public class VehicleHandoverController {
             @ApiResponse(responseCode = "200", description = "Vehicle handover documents retrieved successfully")
     })
     @GetMapping("/lessee")
-    public Mono<ResponseEntity<ApiResponseWrapper>> getVehicleHandoverForLessee(
+    public Mono<ResponseEntity<ApiResponseWrapperWithMeta>> getVehicleHandoverForLessee(
             @CurrentUser UserPrincipal userPrincipal,
             @Parameter(description = "Sort field", schema = @Schema(type = "string", example = "createdAt"))
             @RequestParam(defaultValue = "createdAt") String sortField,
@@ -139,7 +148,16 @@ public class VehicleHandoverController {
             @Parameter(description = "Page size", schema = @Schema(type = "integer", example = "10"))
             @RequestParam(defaultValue = "10") int size) {
         return vehicleHandoverService.getVehicleHandoverForLessee(userPrincipal.getId(), sortField, sortDescending, page, size)
-                .collectList()
-                .map(documents -> ResponseEntity.ok(new ApiResponseWrapper(200, "Vehicle handover documents retrieved successfully", documents)));
+                .map(pageData -> {
+                    PaginationMetadata pagination = new PaginationMetadata(
+                            pageData.getNumber(),
+                            pageData.getSize(),
+                            pageData.getTotalElements(),
+                            pageData.getTotalPages(),
+                            pageData.hasPrevious(),
+                            pageData.hasNext()
+                    );
+                    return ResponseEntity.ok(new ApiResponseWrapperWithMeta(200, "Vehicle handover documents retrieved successfully", pageData.getContent(), pagination));
+                });
     }
 }

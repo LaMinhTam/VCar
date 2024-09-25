@@ -8,11 +8,10 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import vn.edu.iuh.sv.vcarbe.entity.Invoice;
 
-import java.util.Optional;
-
 @Repository
 public interface InvoiceRepository extends ReactiveMongoRepository<Invoice, ObjectId> {
     Mono<Invoice> findByTxnRef(String invoiceId);
     Flux<Invoice> findByLesseeId(ObjectId lesseeId, Pageable pageable);
     Mono<Invoice> findByIdAndLesseeId(ObjectId invoiceId, ObjectId lesseeId);
+    Mono<Long> countByLesseeId(ObjectId id);
 }

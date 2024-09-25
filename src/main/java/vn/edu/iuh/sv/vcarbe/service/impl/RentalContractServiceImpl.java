@@ -3,15 +3,11 @@ package vn.edu.iuh.sv.vcarbe.service.impl;
 import org.bson.types.ObjectId;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import vn.edu.iuh.sv.vcarbe.dto.RentalContractDTO;
 import vn.edu.iuh.sv.vcarbe.dto.SignRequest;
-import vn.edu.iuh.sv.vcarbe.entity.NotificationType;
 import vn.edu.iuh.sv.vcarbe.exception.AppException;
 import vn.edu.iuh.sv.vcarbe.repository.RentalContractRepository;
 import vn.edu.iuh.sv.vcarbe.security.UserPrincipal;
@@ -31,24 +27,46 @@ public class RentalContractServiceImpl implements RentalContractService {
     private BlockchainUtils blockchainUtils;
 
     @Override
-    public Flux<RentalContractDTO> getRentalContractForLessor(
+    public Mono<Page<RentalContractDTO>> getRentalContractForLessor(
             ObjectId id, String sortField, boolean sortDescending, int page, int size) {
         Sort sort = sortDescending ? Sort.by(Sort.Order.desc(sortField)) : Sort.by(Sort.Order.asc(sortField));
         Pageable pageable = PageRequest.of(page, size, sort);
 
         return rentalContractRepository.findByLessorId(id, pageable)
-                .map(rentalContract -> modelMapper.map(rentalContract, RentalContractDTO.class));
+                .collectList()
+                .flatMap(rentalContracts ->
+                        rentalContractRepository.countByLessorId(id)
+                                .map(total -> new PageImpl<>(
+                                        rentalContracts.stream()
+                                                .map(contract -> modelMapper.map(contract, RentalContractDTO.class))
+                                                .toList(),
+                                        pageable,
+                                        total)
+                                )
+                );
     }
 
+
     @Override
-    public Flux<RentalContractDTO> getRentalContractForLessee(
+    public Mono<Page<RentalContractDTO>> getRentalContractForLessee(
             ObjectId id, String sortField, boolean sortDescending, int page, int size) {
         Sort sort = sortDescending ? Sort.by(Sort.Order.desc(sortField)) : Sort.by(Sort.Order.asc(sortField));
         Pageable pageable = PageRequest.of(page, size, sort);
 
         return rentalContractRepository.findByLesseeId(id, pageable)
-                .map(rentalContract -> modelMapper.map(rentalContract, RentalContractDTO.class));
+                .collectList()
+                .flatMap(rentalContracts ->
+                        rentalContractRepository.countByLesseeId(id)
+                                .map(total -> new PageImpl<>(
+                                        rentalContracts.stream()
+                                                .map(contract -> modelMapper.map(contract, RentalContractDTO.class))
+                                                .toList(),
+                                        pageable,
+                                        total)
+                                )
+                );
     }
+
 
     @Override
     public Mono<RentalContractDTO> getRentalContract(ObjectId id) throws Exception {

@@ -3,9 +3,7 @@ package vn.edu.iuh.sv.vcarbe.service.impl;
 import org.bson.types.ObjectId;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -114,7 +112,9 @@ public class RentalRequestServiceImpl implements RentalRequestService {
     }
 
     @Override
-    public Flux<RentalRequestDTO> getRentalRequestForLessor(ObjectId id, String sortField, boolean sortDescending, RentRequestStatus status, int page, int size) {
+    public Mono<Page<RentalRequestDTO>> getRentalRequestForLessor(
+            ObjectId id, String sortField, boolean sortDescending, RentRequestStatus status, int page, int size) {
+
         Sort sort = sortDescending ? Sort.by(Sort.Order.desc(sortField)) : Sort.by(Sort.Order.asc(sortField));
         Pageable pageable = PageRequest.of(page, size, sort);
 
@@ -122,11 +122,24 @@ public class RentalRequestServiceImpl implements RentalRequestService {
                 ? rentalRequestRepository.findByLessorIdAndStatus(id, status, pageable)
                 : rentalRequestRepository.findByLessorId(id, pageable);
 
-        return rentalRequests.map(rentalRequest -> modelMapper.map(rentalRequest, RentalRequestDTO.class));
+        return rentalRequests.collectList()
+                .flatMap(requests ->
+                        rentalRequestRepository.countByLessorIdAndStatus(id, status)
+                                .map(total -> new PageImpl<>(
+                                        requests.stream()
+                                                .map(request -> modelMapper.map(request, RentalRequestDTO.class))
+                                                .toList(),
+                                        pageable,
+                                        total)
+                                )
+                );
     }
 
+
     @Override
-    public Flux<RentalRequestDTO> getRentalRequestForLessee(ObjectId id, String sortField, boolean sortDescending, RentRequestStatus status, int page, int size) {
+    public Mono<Page<RentalRequestDTO>> getRentalRequestForLessee(
+            ObjectId id, String sortField, boolean sortDescending, RentRequestStatus status, int page, int size) {
+
         Sort sort = sortDescending ? Sort.by(Sort.Order.desc(sortField)) : Sort.by(Sort.Order.asc(sortField));
         Pageable pageable = PageRequest.of(page, size, sort);
 
@@ -134,8 +147,19 @@ public class RentalRequestServiceImpl implements RentalRequestService {
                 ? rentalRequestRepository.findByLesseeIdAndStatus(id, status, pageable)
                 : rentalRequestRepository.findByLesseeId(id, pageable);
 
-        return rentalRequests.map(rentalRequest -> modelMapper.map(rentalRequest, RentalRequestDTO.class));
+        return rentalRequests.collectList()
+                .flatMap(requests ->
+                        rentalRequestRepository.countByLesseeIdAndStatus(id, status)
+                                .map(total -> new PageImpl<>(
+                                        requests.stream()
+                                                .map(request -> modelMapper.map(request, RentalRequestDTO.class))
+                                                .toList(),
+                                        pageable,
+                                        total)
+                                )
+                );
     }
+
 
 
     @Override

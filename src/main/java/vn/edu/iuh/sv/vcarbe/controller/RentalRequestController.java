@@ -79,7 +79,7 @@ public class RentalRequestController {
             @ApiResponse(responseCode = "200", description = "Rental requests retrieved successfully")
     })
     @GetMapping("/lessor")
-    public Mono<ResponseEntity<ApiResponseWrapper>> getRentalRequestForLessor(
+    public Mono<ApiResponseWrapperWithMeta> getRentalRequestForLessor(
             @CurrentUser UserPrincipal userPrincipal,
             @RequestParam(defaultValue = "createdAt") String sortField,
             @RequestParam(defaultValue = "false") boolean sortDescending,
@@ -87,16 +87,26 @@ public class RentalRequestController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         return rentalRequestService.getRentalRequestForLessor(userPrincipal.getId(), sortField, sortDescending, status, page, size)
-                .collectList()
-                .map(rentalRequests -> ResponseEntity.ok(new ApiResponseWrapper(200, "success", rentalRequests)));
+                .map(paginatedRequests -> {
+                    PaginationMetadata pagination = new PaginationMetadata(
+                            paginatedRequests.getNumber(),
+                            paginatedRequests.getSize(),
+                            paginatedRequests.getTotalElements(),
+                            paginatedRequests.getTotalPages(),
+                            paginatedRequests.hasPrevious(),
+                            paginatedRequests.hasNext()
+                    );
+                    return new ApiResponseWrapperWithMeta(200, "success", paginatedRequests.getContent(), pagination);
+                });
     }
+
 
     @Operation(summary = "Get rental requests for lessee", description = "Retrieves rental requests for the lessee based on various criteria")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Rental requests retrieved successfully")
     })
     @GetMapping("/lessee")
-    public Mono<ResponseEntity<ApiResponseWrapper>> getRentalRequestForLessee(
+    public Mono<ApiResponseWrapperWithMeta> getRentalRequestForLessee(
             @CurrentUser UserPrincipal userPrincipal,
             @RequestParam(defaultValue = "createdAt") String sortField,
             @RequestParam(defaultValue = "false") boolean sortDescending,
@@ -104,9 +114,19 @@ public class RentalRequestController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         return rentalRequestService.getRentalRequestForLessee(userPrincipal.getId(), sortField, sortDescending, status, page, size)
-                .collectList()
-                .map(rentalRequests -> ResponseEntity.ok(new ApiResponseWrapper(200, "success", rentalRequests)));
+                .map(paginatedRequests -> {
+                    PaginationMetadata pagination = new PaginationMetadata(
+                            paginatedRequests.getNumber(),
+                            paginatedRequests.getSize(),
+                            paginatedRequests.getTotalElements(),
+                            paginatedRequests.getTotalPages(),
+                            paginatedRequests.hasPrevious(),
+                            paginatedRequests.hasNext()
+                    );
+                    return new ApiResponseWrapperWithMeta(200, "success", paginatedRequests.getContent(), pagination);
+                });
     }
+
 
     @Operation(summary = "Get a rental request by ID", description = "Finds a rental request by its ID")
     @ApiResponses(value = {

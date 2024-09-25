@@ -78,30 +78,50 @@ public class RentalContractController {
             @ApiResponse(responseCode = "200", description = "Rental contracts retrieved successfully")
     })
     @GetMapping("/lessor")
-    public Mono<ResponseEntity<ApiResponseWrapper>> getRentalContractForLessor(
+    public Mono<ApiResponseWrapperWithMeta> getRentalContractForLessor(
             @CurrentUser UserPrincipal userPrincipal,
             @RequestParam(defaultValue = "createdAt") String sortField,
             @RequestParam(defaultValue = "false") boolean sortDescending,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         return rentalContractService.getRentalContractForLessor(userPrincipal.getId(), sortField, sortDescending, page, size)
-                .collectList()
-                .map(rentalContracts -> ResponseEntity.ok(new ApiResponseWrapper(200, "Rental contracts retrieved", rentalContracts)));
+                .map(paginatedContracts -> {
+                    PaginationMetadata pagination = new PaginationMetadata(
+                            paginatedContracts.getNumber(),
+                            paginatedContracts.getSize(),
+                            paginatedContracts.getTotalElements(),
+                            paginatedContracts.getTotalPages(),
+                            paginatedContracts.hasPrevious(),
+                            paginatedContracts.hasNext()
+                    );
+                    return new ApiResponseWrapperWithMeta(200, "Rental contracts retrieved", paginatedContracts.getContent(), pagination);
+                });
     }
+
 
     @Operation(summary = "Get rental contracts for lessee", description = "Fetches all rental contracts for the authenticated lessee with pagination and sorting options")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Rental contracts retrieved successfully")
     })
     @GetMapping("/lessee")
-    public Mono<ResponseEntity<ApiResponseWrapper>> getRentalContractForLessee(
+    public Mono<ApiResponseWrapperWithMeta> getRentalContractForLessee(
             @CurrentUser UserPrincipal userPrincipal,
             @RequestParam(defaultValue = "createdAt") String sortField,
             @RequestParam(defaultValue = "false") boolean sortDescending,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         return rentalContractService.getRentalContractForLessee(userPrincipal.getId(), sortField, sortDescending, page, size)
-                .collectList()
-                .map(rentalContracts -> ResponseEntity.ok(new ApiResponseWrapper(200, "Rental contracts retrieved", rentalContracts)));
+                .map(paginatedContracts -> {
+                    PaginationMetadata pagination = new PaginationMetadata(
+                            paginatedContracts.getNumber(),
+                            paginatedContracts.getSize(),
+                            paginatedContracts.getTotalElements(),
+                            paginatedContracts.getTotalPages(),
+                            paginatedContracts.hasPrevious(),
+                            paginatedContracts.hasNext()
+                    );
+                    return new ApiResponseWrapperWithMeta(200, "Rental contracts retrieved", paginatedContracts.getContent(), pagination);
+                });
     }
+
 }

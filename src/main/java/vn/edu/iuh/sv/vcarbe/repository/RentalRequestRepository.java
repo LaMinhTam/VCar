@@ -23,4 +23,8 @@ public interface RentalRequestRepository extends ReactiveMongoRepository<RentalR
     Flux<RentalRequest> findByLesseeIdAndStatus(ObjectId id, RentRequestStatus status, Pageable pageable);
 
     Flux<RentalRequest> findByLesseeId(ObjectId id, Pageable pageable);
+
+    Mono<Long> countByLessorIdAndStatus(ObjectId id, RentRequestStatus status);
+
+    Mono<Long> countByLesseeIdAndStatus(ObjectId id, RentRequestStatus status);
 }
