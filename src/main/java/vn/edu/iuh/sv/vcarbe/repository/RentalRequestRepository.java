@@ -27,4 +27,8 @@ public interface RentalRequestRepository extends ReactiveMongoRepository<RentalR
     Mono<Long> countByLessorIdAndStatus(ObjectId id, RentRequestStatus status);
 
     Mono<Long> countByLesseeIdAndStatus(ObjectId id, RentRequestStatus status);
+
+    Mono<Long> countByLessorId(ObjectId id);
+
+    Mono<Long> countByLesseeId(ObjectId id);
 }

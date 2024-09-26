@@ -118,21 +118,25 @@ public class RentalRequestServiceImpl implements RentalRequestService {
         Sort sort = sortDescending ? Sort.by(Sort.Order.desc(sortField)) : Sort.by(Sort.Order.asc(sortField));
         Pageable pageable = PageRequest.of(page, size, sort);
 
-        Flux<RentalRequest> rentalRequests = (status != null)
-                ? rentalRequestRepository.findByLessorIdAndStatus(id, status, pageable)
-                : rentalRequestRepository.findByLessorId(id, pageable);
+        Flux<RentalRequest> rentalRequests;
+        Mono<Long> countMono;
+
+        if (status != null) {
+            rentalRequests = rentalRequestRepository.findByLessorIdAndStatus(id, status, pageable);
+            countMono = rentalRequestRepository.countByLessorIdAndStatus(id, status);
+        } else {
+            rentalRequests = rentalRequestRepository.findByLessorId(id, pageable);
+            countMono = rentalRequestRepository.countByLessorId(id);
+        }
 
         return rentalRequests.collectList()
-                .flatMap(requests ->
-                        rentalRequestRepository.countByLessorIdAndStatus(id, status)
-                                .map(total -> new PageImpl<>(
-                                        requests.stream()
-                                                .map(request -> modelMapper.map(request, RentalRequestDTO.class))
-                                                .toList(),
-                                        pageable,
-                                        total)
-                                )
-                );
+                .zipWith(countMono, (requests, total) -> new PageImpl<>(
+                        requests.stream()
+                                .map(request -> modelMapper.map(request, RentalRequestDTO.class))
+                                .toList(),
+                        pageable,
+                        total
+                ));
     }
 
 
@@ -143,23 +147,26 @@ public class RentalRequestServiceImpl implements RentalRequestService {
         Sort sort = sortDescending ? Sort.by(Sort.Order.desc(sortField)) : Sort.by(Sort.Order.asc(sortField));
         Pageable pageable = PageRequest.of(page, size, sort);
 
-        Flux<RentalRequest> rentalRequests = (status != null)
-                ? rentalRequestRepository.findByLesseeIdAndStatus(id, status, pageable)
-                : rentalRequestRepository.findByLesseeId(id, pageable);
+        Flux<RentalRequest> rentalRequests;
+        Mono<Long> countMono;
+
+        if (status != null) {
+            rentalRequests = rentalRequestRepository.findByLesseeIdAndStatus(id, status, pageable);
+            countMono = rentalRequestRepository.countByLesseeIdAndStatus(id, status);
+        } else {
+            rentalRequests = rentalRequestRepository.findByLesseeId(id, pageable);
+            countMono = rentalRequestRepository.countByLesseeId(id);
+        }
 
         return rentalRequests.collectList()
-                .flatMap(requests ->
-                        rentalRequestRepository.countByLesseeIdAndStatus(id, status)
-                                .map(total -> new PageImpl<>(
-                                        requests.stream()
-                                                .map(request -> modelMapper.map(request, RentalRequestDTO.class))
-                                                .toList(),
-                                        pageable,
-                                        total)
-                                )
-                );
+                .zipWith(countMono, (requests, total) -> new PageImpl<>(
+                        requests.stream()
+                                .map(request -> modelMapper.map(request, RentalRequestDTO.class))
+                                .toList(),
+                        pageable,
+                        total
+                ));
     }
-
 
 
     @Override
