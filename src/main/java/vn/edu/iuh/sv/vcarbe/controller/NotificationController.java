@@ -52,4 +52,46 @@ public class NotificationController {
         return notificationService.markAsRead(id)
                 .map(notification -> ResponseEntity.ok(new ApiResponseWrapper(200, "Notification marked as read", notification)));
     }
+
+    @Operation(summary = "Subscribe a device for push notifications",
+            description = "Adds a device token to the user's list of subscribed devices.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Device subscribed successfully"),
+            @ApiResponse(responseCode = "400", description = "Bad request")
+    })
+    @PostMapping("/subscribe-device")
+    public Mono<ResponseEntity<ApiResponseWrapper>> subscribeDevice(
+            @RequestParam String deviceToken,
+            @CurrentUser UserPrincipal userPrincipal) {
+        return notificationService.addDeviceToken(userPrincipal.getId(), deviceToken)
+                .map(notification -> ResponseEntity.ok(new ApiResponseWrapper(200, "Device subscribed successfully", notification)));
+    }
+
+    @Operation(summary = "Unsubscribe a device from push notifications",
+            description = "Removes a device token from the user's list of subscribed devices.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Device unsubscribed successfully"),
+            @ApiResponse(responseCode = "400", description = "Bad request")
+    })
+    @DeleteMapping("/unsubscribe-device")
+    public Mono<ResponseEntity<ApiResponseWrapper>> unsubscribeDevice(
+            @RequestParam String deviceToken,
+            @CurrentUser UserPrincipal userPrincipal) {
+        return notificationService.removeDeviceToken(userPrincipal.getId(), deviceToken)
+                .map(notification -> ResponseEntity.ok(new ApiResponseWrapper(200, "Device unsubscribed successfully", notification)));
+    }
+
+    @Operation(summary = "Send message to specific device",
+            description = "Send message to specific device.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Message sent successfully"),
+            @ApiResponse(responseCode = "400", description = "Bad request")
+    })
+    @PostMapping("/send-message")
+    public Mono<ResponseEntity<ApiResponseWrapper>> sendMessage(
+            @RequestParam String deviceToken,
+            @RequestParam String message) {
+        return notificationService.sendMessage(deviceToken, message)
+                .map(notification -> ResponseEntity.ok(new ApiResponseWrapper(200, "Remember this is test only", notification)));
+    }
 }

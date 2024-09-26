@@ -11,7 +11,9 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.MongoId;
 
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 @Document(collection = "users")
 @Data
@@ -35,6 +37,7 @@ public class User {
     private String providerId;
     private CarLicense carLicense;
     private CitizenIdentification citizenIdentification;
+    private Set<String> deviceTokens = new HashSet<>();
 
     public User(ObjectId id) {
         this.id = id;

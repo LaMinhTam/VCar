@@ -52,3 +52,5 @@ springdoc:
     path: /api-docs
   swagger-ui:
     path: /swagger-ui-custom.html
+vcar:
+  icon: ${VCAR_ICON}

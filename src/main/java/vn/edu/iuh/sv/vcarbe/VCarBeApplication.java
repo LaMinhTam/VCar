@@ -24,6 +24,7 @@ public class VCarBeApplication {
         System.setProperty("REDIS_PORT", dotenv.get("REDIS_PORT"));
         System.setProperty("REDIS_PASSWORD", dotenv.get("REDIS_PASSWORD"));
         System.setProperty("TIMEZONE_OFFSET", dotenv.get("TIMEZONE_OFFSET"));
+        System.setProperty("VCAR_ICON", dotenv.get("VCAR_ICON"));
 
         SpringApplication.run(VCarBeApplication.class, args);
     }
