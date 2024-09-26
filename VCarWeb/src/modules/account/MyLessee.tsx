@@ -128,13 +128,13 @@ const MyLessee = () => {
             <Table
                 className="w-full"
                 columns={columns}
-                dataSource={lessorListRequest}
+                dataSource={lessorListRequest?.data}
                 loading={loading}
                 rowKey="id"
                 pagination={{
-                    pageSize: Number(params.size),
                     current: Number(params.page) + 1,
-                    total: lessorListRequest.length,
+                    pageSize: Number(params.size),
+                    total: lessorListRequest?.meta.item_count,
                     showSizeChanger: true,
                 }}
                 onChange={handleTableChange}

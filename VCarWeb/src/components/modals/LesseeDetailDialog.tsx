@@ -26,7 +26,6 @@ const LesseeDetailDialog = ({ record, setIsModalOpen, params, setParams }: {
     const { carDetail } = useSelector((state: RootState) => state.car);
     const { car } = carDetail;
     const [approveLoading, setApproveLoading] = useState(false);
-    console.log("approveLoading:", approveLoading)
     const [rejectLoading, setRejectLoading] = useState(false);
     const [isSignaturePadVisible, setIsSignaturePadVisible] = useState(false);
     const sigCanvas = useRef<SignatureCanvas>(null);

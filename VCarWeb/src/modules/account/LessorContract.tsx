@@ -116,13 +116,13 @@ const LessorContract = () => {
             <Table
                 className="w-full"
                 columns={columns}
-                dataSource={lessorListContract}
+                dataSource={lessorListContract?.data}
                 loading={loading}
                 rowKey="id"
                 pagination={{
                     pageSize: Number(params.size),
                     current: Number(params.page) + 1,
-                    total: lessorListContract.length,
+                    total: lessorListContract?.meta.item_count,
                     showSizeChanger: true,
                 }}
                 onChange={handleTableChange}

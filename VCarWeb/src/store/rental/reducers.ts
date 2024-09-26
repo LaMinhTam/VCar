@@ -1,14 +1,26 @@
-import { IContractData, IRentalData, IRentalState } from "./types";
+import { IContractData, IMetaData, IRentalData, IRentalState } from "./types";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 const initialState: IRentalState = {
   loading: false,
   error: null,
   lesseeRequest: {} as IRentalData,
-  lessorListRequest: [],
-  lesseeListRequest: [],
-  lesseeListContract: [],
-  lessorListContract: [],
+  lessorListRequest: {
+    data: [],
+    meta: {} as IMetaData
+  },
+  lesseeListRequest: {
+    data: [],
+    meta: {} as IMetaData
+  },
+  lesseeListContract: {
+    data: [],
+    meta: {} as IMetaData
+  },
+  lessorListContract: {
+    data: [],
+    meta: {} as IMetaData
+  },
   uploadProgress: 0,
 };
 
@@ -37,7 +49,10 @@ const rentalSlice = createSlice({
     },
     getLesseeRentRequestSuccess(
       state,
-      action: PayloadAction<IRentalData[]>
+      action: PayloadAction<{
+          data: IRentalData[];
+          meta: IMetaData;
+        }>
     ) {
       state.loading = false;
       state.lesseeListRequest = action.payload;
@@ -55,7 +70,10 @@ const rentalSlice = createSlice({
     },
     getLessorRentRequestSuccess(
       state,
-      action: PayloadAction<IRentalData[]>
+      action: PayloadAction<{
+        data: IRentalData[];
+        meta: IMetaData;
+      }>
     ) {
       state.loading = false;
       state.lessorListRequest = action.payload;
@@ -73,7 +91,10 @@ const rentalSlice = createSlice({
     },
     getLesseeContractSuccess (
       state,
-      action: PayloadAction<IContractData[]>
+      action: PayloadAction<{
+        data: IContractData[];
+        meta: IMetaData;
+      }>
     ) {
       state.loading = false;
       state.lesseeListContract = action.payload;
@@ -91,7 +112,10 @@ const rentalSlice = createSlice({
     },
     getLessorContractSuccess (
       state,
-      action: PayloadAction<IContractData[]>
+      action: PayloadAction<{
+        data: IContractData[];
+        meta: IMetaData;
+      }>
     ) {
       state.loading = false;
       state.lessorListContract = action.payload;

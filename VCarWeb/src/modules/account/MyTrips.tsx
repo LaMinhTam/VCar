@@ -10,6 +10,7 @@ import TripDetailDialog from "../../components/modals/TripDetailDialog";
 
 const MyTrips = () => {
     const { lesseeListRequest, loading } = useSelector((state: RootState) => state.rental);
+    console.log("MyTrips ~ lesseeListRequest:", lesseeListRequest)
     const [modalRecord, setModalRecord] = useState<IRentalData>({} as IRentalData);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const dispatch = useDispatch();
@@ -128,14 +129,15 @@ const MyTrips = () => {
             <Table
                 className="w-full"
                 columns={columns}
-                dataSource={lesseeListRequest}
+                dataSource={lesseeListRequest?.data}
                 loading={loading}
                 rowKey="id"
                 pagination={{
                     pageSize: Number(params.size),
+                    total: lesseeListRequest?.meta.item_count,
                     current: Number(params.page) + 1,
-                    total: lesseeListRequest.length,
                     showSizeChanger: true,
+                    showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} items`,
                 }}
                 onChange={handleTableChange}
             />

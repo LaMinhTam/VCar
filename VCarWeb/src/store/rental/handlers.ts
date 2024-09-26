@@ -2,7 +2,7 @@ import { call, put } from "redux-saga/effects";
 import { AxiosResponse } from "axios";
 import { axiosPrivate } from "../../apis/axios";
 import { ENDPOINTS } from "./models";
-import { IContractData, IContractParams, IDigitalSignature, ILessorApproveRequestResponse, IRentalData, IRentalRequestParams, IReturnHandover, IVehicleHandover, IVehicleHandoverResponseData } from "./types";
+import { IContractData, IContractParams, IDigitalSignature, ILessorApproveRequestResponse, IMetaData, IRentalData, IRentalRequestParams, IReturnHandover, IVehicleHandover, IVehicleHandoverResponseData } from "./types";
 import {
   getLesseeContract,
   getLesseeContractFailure,
@@ -31,6 +31,7 @@ interface IListRentRequestResponse {
   code: number;
   message: string;
   data: IRentalData[];
+  meta: IMetaData
 }
 
 interface IApproveRentRequestResponse {
@@ -43,6 +44,7 @@ interface IContractResponse {
   code: number;
   message: string;
   data: IContractData[];
+  meta: IMetaData
 }
 interface IContractByIdResponse {
   code: number;
@@ -93,9 +95,12 @@ export function* getLesseeRentRequests(action: {
       yield call(axiosPrivate.get, ENDPOINTS.GET_LESSEE_REQUESTS, {
         params: action.payload,
       });
-    const { code, data } = response.data;
+    const { code, data, meta } = response.data;
     if (code === 200) {
-      yield put(getLesseeRentRequestSuccess(data));
+      yield put(getLesseeRentRequestSuccess({
+        data,
+        meta
+      }));
     }
   } catch (error) {
     const typedError = error as Error;
@@ -113,9 +118,12 @@ export function* lessorGetRentRequests(action: {
       yield call(axiosPrivate.get, ENDPOINTS.GET_LESSOR_REQUESTS, {
         params: action.payload,
       });
-    const { code, data } = response.data;
+    const { code, data, meta } = response.data;
     if (code === 200) {
-      yield put(getLessorRentRequestSuccess(data));
+      yield put(getLessorRentRequestSuccess({
+        data,
+        meta
+      }));
     }
   } catch (error) {
     const typedError = error as Error;
@@ -163,9 +171,12 @@ export function* getLesseeContracts(action: {
     const response: AxiosResponse<IContractResponse> = yield call(axiosPrivate.get, ENDPOINTS.GET_LESSEE_CONTRACTS, {
       params: action.payload,
     });
-    const { code, data } = response.data;
+    const { code, data, meta } = response.data;
     if (code === 200) {
-      yield put(getLesseeContractSuccess(data));
+      yield put(getLesseeContractSuccess({
+        data,
+        meta
+      }));
     }
   } catch (error) {
     const typedError = error as Error;
@@ -182,9 +193,12 @@ export function* getLessorContracts(action: {
     const response: AxiosResponse<IContractResponse> = yield call(axiosPrivate.get, ENDPOINTS.GET_LESSOR_CONTRACTS, {
       params: action.payload,
     });
-    const { code, data } = response.data;
+    const { code, data, meta } = response.data;
     if (code === 200) {
-      yield put(getLessorContractSuccess(data));
+      yield put(getLessorContractSuccess({
+        data,
+        meta
+      }));
     }
   } catch (error) {
     const typedError = error as Error;

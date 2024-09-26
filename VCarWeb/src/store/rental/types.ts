@@ -2,11 +2,32 @@ export interface IRentalState {
   loading: boolean;
   error: string | null;
   lesseeRequest: IRentalData;
-  lessorListRequest: IRentalData[];
-  lesseeListRequest: IRentalData[];
-  lesseeListContract: IContractData[];
-  lessorListContract: IContractData[];
+  lessorListRequest: {
+    data: IRentalData[];
+    meta: IMetaData
+  };
+  lesseeListRequest: {
+    data: IRentalData[];
+    meta: IMetaData
+  };
+  lesseeListContract: {
+    data: IContractData[];
+    meta: IMetaData
+  };
+  lessorListContract: {
+    data: IContractData[];
+    meta: IMetaData
+  };
   uploadProgress: number;
+}
+
+export interface IMetaData {
+  has_next_page: boolean;
+  has_previous_page: boolean;
+  item_count: number;
+  page: number;
+  page_count: number;
+  page_size: number;
 }
 
 export interface IRentalData {
