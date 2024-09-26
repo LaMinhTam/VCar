@@ -136,6 +136,7 @@ const MyLessee = () => {
                     pageSize: Number(params.size),
                     total: lessorListRequest?.meta.item_count,
                     showSizeChanger: true,
+                    showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} items`,
                 }}
                 onChange={handleTableChange}
             />

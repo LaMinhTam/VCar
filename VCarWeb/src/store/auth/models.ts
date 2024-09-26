@@ -5,5 +5,4 @@ export const ENDPOINTS = {
   REFRESH_TOKEN: "/auth/refresh",
   VERIFY_EMAIL: "/auth/verify",
   VERIFY_PHONE: "/auth/update-phone",
-  GET_ME: "/users/me",
 };

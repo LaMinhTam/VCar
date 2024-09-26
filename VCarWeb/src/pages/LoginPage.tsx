@@ -8,11 +8,11 @@ import { getAccessToken, saveUserInfoToCookie } from "../utils";
 import { login } from "../store/auth/handlers";
 import { AxiosResponse } from "axios";
 import { IUser } from "../store/auth/types";
-import { ENDPOINTS } from "../store/auth/models";
 import { useSelector } from "react-redux";
 import { RootState } from "../store/store";
 import { axiosPrivate } from "../apis/axios";
 import { useAuth } from "../contexts/auth-context";
+import { ENDPOINTS } from "../store/profile/models";
 type FieldType = {
   email: string;
   password: string;
