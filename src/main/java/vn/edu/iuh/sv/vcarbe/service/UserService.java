@@ -9,7 +9,7 @@ public interface UserService {
 
     Mono<UserDTO> updateCarLicense(ObjectId userId, UpdateCarLicenseDTO updateCarLicenseDTO);
 
-    Mono<UserDTO> getUserById(ObjectId id);
+    Mono<UserProfileDTO> getUserById(ObjectId id);
 
     Mono<UserDTO> updateCitizenIdentification(ObjectId userId, UpdateCitizenIdentificationDTO updateCitizenIdentificationDTO);
 

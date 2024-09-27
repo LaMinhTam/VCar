@@ -26,9 +26,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Mono<UserDTO> getUserById(ObjectId id) {
+    public Mono<UserProfileDTO> getUserById(ObjectId id) {
         return getUserByIdFromRepository(id)
-                .map(user -> modelMapper.map(user, UserDTO.class));
+                .map(user -> modelMapper.map(user, UserProfileDTO.class));
     }
 
     @Override
