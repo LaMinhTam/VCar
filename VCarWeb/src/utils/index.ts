@@ -12,6 +12,7 @@ import { setUploadProgress } from "../store/rental/reducers";
 import { AppDispatch } from "../store/store";
 import { RefObject } from "react";
 import SignatureCanvas from 'react-signature-canvas';
+import { CitizenIdentificationData, LicenseData } from "../store/profile/types";
 
 const accessTokenKey = "VCAR_ACCESS_TOKEN";
 const refreshTokenKey = "VCAR_REFRESH_TOKEN";
@@ -205,6 +206,56 @@ export async function handleUploadSignature(sigCanvas: RefObject<SignatureCanvas
   } catch (error) {
     console.error("Error uploading signature:", error);
     return '';
+  }
+}
+
+export const handleRecognizeLicensePlate = async (formData: FormData) => {
+  try {
+    const response = await axios.post(
+        "https://api.fpt.ai/vision/dlr/vnm",
+        formData,
+        {
+            headers: {
+                "api-key": import.meta.env.VITE_FPT_KYC_SECRET_KEY,
+                "Content-Type": "multipart/form-data",
+            },
+        }
+    );
+
+    console.log("handleRecognizeLicensePlate ~ response:", response.data);
+    console.log("handleRecognizeLicensePlate ~ response:", response.data.data.at(0));
+    
+    if (response?.data?.data) {
+        return {success: true, data: response.data.data.at(0) as LicenseData};
+    }
+  } catch (error) {
+    console.error("Error during recognition:", error);
+    return {success: false, data: null};
+  }
+}
+
+export const handleRecognizeCitizenIdentification = async (formData: FormData) => {
+  try {
+    const response = await axios.post(
+        "https://api.fpt.ai/vision/idr/vnm",
+        formData,
+        {
+            headers: {
+                "api-key": import.meta.env.VITE_FPT_KYC_SECRET_KEY,
+                "Content-Type": "multipart/form-data",
+            },
+        }
+    );
+
+    console.log("handleRecognizeCitizenIdentification ~ response:", response.data);
+    console.log("handleRecognizeCitizenIdentification ~ response:", response.data.data.at(0));
+    
+    if (response?.data?.data) {
+        return {success: true, data: response.data.data.at(0) as CitizenIdentificationData};
+    }
+  } catch (error) {
+    console.error("Error during recognition:", error);
+    return {success: false, data: null};
   }
 }
 

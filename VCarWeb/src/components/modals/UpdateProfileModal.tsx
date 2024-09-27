@@ -8,8 +8,10 @@ interface FieldType {
     phone_number: string;
 }
 
-const UpdateProfileModal = ({ setOpenUpdateProfileModal }: {
+const UpdateProfileModal = ({ setOpenUpdateProfileModal, refetchMe, setRefetchMe }: {
     setOpenUpdateProfileModal: (value: boolean) => void;
+    refetchMe: boolean;
+    setRefetchMe: (value: boolean) => void;
 }) => {
 
     const [loading, setLoading] = useState(false);
@@ -23,6 +25,7 @@ const UpdateProfileModal = ({ setOpenUpdateProfileModal }: {
             message.success('Cập nhật thông tin thành công');
             setOpenUpdateProfileModal(false);
             setLoading(false);
+            setRefetchMe(!refetchMe);
         } else {
             message.error('Cập nhật thông tin thất bại');
             setLoading(false);
