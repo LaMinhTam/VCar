@@ -13,6 +13,7 @@ import vn.edu.iuh.sv.vcarbe.dto.VehicleReturnRequest;
 import vn.edu.iuh.sv.vcarbe.entity.HandoverStatus;
 import vn.edu.iuh.sv.vcarbe.entity.VehicleHandoverDocument;
 import vn.edu.iuh.sv.vcarbe.exception.AppException;
+import vn.edu.iuh.sv.vcarbe.exception.MessageKeys;
 import vn.edu.iuh.sv.vcarbe.repository.RentalContractRepository;
 import vn.edu.iuh.sv.vcarbe.repository.VehicleHandoverRepository;
 import vn.edu.iuh.sv.vcarbe.security.UserPrincipal;
@@ -32,7 +33,7 @@ public class VehicleHandoverServiceImpl implements VehicleHandoverService {
     @Override
     public Mono<VehicleHandoverDocumentDTO> createVehicleHandover(UserPrincipal userPrincipal, VehicleHandoverRequest request) {
         return rentalContractRepository.findByLessorIdAndId(userPrincipal.getId(), request.getRentalContractId())
-                .switchIfEmpty(Mono.error(new AppException(404, "Rental contract not found with id " + request.getRentalContractId())))
+                .switchIfEmpty(Mono.error(new AppException(404, MessageKeys.CONTRACT_NOT_FOUND.name())))
                 .flatMap(rentalContract -> {
                     VehicleHandoverDocument document = new VehicleHandoverDocument();
                     document.setLesseeId(rentalContract.getLesseeId());
@@ -66,7 +67,7 @@ public class VehicleHandoverServiceImpl implements VehicleHandoverService {
     @Override
     public Mono<VehicleHandoverDocumentDTO> approveByLessee(ObjectId id, UserPrincipal userPrincipal, DigitalSignature digitalSignature) {
         return vehicleHandoverRepository.findByIdAndLesseeId(id, userPrincipal.getId())
-                .switchIfEmpty(Mono.error(new AppException(404, "Vehicle handover document not found with id " + id)))
+                .switchIfEmpty(Mono.error(new AppException(404, MessageKeys.VEHICLE_HANDOVER_NOT_FOUND.name())))
                 .flatMap(document -> {
                     document.setLesseeApproved(true);
                     document.setLesseeSignature(digitalSignature.signatureUrl());
@@ -79,7 +80,7 @@ public class VehicleHandoverServiceImpl implements VehicleHandoverService {
     @Override
     public Mono<VehicleHandoverDocumentDTO> approveByLessor(ObjectId id, UserPrincipal userPrincipal, DigitalSignature digitalSignature) {
         return vehicleHandoverRepository.findByIdAndLessorId(id, userPrincipal.getId())
-                .switchIfEmpty(Mono.error(new AppException(404, "Vehicle handover document not found with id " + id)))
+                .switchIfEmpty(Mono.error(new AppException(404, MessageKeys.VEHICLE_HANDOVER_NOT_FOUND.name())))
                 .flatMap(document -> {
                     document.setLessorApproved(true);
                     document.setReturnLessorSignature(digitalSignature.signatureUrl());
@@ -92,7 +93,7 @@ public class VehicleHandoverServiceImpl implements VehicleHandoverService {
     @Override
     public Mono<VehicleHandoverDocumentDTO> updateVehicleReturn(ObjectId id, VehicleReturnRequest request, UserPrincipal userPrincipal) {
         return vehicleHandoverRepository.findByIdAndLesseeId(id, userPrincipal.getId())
-                .switchIfEmpty(Mono.error(new AppException(404, "Vehicle handover document not found with id " + id)))
+                .switchIfEmpty(Mono.error(new AppException(404, MessageKeys.VEHICLE_HANDOVER_NOT_FOUND.name())))
                 .flatMap(document -> {
                     document.setReturnDate(request.getReturnDate());
                     document.setReturnHour(request.getReturnHour());
@@ -112,7 +113,7 @@ public class VehicleHandoverServiceImpl implements VehicleHandoverService {
     @Override
     public Mono<VehicleHandoverDocumentDTO> getVehicleHandoverByRentalContractId(ObjectId rentalContractId) {
         return vehicleHandoverRepository.findByRentalContractId(rentalContractId)
-                .switchIfEmpty(Mono.error(new AppException(404, "Vehicle handover document not found for rental contract id " + rentalContractId)))
+                .switchIfEmpty(Mono.error(new AppException(404, MessageKeys.VEHICLE_HANDOVER_NOT_FOUND.name())))
                 .map(document -> modelMapper.map(document, VehicleHandoverDocumentDTO.class));
     }
 

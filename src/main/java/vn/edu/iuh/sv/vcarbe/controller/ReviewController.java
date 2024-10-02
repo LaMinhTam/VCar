@@ -17,6 +17,7 @@ import vn.edu.iuh.sv.vcarbe.dto.CarReviewDTO;
 import vn.edu.iuh.sv.vcarbe.dto.LesseeReviewDTO;
 import vn.edu.iuh.sv.vcarbe.dto.ReviewRequest;
 import vn.edu.iuh.sv.vcarbe.entity.Review;
+import vn.edu.iuh.sv.vcarbe.exception.MessageKeys;
 import vn.edu.iuh.sv.vcarbe.security.CurrentUser;
 import vn.edu.iuh.sv.vcarbe.security.UserPrincipal;
 import vn.edu.iuh.sv.vcarbe.service.impl.ReviewServiceImpl;
@@ -40,7 +41,7 @@ public class ReviewController {
             @CurrentUser UserPrincipal userPrincipal,
             @RequestBody @Valid ReviewRequest reviewRequest) {
         return reviewService.addReview(userPrincipal, reviewRequest)
-                .map(review -> ResponseEntity.ok(new ApiResponseWrapper(200, "Review added successfully", review)));
+                .map(review -> ResponseEntity.ok(new ApiResponseWrapper(200, MessageKeys.REVIEW_CREATE_SUCCESS.name(), review)));
     }
 
 
@@ -54,7 +55,7 @@ public class ReviewController {
             @Parameter(description = "Car ID (must be a valid ObjectId)", schema = @Schema(type = "string", example = "66c1b604172236f7936e26c0"))
             @PathVariable ObjectId carId) {
         List<CarReviewDTO> reviews = reviewService.getReviewsByCarId(carId);
-        return ResponseEntity.ok(new ApiResponseWrapper(200, "Reviews retrieved successfully", reviews));
+        return ResponseEntity.ok(new ApiResponseWrapper(200, MessageKeys.SUCCESS.name(), reviews));
     }
 
     @Operation(summary = "Get reviews by lessee ID", description = "Retrieves all reviews for a specific lessee")
@@ -67,9 +68,6 @@ public class ReviewController {
             @Parameter(description = "Lessee ID (must be a valid ObjectId)", schema = @Schema(type = "string", example = "66c1b604172236f7936e26c0"))
             @PathVariable ObjectId lesseeId) {
         List<LesseeReviewDTO> reviews = reviewService.getReviewsByLesseeId(lesseeId);
-        return ResponseEntity.ok(new ApiResponseWrapper(200, "Reviews retrieved successfully", reviews));
+        return ResponseEntity.ok(new ApiResponseWrapper(200, MessageKeys.SUCCESS.name(), reviews));
     }
-
-
-
 }

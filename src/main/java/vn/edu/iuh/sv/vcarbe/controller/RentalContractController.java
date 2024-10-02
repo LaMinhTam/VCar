@@ -14,7 +14,7 @@ import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 import vn.edu.iuh.sv.vcarbe.dto.*;
-import vn.edu.iuh.sv.vcarbe.exception.AppException;
+import vn.edu.iuh.sv.vcarbe.exception.MessageKeys;
 import vn.edu.iuh.sv.vcarbe.security.CurrentUser;
 import vn.edu.iuh.sv.vcarbe.security.UserPrincipal;
 import vn.edu.iuh.sv.vcarbe.service.RentalContractService;
@@ -44,7 +44,7 @@ public class RentalContractController {
             @Valid @RequestBody SignRequest signRequest) throws UnsupportedEncodingException {
         EthersUtils.verifyMessage(signRequest.digitalSignature());
         return invoiceService.createPaymentUrl(req, userPrincipal, signRequest)
-                .map(paymentUrl -> ResponseEntity.ok(new ApiResponseWrapper(200, "Payment URL created", paymentUrl)));
+                .map(paymentUrl -> ResponseEntity.ok(new ApiResponseWrapper(200, MessageKeys.PAYMENT_CREATE_SUCCESS.name(), paymentUrl)));
     }
 
     @Operation(summary = "Handle payment callback", description = "Handles the callback from VNPay after a payment is made")
@@ -55,7 +55,7 @@ public class RentalContractController {
     @PostMapping("/payment-callback")
     public Mono<ResponseEntity<ApiResponseWrapper>> approveRentalRequest(ServerHttpRequest req) {
         return invoiceService.handlePaymentCallback(req)
-                .map(updatedContract -> ResponseEntity.ok(new ApiResponseWrapper(200, "Payment callback handled successfully", updatedContract)));
+                .map(updatedContract -> ResponseEntity.ok(new ApiResponseWrapper(200, MessageKeys.PAYMENT_CALLBACK_SUCCESS.name(), updatedContract)));
     }
 
 
@@ -69,8 +69,7 @@ public class RentalContractController {
             @Parameter(description = "Rental contract ID (must be a valid ObjectId)", schema = @Schema(type = "string"))
             @PathVariable ObjectId id) throws Exception {
         return rentalContractService.getRentalContract(id)
-                .map(rentalContract -> ResponseEntity.ok(new ApiResponseWrapper(200, "Rental contract found", rentalContract)))
-                .switchIfEmpty(Mono.error(new AppException(404, "Rental contract not found")));
+                .map(rentalContract -> ResponseEntity.ok(new ApiResponseWrapper(200, MessageKeys.SUCCESS.name(), rentalContract)));
     }
 
     @Operation(summary = "Get rental contracts for lessor", description = "Fetches all rental contracts for the authenticated lessor with pagination and sorting options")
@@ -94,7 +93,7 @@ public class RentalContractController {
                             paginatedContracts.hasPrevious(),
                             paginatedContracts.hasNext()
                     );
-                    return new ApiResponseWrapperWithMeta(200, "Rental contracts retrieved", paginatedContracts.getContent(), pagination);
+                    return new ApiResponseWrapperWithMeta(200, MessageKeys.SUCCESS.name(), paginatedContracts.getContent(), pagination);
                 });
     }
 
@@ -120,7 +119,7 @@ public class RentalContractController {
                             paginatedContracts.hasPrevious(),
                             paginatedContracts.hasNext()
                     );
-                    return new ApiResponseWrapperWithMeta(200, "Rental contracts retrieved", paginatedContracts.getContent(), pagination);
+                    return new ApiResponseWrapperWithMeta(200, MessageKeys.SUCCESS.name(), paginatedContracts.getContent(), pagination);
                 });
     }
 

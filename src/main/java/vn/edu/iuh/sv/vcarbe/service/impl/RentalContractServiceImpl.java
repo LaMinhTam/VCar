@@ -9,6 +9,7 @@ import reactor.core.publisher.Mono;
 import vn.edu.iuh.sv.vcarbe.dto.RentalContractDTO;
 import vn.edu.iuh.sv.vcarbe.dto.SignRequest;
 import vn.edu.iuh.sv.vcarbe.exception.AppException;
+import vn.edu.iuh.sv.vcarbe.exception.MessageKeys;
 import vn.edu.iuh.sv.vcarbe.repository.RentalContractRepository;
 import vn.edu.iuh.sv.vcarbe.security.UserPrincipal;
 import vn.edu.iuh.sv.vcarbe.service.RentalContractService;
@@ -75,7 +76,7 @@ public class RentalContractServiceImpl implements RentalContractService {
 //        Tuple9<String, String, String, String, String, BigInteger, BigInteger, BigInteger, Boolean> contractDetails = blockchainUtils.getRentalContractDetails(rentalContract.getId().toHexString());
 //        return modelMapper.map(rentalContract, RentalContractDTO.class);
         return rentalContractRepository.findById(id)
-                .switchIfEmpty(Mono.error(new AppException(404, "Rental contract not found with id " + id)))
+                .switchIfEmpty(Mono.error(new AppException(404, MessageKeys.CONTRACT_NOT_FOUND.name())))
                 .map(rentalContract -> modelMapper.map(rentalContract, RentalContractDTO.class));
     }
 

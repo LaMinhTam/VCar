@@ -10,6 +10,7 @@ import vn.edu.iuh.sv.vcarbe.entity.CarLicense;
 import vn.edu.iuh.sv.vcarbe.entity.CitizenIdentification;
 import vn.edu.iuh.sv.vcarbe.entity.User;
 import vn.edu.iuh.sv.vcarbe.exception.AppException;
+import vn.edu.iuh.sv.vcarbe.exception.MessageKeys;
 import vn.edu.iuh.sv.vcarbe.repository.UserRepository;
 import vn.edu.iuh.sv.vcarbe.service.UserService;
 
@@ -22,7 +23,7 @@ public class UserServiceImpl implements UserService {
 
     private Mono<User> getUserByIdFromRepository(ObjectId userId) {
         return userRepository.findById(userId)
-                .switchIfEmpty(Mono.error(new AppException(404, "User not found with id " + userId)));
+                .switchIfEmpty(Mono.error(new AppException(404, MessageKeys.USER_NOT_FOUND.name())));
     }
 
     @Override

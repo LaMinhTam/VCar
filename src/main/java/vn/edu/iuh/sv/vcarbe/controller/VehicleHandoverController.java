@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 import vn.edu.iuh.sv.vcarbe.dto.*;
+import vn.edu.iuh.sv.vcarbe.exception.MessageKeys;
 import vn.edu.iuh.sv.vcarbe.security.CurrentUser;
 import vn.edu.iuh.sv.vcarbe.security.UserPrincipal;
 import vn.edu.iuh.sv.vcarbe.service.impl.VehicleHandoverServiceImpl;
@@ -36,7 +37,7 @@ public class VehicleHandoverController {
             @RequestBody @Valid VehicleHandoverRequest request) {
         EthersUtils.verifyMessage(request.getDigitalSignature());
         return vehicleHandoverService.createVehicleHandover(userPrincipal, request)
-                .map(document -> ResponseEntity.ok(new ApiResponseWrapper(200, "Vehicle handover document created successfully", document)));
+                .map(document -> ResponseEntity.ok(new ApiResponseWrapper(200, MessageKeys.VEHICLE_HANDOVER_CREATE_SUCCESS.name(), document)));
     }
 
     @Operation(summary = "Approve vehicle handover by lessee", description = "Approves the vehicle handover document by the lessee")
@@ -53,7 +54,7 @@ public class VehicleHandoverController {
             @RequestBody DigitalSignature digitalSignature) {
         EthersUtils.verifyMessage(digitalSignature);
         return vehicleHandoverService.approveByLessee(id, userPrincipal, digitalSignature)
-                .map(document -> ResponseEntity.ok(new ApiResponseWrapper(200, "Vehicle handover document approved by lessee", document)));
+                .map(document -> ResponseEntity.ok(new ApiResponseWrapper(200, MessageKeys.VEHICLE_HANDOVER_APPROVE_BY_LESSEE_SUCCESS.name(), document)));
     }
 
     @Operation(summary = "Approve vehicle return by lessor", description = "Approves the vehicle return document by the lessor")
@@ -70,7 +71,7 @@ public class VehicleHandoverController {
             @RequestBody DigitalSignature digitalSignature) {
         EthersUtils.verifyMessage(digitalSignature);
         return vehicleHandoverService.approveByLessor(id, userPrincipal, digitalSignature)
-                .map(document -> ResponseEntity.ok(new ApiResponseWrapper(200, "Vehicle return document approved by lessor", document)));
+                .map(document -> ResponseEntity.ok(new ApiResponseWrapper(200, MessageKeys.VEHICLE_HANDOVER_APPROVE_BY_LESSOR_SUCCESS.name(), document)));
     }
 
     @Operation(summary = "Update vehicle handover document with return details", description = "Updates the vehicle handover document with return details by the lessee")
@@ -87,7 +88,7 @@ public class VehicleHandoverController {
             @RequestBody @Valid VehicleReturnRequest request) {
         EthersUtils.verifyMessage(request.getDigitalSignature());
         return vehicleHandoverService.updateVehicleReturn(id, request, userPrincipal)
-                .map(document -> ResponseEntity.ok(new ApiResponseWrapper(200, "Vehicle return document updated successfully", document)));
+                .map(document -> ResponseEntity.ok(new ApiResponseWrapper(200, MessageKeys.VEHICLE_HANDOVER_UPDATE_BY_LESSEE_SUCCESS.name(), document)));
     }
 
     @Operation(summary = "Retrieve vehicle handover document by rental contract ID", description = "Retrieves the vehicle handover document associated with a rental contract ID")
@@ -100,7 +101,7 @@ public class VehicleHandoverController {
             @Parameter(description = "Rental Contract ID (must be a valid ObjectId)", schema = @Schema(type = "string", example = "60c72b2f9b1e8c001f0a0b4e"))
             @PathVariable ObjectId rentalContractId) {
         return vehicleHandoverService.getVehicleHandoverByRentalContractId(rentalContractId)
-                .map(document -> ResponseEntity.ok(new ApiResponseWrapper(200, "Vehicle handover document retrieved successfully", document)));
+                .map(document -> ResponseEntity.ok(new ApiResponseWrapper(200, MessageKeys.SUCCESS.name(), document)));
     }
 
     @Operation(summary = "Get all vehicle handover documents for lessor", description = "Fetches all vehicle handover documents for the authenticated lessor with pagination and sorting options")
@@ -128,7 +129,7 @@ public class VehicleHandoverController {
                             pageData.hasPrevious(),
                             pageData.hasNext()
                     );
-                    return ResponseEntity.ok(new ApiResponseWrapperWithMeta(200, "Vehicle handover documents retrieved successfully", pageData.getContent(), pagination));
+                    return ResponseEntity.ok(new ApiResponseWrapperWithMeta(200, MessageKeys.SUCCESS.name(), pageData.getContent(), pagination));
                 });
     }
 
@@ -157,7 +158,7 @@ public class VehicleHandoverController {
                             pageData.hasPrevious(),
                             pageData.hasNext()
                     );
-                    return ResponseEntity.ok(new ApiResponseWrapperWithMeta(200, "Vehicle handover documents retrieved successfully", pageData.getContent(), pagination));
+                    return ResponseEntity.ok(new ApiResponseWrapperWithMeta(200, MessageKeys.SUCCESS.name(), pageData.getContent(), pagination));
                 });
     }
 }

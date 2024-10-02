@@ -13,6 +13,7 @@ import vn.edu.iuh.sv.vcarbe.dto.RentalContractDTO;
 import vn.edu.iuh.sv.vcarbe.dto.RentalRequestDTO;
 import vn.edu.iuh.sv.vcarbe.entity.*;
 import vn.edu.iuh.sv.vcarbe.exception.AppException;
+import vn.edu.iuh.sv.vcarbe.exception.MessageKeys;
 import vn.edu.iuh.sv.vcarbe.repository.CarRepository;
 import vn.edu.iuh.sv.vcarbe.repository.RentalContractRepository;
 import vn.edu.iuh.sv.vcarbe.repository.RentalRequestRepository;
@@ -48,7 +49,7 @@ public class RentalRequestServiceImpl implements RentalRequestService {
     @Override
     public Mono<RentalRequestDTO> createRentalRequest(RentRequestDTO rentRequestDTO, ObjectId lesseeId) {
         return carRepository.findById(rentRequestDTO.carId())
-                .switchIfEmpty(Mono.error(new AppException(404, "Car not found with id " + rentRequestDTO.carId())))
+                .switchIfEmpty(Mono.error(new AppException(404, MessageKeys.CAR_NOT_FOUND.name())))
                 .flatMap(car -> {
                     RentalRequest request = new RentalRequest(rentRequestDTO, car, lesseeId);
                     return rentalRequestRepository.save(request);
@@ -65,16 +66,16 @@ public class RentalRequestServiceImpl implements RentalRequestService {
 
     public Mono<RentalContractDTO> approveRentalContract(UserPrincipal userPrincipal, ApprovalRequest approvalRequest) {
         return rentalRequestRepository.findByIdAndLessorId(approvalRequest.requestId(), userPrincipal.getId())
-                .switchIfEmpty(Mono.error(new AppException(404, "Rental request not found with id " + approvalRequest.requestId())))
+                .switchIfEmpty(Mono.error(new AppException(404, MessageKeys.RENTAL_REQUEST_NOT_FOUND.name())))
                 .flatMap(rentalRequest -> {
                     rentalRequest.setStatus(RentRequestStatus.APPROVED);
                     rentalRequest.setUpdatedAt(new Date());
                     return rentalRequestRepository.save(rentalRequest);
                 })
                 .flatMap(rentalRequest -> carRepository.findById(rentalRequest.getCarId())
-                        .switchIfEmpty(Mono.error(new AppException(404, "Car not found with id " + rentalRequest.getCarId())))
+                        .switchIfEmpty(Mono.error(new AppException(404, MessageKeys.CAR_NOT_FOUND.name())))
                         .flatMap(car -> userRepository.findById(rentalRequest.getLessorId())
-                                .switchIfEmpty(Mono.error(new AppException(404, "Lessor not found with id " + rentalRequest.getLessorId())))
+                                .switchIfEmpty(Mono.error(new AppException(404, MessageKeys.USER_NOT_FOUND.name())))
                                 .flatMap(lessorUser -> {
                                     RentalContract rentalContract = new RentalContract(rentalRequest, lessorUser, car, approvalRequest);
                                     return rentalContractRepository.save(rentalContract)
@@ -97,7 +98,7 @@ public class RentalRequestServiceImpl implements RentalRequestService {
     @Override
     public Mono<RentalRequestDTO> rejectRentalContract(UserPrincipal userPrincipal, ApprovalRequest approvalRequest) {
         return rentalRequestRepository.findByIdAndLessorId(approvalRequest.requestId(), userPrincipal.getId())
-                .switchIfEmpty(Mono.error(new AppException(404, "Rental request not found with id " + approvalRequest.requestId())))
+                .switchIfEmpty(Mono.error(new AppException(404, MessageKeys.RENTAL_REQUEST_NOT_FOUND.name())))
                 .flatMap(rentalRequest -> {
                     rentalRequest.setStatus(RentRequestStatus.REJECTED);
                     return rentalRequestRepository.save(rentalRequest);
@@ -172,7 +173,7 @@ public class RentalRequestServiceImpl implements RentalRequestService {
     @Override
     public Mono<RentalRequestDTO> getRentalRequest(ObjectId id) {
         return rentalRequestRepository.findById(id)
-                .switchIfEmpty(Mono.error(new AppException(404, "Rental request not found with id " + id)))
+                .switchIfEmpty(Mono.error(new AppException(404, MessageKeys.RENTAL_REQUEST_NOT_FOUND.name())))
                 .map(rentalRequest -> modelMapper.map(rentalRequest, RentalRequestDTO.class));
     }
 }

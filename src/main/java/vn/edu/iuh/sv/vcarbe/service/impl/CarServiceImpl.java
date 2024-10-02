@@ -15,6 +15,7 @@ import vn.edu.iuh.sv.vcarbe.entity.Car;
 import vn.edu.iuh.sv.vcarbe.entity.CarStatus;
 import vn.edu.iuh.sv.vcarbe.entity.Province;
 import vn.edu.iuh.sv.vcarbe.exception.AppException;
+import vn.edu.iuh.sv.vcarbe.exception.MessageKeys;
 import vn.edu.iuh.sv.vcarbe.repository.CarRepository;
 import vn.edu.iuh.sv.vcarbe.security.UserPrincipal;
 import vn.edu.iuh.sv.vcarbe.service.CarService;
@@ -36,7 +37,7 @@ public class CarServiceImpl implements CarService {
 
     public Mono<CarDTO> updateCar(UserPrincipal userPrincipal, ObjectId id, Car car) {
         return carRepository.findByOwnerAndId(userPrincipal.getId(), id)
-                .switchIfEmpty(Mono.error(new AppException(404, "Car not found")))
+                .switchIfEmpty(Mono.error(new AppException(404, MessageKeys.CAR_NOT_FOUND.toString())))
                 .flatMap(existingCar -> {
                     BeanUtils.copyNonNullProperties(car, existingCar);
                     return carRepository.save(existingCar);
@@ -47,7 +48,7 @@ public class CarServiceImpl implements CarService {
     @Override
     public Mono<Car> deleteCar(UserPrincipal userPrincipal, ObjectId id) {
         return carRepository.deleteByIdAndOwner(id, userPrincipal.getId())
-                .switchIfEmpty(Mono.error(new AppException(404, "Car not found")));
+                .switchIfEmpty(Mono.error(new AppException(404, MessageKeys.CAR_NOT_FOUND.toString())));
     }
 
     @Override

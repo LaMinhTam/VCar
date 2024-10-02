@@ -3,6 +3,7 @@ package vn.edu.iuh.sv.vcarbe.service.impl;
 import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -11,7 +12,7 @@ import vn.edu.iuh.sv.vcarbe.entity.AuthProvider;
 import vn.edu.iuh.sv.vcarbe.entity.User;
 import vn.edu.iuh.sv.vcarbe.exception.AppException;
 import vn.edu.iuh.sv.vcarbe.exception.BadRequestException;
-import vn.edu.iuh.sv.vcarbe.exception.InternalServerErrorException;
+import vn.edu.iuh.sv.vcarbe.exception.MessageKeys;
 import vn.edu.iuh.sv.vcarbe.repository.UserRepository;
 import vn.edu.iuh.sv.vcarbe.security.CustomReactiveUserDetailsService;
 import vn.edu.iuh.sv.vcarbe.security.TokenProvider;
@@ -55,10 +56,10 @@ public class AuthServiceImpl implements Authservice {
                                 refreshToken
                         ));
                     } else {
-                        return Mono.error(new RuntimeException("Invalid email or password"));
+                        return Mono.error(new AppException(HttpStatus.UNAUTHORIZED.value(), MessageKeys.WRONG_PASSWORD.toString()));
                     }
                 })
-                .switchIfEmpty(Mono.error(new RuntimeException("User not found")));
+                .switchIfEmpty(Mono.error(new AppException(HttpStatus.NOT_FOUND.value(), MessageKeys.USER_NOT_FOUND.toString())));
     }
 
     public Mono<User> registerUser(SignUpRequest signUpRequest) {
@@ -82,7 +83,7 @@ public class AuthServiceImpl implements Authservice {
                                 try {
                                     mailSenderHelper.sendVerificationEmail(savedUser.getEmail(), verificationCode);
                                 } catch (MessagingException | UnsupportedEncodingException e) {
-                                    throw new InternalServerErrorException("Failed to send verification email");
+                                    throw new AppException(HttpStatus.INTERNAL_SERVER_ERROR.value(), MessageKeys.EMAIL_IN_USE.toString());
                                 }
                             });
                 });
@@ -92,7 +93,7 @@ public class AuthServiceImpl implements Authservice {
     @Override
     public Mono<TokenResponse> refreshToken(UserPrincipal userPrincipal, String oldRefreshToken) {
         if (redisTemplate.opsForValue().get(oldRefreshToken) != null) {
-            return Mono.error(new AppException(400, "Refresh token already used"));
+            return Mono.error(new AppException(400, MessageKeys.REFRESH_TOKEN_USED.toString()));
         }
         redisTemplate.opsForValue().set(oldRefreshToken, true, Duration.ofMinutes(tokenProvider.getRefreshTokenExpiryMinutes()));
 
@@ -106,10 +107,10 @@ public class AuthServiceImpl implements Authservice {
         return userRepository.findByEmail(verificationRequest.getEmail())
                 .flatMap(user -> {
                     if (Boolean.TRUE.equals(user.getEmailVerified())) {
-                        return Mono.error(new AppException(400, "Email already verified"));
+                        return Mono.error(new AppException(400, MessageKeys.EMAIL_ALREADY_VERIFIED.toString()));
                     }
                     if (!user.getVerificationCode().equals(verificationRequest.getVerificationCode())) {
-                        return Mono.error(new AppException(400, "Invalid verification code"));
+                        return Mono.error(new AppException(400, MessageKeys.VERIFICATION_CODE_INVALID.toString()));
                     }
                     user.setEmailVerified(true);
                     user.setVerificationCode(null);
@@ -127,7 +128,7 @@ public class AuthServiceImpl implements Authservice {
                                 );
                             });
                 })
-                .switchIfEmpty(Mono.error(new AppException(400, "User not found")));
+                .switchIfEmpty(Mono.error(new AppException(400, MessageKeys.USER_NOT_FOUND.toString())));
     }
 
 
@@ -137,7 +138,7 @@ public class AuthServiceImpl implements Authservice {
                     user.setPhoneNumber(updatePhoneRequest.phone());
                     return userRepository.save(user);
                 })
-                .switchIfEmpty(Mono.error(new AppException(404, "User not found")));
+                .switchIfEmpty(Mono.error(new AppException(404, MessageKeys.USER_NOT_FOUND.toString())));
     }
 
     private String generateVerificationCode() {

@@ -13,6 +13,7 @@ import reactor.core.publisher.Mono;
 import vn.edu.iuh.sv.vcarbe.dto.ApiResponseWrapper;
 import vn.edu.iuh.sv.vcarbe.dto.ApiResponseWrapperWithMeta;
 import vn.edu.iuh.sv.vcarbe.dto.PaginationMetadata;
+import vn.edu.iuh.sv.vcarbe.exception.MessageKeys;
 import vn.edu.iuh.sv.vcarbe.security.CurrentUser;
 import vn.edu.iuh.sv.vcarbe.security.UserPrincipal;
 import vn.edu.iuh.sv.vcarbe.service.impl.InvoiceService;
@@ -45,7 +46,7 @@ public class InvoiceController {
                     paginatedInvoices.hasPrevious(),
                     paginatedInvoices.hasNext()
             );
-            return new ApiResponseWrapperWithMeta(200, "success", paginatedInvoices.getContent(), pagination);
+            return new ApiResponseWrapperWithMeta(200, MessageKeys.SUCCESS.name(), paginatedInvoices.getContent(), pagination);
         });
     }
 
@@ -64,6 +65,6 @@ public class InvoiceController {
             )
             @PathVariable ObjectId id) {
         return invoiceService.getInvoiceById(userPrincipal, id)
-                .map(invoice -> new ApiResponseWrapper(200, "success", invoice));
+                .map(invoice -> new ApiResponseWrapper(200, MessageKeys.SUCCESS.name(), invoice));
     }
 }

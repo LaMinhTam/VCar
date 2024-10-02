@@ -3,7 +3,6 @@ package vn.edu.iuh.sv.vcarbe.service.impl;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import vn.edu.iuh.sv.vcarbe.dto.CarReviewDTO;
 import vn.edu.iuh.sv.vcarbe.dto.LesseeReviewDTO;
@@ -11,6 +10,7 @@ import vn.edu.iuh.sv.vcarbe.dto.ReviewRequest;
 import vn.edu.iuh.sv.vcarbe.entity.Review;
 import vn.edu.iuh.sv.vcarbe.entity.ReviewType;
 import vn.edu.iuh.sv.vcarbe.exception.AppException;
+import vn.edu.iuh.sv.vcarbe.exception.MessageKeys;
 import vn.edu.iuh.sv.vcarbe.repository.RentalContractRepository;
 import vn.edu.iuh.sv.vcarbe.repository.ReviewRepository;
 import vn.edu.iuh.sv.vcarbe.security.UserPrincipal;
@@ -28,7 +28,7 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     public Mono<Review> addReview(UserPrincipal userPrincipal, ReviewRequest reviewRequest) {
         return rentalContractRepository.findById(reviewRequest.getRentalContractId())
-                .switchIfEmpty(Mono.error(new AppException(404, "Rental contract not found")))
+                .switchIfEmpty(Mono.error(new AppException(404, MessageKeys.CONTRACT_NOT_FOUND.name())))
                 .flatMap(rentalContract -> {
                     Review review = new Review();
                     review.setRentalContractId(reviewRequest.getRentalContractId());
@@ -43,7 +43,7 @@ public class ReviewServiceImpl implements ReviewService {
                     }  else if(userPrincipal.getId().equals(rentalContract.getLesseeId())) {
                         review.setReviewType(ReviewType.CAR_REVIEW);
                     }else{
-                        return Mono.error(new AppException(403, "You are not authorized to review this rental contract"));
+                        return Mono.error(new AppException(403, MessageKeys.USER_NOT_AUTHORIZED.name()));
                     }
 
                     return reviewRepository.save(review);

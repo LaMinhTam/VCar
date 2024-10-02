@@ -14,6 +14,7 @@ import vn.edu.iuh.sv.vcarbe.dto.RentalContractDTO;
 import vn.edu.iuh.sv.vcarbe.dto.SignRequest;
 import vn.edu.iuh.sv.vcarbe.entity.*;
 import vn.edu.iuh.sv.vcarbe.exception.AppException;
+import vn.edu.iuh.sv.vcarbe.exception.MessageKeys;
 import vn.edu.iuh.sv.vcarbe.repository.InvoiceRepository;
 import vn.edu.iuh.sv.vcarbe.repository.RentalContractRepository;
 import vn.edu.iuh.sv.vcarbe.repository.UserRepository;
@@ -26,7 +27,6 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class InvoiceService {
@@ -50,9 +50,9 @@ public class InvoiceService {
 
     public Mono<String> createPaymentUrl(ServerHttpRequest req, UserPrincipal userPrincipal, SignRequest signRequest) throws UnsupportedEncodingException {
         return rentalContractRepository.findByLesseeIdAndId(userPrincipal.getId(), signRequest.contractId())
-                .switchIfEmpty(Mono.error(new AppException(HttpStatus.NOT_FOUND.value(), "Contract not found")))
+                .switchIfEmpty(Mono.error(new AppException(HttpStatus.NOT_FOUND.value(), MessageKeys.CONTRACT_NOT_FOUND.name())))
                 .flatMap(rentalContract -> userRepository.findById(userPrincipal.getId())
-                        .switchIfEmpty(Mono.error(new AppException(HttpStatus.NOT_FOUND.value(), "User not found")))
+                        .switchIfEmpty(Mono.error(new AppException(HttpStatus.NOT_FOUND.value(), MessageKeys.USER_NOT_FOUND.name())))
                         .flatMap(lessee -> {
                             rentalContract.sign(lessee, signRequest);
 
@@ -105,7 +105,7 @@ public class InvoiceService {
         Map<String, String> fields = extractFieldsFromRequest(req);
 
         return invoiceRepository.findByTxnRef(fields.get("vnp_TxnRef"))
-                .switchIfEmpty(Mono.error(new AppException(HttpStatus.NOT_FOUND.value(), "Invoice not found")))
+                .switchIfEmpty(Mono.error(new AppException(HttpStatus.NOT_FOUND.value(), MessageKeys.INVOICE_NOT_FOUND.name())))
                 .flatMap(invoice -> {
                     String vnpSecureHash = req.getQueryParams().getFirst("vnp_SecureHash");
                     fields.remove("vnp_SecureHash");
@@ -116,7 +116,7 @@ public class InvoiceService {
                         invoice.setContent("Giao dịch thất bại. Sai mã xác thực");
 
                         return invoiceRepository.save(invoice)
-                                .then(Mono.error(new AppException(HttpStatus.FORBIDDEN.value(), "Giao dịch không hợp lệ")));
+                                .then(Mono.error(new AppException(HttpStatus.FORBIDDEN.value(), MessageKeys.PAYMENT_NOT_VALID.name())));
                     }
 
                     String vnpResponseCode = req.getQueryParams().getFirst("vnp_ResponseCode");
@@ -128,7 +128,7 @@ public class InvoiceService {
 
                         return invoiceRepository.save(invoice)
                                 .flatMap(savedInvoice -> rentalContractRepository.findById(savedInvoice.getContractId())
-                                        .switchIfEmpty(Mono.error(new AppException(HttpStatus.NOT_FOUND.value(), "Contract not found")))
+                                        .switchIfEmpty(Mono.error(new AppException(HttpStatus.NOT_FOUND.value(), MessageKeys.CONTRACT_NOT_FOUND.name())))
                                         .flatMap(rentalContract -> {
                                             rentalContract.setRentalStatus(RentalStatus.SIGNED);
 
@@ -145,7 +145,7 @@ public class InvoiceService {
                         invoice.setContent("Giao dịch thất bại. Mã lỗi: " + vnpResponseCode);
 
                         return invoiceRepository.save(invoice)
-                                .then(Mono.error(new AppException(HttpStatus.BAD_REQUEST.value(), "Giao dịch thất bại. Mã lỗi: " + vnpResponseCode)));
+                                .then(Mono.error(new AppException(HttpStatus.BAD_REQUEST.value(), MessageKeys.PAYMENT_FAILED.name())));
                     }
                 });
     }

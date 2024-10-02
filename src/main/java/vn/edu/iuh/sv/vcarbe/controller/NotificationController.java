@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 import vn.edu.iuh.sv.vcarbe.dto.ApiResponseWrapper;
+import vn.edu.iuh.sv.vcarbe.exception.MessageKeys;
 import vn.edu.iuh.sv.vcarbe.security.CurrentUser;
 import vn.edu.iuh.sv.vcarbe.security.UserPrincipal;
 import vn.edu.iuh.sv.vcarbe.service.NotificationService;
@@ -32,7 +33,7 @@ public class NotificationController {
             @CurrentUser @Parameter(hidden = true) UserPrincipal userPrincipal) {
         return notificationService.getNotificationsForUser(userPrincipal.getId())
                 .collectList()
-                .map(notifications -> ResponseEntity.ok(new ApiResponseWrapper(200, "Notifications retrieved successfully", notifications)));
+                .map(notifications -> ResponseEntity.ok(new ApiResponseWrapper(200, MessageKeys.SUCCESS.name(), notifications)));
     }
 
     @Operation(summary = "Mark a notification as read",
@@ -50,7 +51,7 @@ public class NotificationController {
             )
             ObjectId id) {
         return notificationService.markAsRead(id)
-                .map(notification -> ResponseEntity.ok(new ApiResponseWrapper(200, "Notification marked as read", notification)));
+                .map(notification -> ResponseEntity.ok(new ApiResponseWrapper(200, MessageKeys.SUCCESS.name(), notification)));
     }
 
     @Operation(summary = "Subscribe a device for push notifications",
@@ -64,7 +65,7 @@ public class NotificationController {
             @RequestParam String deviceToken,
             @CurrentUser UserPrincipal userPrincipal) {
         return notificationService.addDeviceToken(userPrincipal.getId(), deviceToken)
-                .map(notification -> ResponseEntity.ok(new ApiResponseWrapper(200, "Device subscribed successfully", notification)));
+                .map(notification -> ResponseEntity.ok(new ApiResponseWrapper(200, MessageKeys.SUCCESS.name(), notification)));
     }
 
     @Operation(summary = "Unsubscribe a device from push notifications",
@@ -78,7 +79,7 @@ public class NotificationController {
             @RequestParam String deviceToken,
             @CurrentUser UserPrincipal userPrincipal) {
         return notificationService.removeDeviceToken(userPrincipal.getId(), deviceToken)
-                .map(notification -> ResponseEntity.ok(new ApiResponseWrapper(200, "Device unsubscribed successfully", notification)));
+                .map(notification -> ResponseEntity.ok(new ApiResponseWrapper(200, MessageKeys.SUCCESS.name(), notification)));
     }
 
     @Operation(summary = "Send message to specific device",

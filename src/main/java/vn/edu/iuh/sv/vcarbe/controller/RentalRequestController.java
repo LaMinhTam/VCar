@@ -14,13 +14,11 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 import vn.edu.iuh.sv.vcarbe.dto.*;
 import vn.edu.iuh.sv.vcarbe.entity.RentRequestStatus;
-import vn.edu.iuh.sv.vcarbe.entity.RentalRequest;
+import vn.edu.iuh.sv.vcarbe.exception.MessageKeys;
 import vn.edu.iuh.sv.vcarbe.security.CurrentUser;
 import vn.edu.iuh.sv.vcarbe.security.UserPrincipal;
 import vn.edu.iuh.sv.vcarbe.service.RentalRequestService;
 import vn.edu.iuh.sv.vcarbe.util.EthersUtils;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/rental-requests")
@@ -40,10 +38,10 @@ public class RentalRequestController {
             @RequestBody RentRequestDTO rentRequestDTO,
             @CurrentUser UserPrincipal userPrincipal) {
         if (!userPrincipal.isVerify()) {
-            return Mono.just(ResponseEntity.badRequest().body(new ApiResponseWrapper(400, "You must verify your email, car license, citizen identification first", null)));
+            return Mono.just(ResponseEntity.badRequest().body(new ApiResponseWrapper(400, MessageKeys.USER_NOT_VERIFIED.name(), null)));
         }
         return rentalRequestService.createRentalRequest(rentRequestDTO, userPrincipal.getId())
-                .map(createdContract -> ResponseEntity.ok(new ApiResponseWrapper(200, "Rental contract created successfully", createdContract)));
+                .map(createdContract -> ResponseEntity.ok(new ApiResponseWrapper(200, MessageKeys.RENTAL_CREATE_SUCCESS.name(), createdContract)));
     }
 
 
@@ -58,7 +56,7 @@ public class RentalRequestController {
             @RequestBody ApprovalRequest approvalRequest) throws Exception {
         EthersUtils.verifyMessage(approvalRequest.digitalSignature());
         return rentalRequestService.approveRentalContract(userPrincipal, approvalRequest)
-                .map(updatedContract -> ResponseEntity.ok(new ApiResponseWrapper(200, "Rental contract approved successfully", updatedContract)));
+                .map(updatedContract -> ResponseEntity.ok(new ApiResponseWrapper(200, MessageKeys.RENTAL_APPROVE_SUCCESS.name(), updatedContract)));
     }
 
     @Operation(summary = "Reject a rental request", description = "Rejects a rental request")
@@ -71,7 +69,7 @@ public class RentalRequestController {
             @CurrentUser UserPrincipal userPrincipal,
             @Valid @RequestBody ApprovalRequest approvalRequest) {
         return rentalRequestService.rejectRentalContract(userPrincipal, approvalRequest)
-                .map(updatedContract -> ResponseEntity.ok(new ApiResponseWrapper(200, "Rental contract rejected successfully", updatedContract)));
+                .map(updatedContract -> ResponseEntity.ok(new ApiResponseWrapper(200, MessageKeys.RENTAL_REJECT_SUCCESS.name(), updatedContract)));
     }
 
     @Operation(summary = "Get rental requests for lessor", description = "Retrieves rental requests for the lessor based on various criteria")
@@ -96,7 +94,7 @@ public class RentalRequestController {
                             paginatedRequests.hasPrevious(),
                             paginatedRequests.hasNext()
                     );
-                    return new ApiResponseWrapperWithMeta(200, "success", paginatedRequests.getContent(), pagination);
+                    return new ApiResponseWrapperWithMeta(200, MessageKeys.SUCCESS.name(), paginatedRequests.getContent(), pagination);
                 });
     }
 
@@ -123,7 +121,7 @@ public class RentalRequestController {
                             paginatedRequests.hasPrevious(),
                             paginatedRequests.hasNext()
                     );
-                    return new ApiResponseWrapperWithMeta(200, "success", paginatedRequests.getContent(), pagination);
+                    return new ApiResponseWrapperWithMeta(200, MessageKeys.SUCCESS.name(), paginatedRequests.getContent(), pagination);
                 });
     }
 
@@ -138,6 +136,6 @@ public class RentalRequestController {
             @Parameter(description = "Rental request ID (must be a valid ObjectId)", schema = @Schema(type = "string", example = "64b64c8f12e94c080e8e4567"))
             @PathVariable ObjectId id) {
         return rentalRequestService.getRentalRequest(id)
-                .map(rentalRequest -> ResponseEntity.ok(new ApiResponseWrapper(200, "success", rentalRequest)));
+                .map(rentalRequest -> ResponseEntity.ok(new ApiResponseWrapper(200, MessageKeys.SUCCESS.name(), rentalRequest)));
     }
 }

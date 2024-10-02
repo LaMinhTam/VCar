@@ -13,7 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 import vn.edu.iuh.sv.vcarbe.dto.*;
-import vn.edu.iuh.sv.vcarbe.exception.AppException;
+import vn.edu.iuh.sv.vcarbe.exception.MessageKeys;
 import vn.edu.iuh.sv.vcarbe.security.CurrentUser;
 import vn.edu.iuh.sv.vcarbe.security.UserPrincipal;
 import vn.edu.iuh.sv.vcarbe.service.UserService;
@@ -38,8 +38,7 @@ public class UserController {
             )
             @PathVariable ObjectId id) {
         return userService.getUserDetailById(id)
-                .map(user -> ResponseEntity.ok(new ApiResponseWrapper(200, "User retrieved successfully", user)))
-                .switchIfEmpty(Mono.error(new AppException(404, "User not found")));
+                .map(user -> ResponseEntity.ok(new ApiResponseWrapper(200, MessageKeys.SUCCESS.name(), user)));
     }
 
     @Operation(summary = "Get current user", description = "Retrieves the details of the currently authenticated user")
@@ -50,7 +49,7 @@ public class UserController {
     public Mono<ResponseEntity<ApiResponseWrapper>> getCurrentUser(
             @CurrentUser UserPrincipal userPrincipal) {
         return userService.getUserById(userPrincipal.getId())
-                .map(user -> ResponseEntity.ok(new ApiResponseWrapper(200, "User retrieved successfully", user)));
+                .map(user -> ResponseEntity.ok(new ApiResponseWrapper(200, MessageKeys.SUCCESS.name(), user)));
     }
 
     @Operation(summary = "Update user details", description = "Updates the details of the currently authenticated user")
@@ -62,7 +61,7 @@ public class UserController {
             @CurrentUser UserPrincipal userPrincipal,
             @Valid @RequestBody UpdateUserDTO updateUserDTO) {
         return userService.updateUser(userPrincipal.getId(), updateUserDTO)
-                .map(updatedUser -> ResponseEntity.ok(new ApiResponseWrapper(200, "User updated successfully", updatedUser)));
+                .map(updatedUser -> ResponseEntity.ok(new ApiResponseWrapper(200, MessageKeys.USER_UPDATE_SUCCESS.name(), updatedUser)));
     }
 
     @Operation(summary = "Update car license", description = "Updates the car license of the currently authenticated user")
@@ -74,7 +73,7 @@ public class UserController {
             @CurrentUser UserPrincipal userPrincipal,
             @Valid @RequestBody UpdateCarLicenseDTO updateCarLicenseDTO) {
         return userService.updateCarLicense(userPrincipal.getId(), updateCarLicenseDTO)
-                .map(updatedUser -> ResponseEntity.ok(new ApiResponseWrapper(200, "Car license updated successfully", updatedUser)));
+                .map(updatedUser -> ResponseEntity.ok(new ApiResponseWrapper(200, MessageKeys.USER_UPDATE_IDENTIFICATION_SUCCESS.name(), updatedUser)));
     }
 
     @Operation(summary = "Update citizen identification", description = "Updates the citizen identification of the currently authenticated user")
@@ -86,6 +85,6 @@ public class UserController {
             @CurrentUser UserPrincipal userPrincipal,
             @Valid @RequestBody UpdateCitizenIdentificationDTO updateCitizenIdentificationDTO) {
         return userService.updateCitizenIdentification(userPrincipal.getId(), updateCitizenIdentificationDTO)
-                .map(updatedUser -> ResponseEntity.ok(new ApiResponseWrapper(200, "Citizen identification updated successfully", updatedUser)));
+                .map(updatedUser -> ResponseEntity.ok(new ApiResponseWrapper(200, MessageKeys.USER_UPDATE_IDENTIFICATION_SUCCESS.name(), updatedUser)));
     }
 }
