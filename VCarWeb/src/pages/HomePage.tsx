@@ -1,9 +1,18 @@
 
+import { useEffect } from "react";
 import Banner from "../modules/home/Banner";
 import CarSession from "../modules/home/CarSession";
 import FilterCar from "../modules/home/FilterCar";
+import { generateToken } from "../config/firebaseConfig";
 
 const HomePage = () => {
+
+  useEffect(() => {
+    async function getToken() {
+      await generateToken();
+    }
+    getToken();
+  }, [])
   return (
     <div>
       <Banner></Banner>
