@@ -3,6 +3,7 @@ package vn.edu.iuh.sv.vcarbe.service.impl;
 import org.bson.types.ObjectId;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -25,10 +26,22 @@ public class NotificationServiceImpl implements NotificationService {
     private NotificationUtils notificationUtils;
 
     @Override
-    public Flux<NotificationDTO> getNotificationsForUser(ObjectId userId) {
-        return notificationRepository.findByUserIdOrderByCreatedAtDesc(userId)
-                .map(notification -> modelMapper.map(notification, NotificationDTO.class));
+    public Mono<Page<NotificationDTO>> getNotificationsForUser(ObjectId userId, int page, int size, String sortBy, String sortDir) {
+        Sort sort = Sort.by(Sort.Direction.fromString(sortDir.toUpperCase()), sortBy);
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        return notificationRepository.findByUserId(userId, pageable)
+                .collectList()
+                .flatMap(notifications ->
+                        notificationRepository.countByUserId(userId)
+                                .map(total -> new PageImpl<>(
+                                        notifications.stream()
+                                                .map(notification -> modelMapper.map(notification, NotificationDTO.class))
+                                                .toList(),
+                                        pageable, total))
+                );
     }
+
 
     @Override
     public Mono<NotificationDTO> markAsRead(ObjectId notificationId) {
