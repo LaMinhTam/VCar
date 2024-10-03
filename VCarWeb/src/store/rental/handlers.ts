@@ -2,7 +2,18 @@ import { call, put } from "redux-saga/effects";
 import { AxiosResponse } from "axios";
 import { axiosPrivate } from "../../apis/axios";
 import { ENDPOINTS } from "./models";
-import { IContractData, IContractParams, IDigitalSignature, ILessorApproveRequestResponse, IMetaData, IRentalData, IRentalRequestParams, IReturnHandover, IVehicleHandover, IVehicleHandoverResponseData } from "./types";
+import {
+  IContractData,
+  IContractParams,
+  IDigitalSignature,
+  ILessorApproveRequestResponse,
+  IMetaData,
+  IRentalData,
+  IRentalRequestParams,
+  IReturnHandover,
+  IVehicleHandover,
+  IVehicleHandoverResponseData,
+} from "./types";
 import {
   getLesseeContract,
   getLesseeContractFailure,
@@ -31,7 +42,7 @@ interface IListRentRequestResponse {
   code: number;
   message: string;
   data: IRentalData[];
-  meta: IMetaData
+  meta: IMetaData;
 }
 
 interface IApproveRentRequestResponse {
@@ -44,7 +55,7 @@ interface IContractResponse {
   code: number;
   message: string;
   data: IContractData[];
-  meta: IMetaData
+  meta: IMetaData;
 }
 interface IContractByIdResponse {
   code: number;
@@ -97,10 +108,12 @@ export function* getLesseeRentRequests(action: {
       });
     const { code, data, meta } = response.data;
     if (code === 200) {
-      yield put(getLesseeRentRequestSuccess({
-        data,
-        meta
-      }));
+      yield put(
+        getLesseeRentRequestSuccess({
+          data,
+          meta,
+        })
+      );
     }
   } catch (error) {
     const typedError = error as Error;
@@ -120,10 +133,12 @@ export function* lessorGetRentRequests(action: {
       });
     const { code, data, meta } = response.data;
     if (code === 200) {
-      yield put(getLessorRentRequestSuccess({
-        data,
-        meta
-      }));
+      yield put(
+        getLessorRentRequestSuccess({
+          data,
+          meta,
+        })
+      );
     }
   } catch (error) {
     const typedError = error as Error;
@@ -131,11 +146,27 @@ export function* lessorGetRentRequests(action: {
   }
 }
 
+export async function getRentRequestById(id: string) {
+  try {
+    const response: AxiosResponse<IRentRequestResponse> =
+      await axiosPrivate.get(ENDPOINTS.GET_REQUEST_BY_ID(id));
+    const { code, data } = response.data;
+    if (code === 200) {
+      return { success: true, data };
+    }
+  } catch (error) {
+    const typedError = error as Error;
+    console.error(typedError.message);
+    return { success: false, data: null };
+  }
+}
+
 export async function rejectRentRequest(request_id: string) {
   try {
-    const response: AxiosResponse<IRentRequestResponse> = await axiosPrivate.post(ENDPOINTS.LESSOR_REJECT_REQUEST, {
-      request_id,
-    })
+    const response: AxiosResponse<IRentRequestResponse> =
+      await axiosPrivate.post(ENDPOINTS.LESSOR_REJECT_REQUEST, {
+        request_id,
+      });
     const { code, data } = response.data;
     if (code === 200) {
       return { success: true, data };
@@ -146,12 +177,16 @@ export async function rejectRentRequest(request_id: string) {
   }
 }
 
-export async function approveRentRequest(request_id: string, digital_signature: IDigitalSignature) {
+export async function approveRentRequest(
+  request_id: string,
+  digital_signature: IDigitalSignature
+) {
   try {
-    const response: AxiosResponse<IApproveRentRequestResponse> = await axiosPrivate.post(ENDPOINTS.LESSOR_APPROVE_REQUEST, {
-      request_id,
-      digital_signature
-    })
+    const response: AxiosResponse<IApproveRentRequestResponse> =
+      await axiosPrivate.post(ENDPOINTS.LESSOR_APPROVE_REQUEST, {
+        request_id,
+        digital_signature,
+      });
     const { code, data } = response.data;
     if (code === 200) {
       return { success: true, data };
@@ -168,15 +203,21 @@ export function* getLesseeContracts(action: {
 }) {
   try {
     yield put(getLesseeContract());
-    const response: AxiosResponse<IContractResponse> = yield call(axiosPrivate.get, ENDPOINTS.GET_LESSEE_CONTRACTS, {
-      params: action.payload,
-    });
+    const response: AxiosResponse<IContractResponse> = yield call(
+      axiosPrivate.get,
+      ENDPOINTS.GET_LESSEE_CONTRACTS,
+      {
+        params: action.payload,
+      }
+    );
     const { code, data, meta } = response.data;
     if (code === 200) {
-      yield put(getLesseeContractSuccess({
-        data,
-        meta
-      }));
+      yield put(
+        getLesseeContractSuccess({
+          data,
+          meta,
+        })
+      );
     }
   } catch (error) {
     const typedError = error as Error;
@@ -190,15 +231,21 @@ export function* getLessorContracts(action: {
 }) {
   try {
     yield put(getLessorContract());
-    const response: AxiosResponse<IContractResponse> = yield call(axiosPrivate.get, ENDPOINTS.GET_LESSOR_CONTRACTS, {
-      params: action.payload,
-    });
+    const response: AxiosResponse<IContractResponse> = yield call(
+      axiosPrivate.get,
+      ENDPOINTS.GET_LESSOR_CONTRACTS,
+      {
+        params: action.payload,
+      }
+    );
     const { code, data, meta } = response.data;
     if (code === 200) {
-      yield put(getLessorContractSuccess({
-        data,
-        meta
-      }));
+      yield put(
+        getLessorContractSuccess({
+          data,
+          meta,
+        })
+      );
     }
   } catch (error) {
     const typedError = error as Error;
@@ -208,7 +255,8 @@ export function* getLessorContracts(action: {
 
 export async function getContractById(id: string) {
   try {
-    const response: AxiosResponse<IContractByIdResponse> = await axiosPrivate.get(ENDPOINTS.GET_CONTRACT_BY_ID(id))
+    const response: AxiosResponse<IContractByIdResponse> =
+      await axiosPrivate.get(ENDPOINTS.GET_CONTRACT_BY_ID(id));
     const { code, data } = response.data;
     if (code === 200) {
       return { success: true, data };
@@ -220,12 +268,16 @@ export async function getContractById(id: string) {
   }
 }
 
-export async function signContract(contract_id: string, digital_signature: IDigitalSignature) {
+export async function signContract(
+  contract_id: string,
+  digital_signature: IDigitalSignature
+) {
   try {
-    const response: AxiosResponse<IRentRequestResponse> = await axiosPrivate.post(ENDPOINTS.LESSEE_APPROVE_CONTRACT, {
-      contract_id,
-      digital_signature
-    })
+    const response: AxiosResponse<IRentRequestResponse> =
+      await axiosPrivate.post(ENDPOINTS.LESSEE_APPROVE_CONTRACT, {
+        contract_id,
+        digital_signature,
+      });
     const { code, data } = response.data;
     if (code === 200) {
       return { success: true, data };
@@ -236,12 +288,17 @@ export async function signContract(contract_id: string, digital_signature: IDigi
   }
 }
 
-export async function createVehicleHandover (bodyData: IVehicleHandover) {
+export async function createVehicleHandover(
+  bodyData: IVehicleHandover
+) {
   try {
-    const response: AxiosResponse<IVehicleHandoverResponse>
-      = await axiosPrivate.post(ENDPOINTS.CREATE_VEHICLE_HANDOVER, bodyData);
+    const response: AxiosResponse<IVehicleHandoverResponse> =
+      await axiosPrivate.post(
+        ENDPOINTS.CREATE_VEHICLE_HANDOVER,
+        bodyData
+      );
     const { code, data } = response.data;
-    if(code === 200) {
+    if (code === 200) {
       return { success: true, data };
     }
   } catch (error) {
@@ -250,12 +307,16 @@ export async function createVehicleHandover (bodyData: IVehicleHandover) {
   }
 }
 
-export async function getVehicleHandoverByContractId (contract_id: string) {
+export async function getVehicleHandoverByContractId(
+  contract_id: string
+) {
   try {
-    const response: AxiosResponse<IVehicleHandoverResponse>
-      = await axiosPrivate.get(ENDPOINTS.GET_VEHICLE_HANDOVER_BY_CONTRACT_ID(contract_id));
+    const response: AxiosResponse<IVehicleHandoverResponse> =
+      await axiosPrivate.get(
+        ENDPOINTS.GET_VEHICLE_HANDOVER_BY_CONTRACT_ID(contract_id)
+      );
     const { code, data } = response.data;
-    if(code === 200) {
+    if (code === 200) {
       return { success: true, data };
     }
   } catch (error) {
@@ -264,13 +325,20 @@ export async function getVehicleHandoverByContractId (contract_id: string) {
   }
 }
 
-export async function lesseeApproveHandover(digital_signature: IDigitalSignature, handover_id: string) {
+export async function lesseeApproveHandover(
+  digital_signature: IDigitalSignature,
+  handover_id: string
+) {
   try {
-    const response: AxiosResponse<IVehicleHandoverResponse> = await axiosPrivate.put(ENDPOINTS.LESSEE_APPROVE_HANDOVER(handover_id), {
-      ...digital_signature
-    });
+    const response: AxiosResponse<IVehicleHandoverResponse> =
+      await axiosPrivate.put(
+        ENDPOINTS.LESSEE_APPROVE_HANDOVER(handover_id),
+        {
+          ...digital_signature,
+        }
+      );
     const { code, data } = response.data;
-    if(code === 200) {
+    if (code === 200) {
       return { success: true, data };
     }
   } catch (error) {
@@ -279,11 +347,18 @@ export async function lesseeApproveHandover(digital_signature: IDigitalSignature
   }
 }
 
-export async function lesseeReturnVehicle(bodyRequest: IReturnHandover, handover_id: string) {
+export async function lesseeReturnVehicle(
+  bodyRequest: IReturnHandover,
+  handover_id: string
+) {
   try {
-    const response: AxiosResponse<IVehicleHandoverResponse> = await axiosPrivate.put(ENDPOINTS.LESSEE_RETURN_VEHICLE(handover_id), bodyRequest);
+    const response: AxiosResponse<IVehicleHandoverResponse> =
+      await axiosPrivate.put(
+        ENDPOINTS.LESSEE_RETURN_VEHICLE(handover_id),
+        bodyRequest
+      );
     const { code, data } = response.data;
-    if(code === 200) {
+    if (code === 200) {
       return { success: true, data };
     }
   } catch (error) {
@@ -292,13 +367,20 @@ export async function lesseeReturnVehicle(bodyRequest: IReturnHandover, handover
   }
 }
 
-export async function lessorApproveReturn(digital_signature: IDigitalSignature, handover_id: string) {
+export async function lessorApproveReturn(
+  digital_signature: IDigitalSignature,
+  handover_id: string
+) {
   try {
-    const response: AxiosResponse<IVehicleHandoverResponse> = await axiosPrivate.put(ENDPOINTS.LESSOR_APPROVE_RETURN(handover_id), {
-      ...digital_signature
-    });
+    const response: AxiosResponse<IVehicleHandoverResponse> =
+      await axiosPrivate.put(
+        ENDPOINTS.LESSOR_APPROVE_RETURN(handover_id),
+        {
+          ...digital_signature,
+        }
+      );
     const { code, data } = response.data;
-    if(code === 200) {
+    if (code === 200) {
       return { success: true, data };
     }
   } catch (error) {

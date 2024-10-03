@@ -44,6 +44,15 @@ const vi = {
     rentNow: "Thuê Ngay",
     english: "Tiếng Anh",
     vietnamese: "Tiếng Việt",
+    notification: "Thông báo",
+    markAsRead: "Đánh dấu đã đọc",
+    delete: "Xóa",
+
+    // RENTAL SYSTEM MESSAGE
+    LESSEE_SIGNED_CONTRACT: "Người thuê đã ký hợp đồng",
+    NEW_RENTAL_REQUEST: "Yêu cầu thuê xe mới",
+    RENTAL_REQUEST_APPROVED: "Yêu cầu thuê xe đã được chấp nhận",
+    RENTAL_REQUEST_REJECTED: "Yêu cầu thuê xe đã bị từ chối",
   },
 };
 

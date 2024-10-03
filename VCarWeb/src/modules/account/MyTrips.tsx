@@ -1,22 +1,24 @@
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../store/store";
 import { IRentalData, IRentalRequestParams } from "../../store/rental/types";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { GET_LESSEE_REQUESTS } from "../../store/rental/action";
 import { Table, Typography, Tag, Modal } from "antd";
 import { ColumnsType, TablePaginationConfig } from "antd/es/table";
 import { FilterValue, SorterResult } from "antd/es/table/interface";
 import TripDetailDialog from "../../components/modals/TripDetailDialog";
+import { useParams } from "react-router-dom";
+import { getRentRequestById } from "../../store/rental/handlers";
 
 const MyTrips = () => {
     const { lesseeListRequest, loading } = useSelector((state: RootState) => state.rental);
-    console.log("MyTrips ~ lesseeListRequest:", lesseeListRequest)
     const [modalRecord, setModalRecord] = useState<IRentalData>({} as IRentalData);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const dispatch = useDispatch();
+    const { id } = useParams<{ id: string }>();
 
     const [params, setParams] = useState<IRentalRequestParams>({
-        sortDescending: "",
+        sortDescending: "true",
         page: "0",
         size: "10",
         status: "",
@@ -25,6 +27,21 @@ const MyTrips = () => {
     useMemo(() => {
         dispatch({ type: GET_LESSEE_REQUESTS, payload: params });
     }, [dispatch, params]);
+
+    useEffect(() => {
+        if (id) {
+            fetchRentalRequestById(id);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [id, lesseeListRequest]);
+
+    const fetchRentalRequestById = async (id: string) => {
+        const response = await getRentRequestById(id);
+        if (response?.success && response.data) {
+            setModalRecord(response.data);
+            showModal();
+        }
+    };
 
     const handleTableChange = (
         pagination: TablePaginationConfig,
@@ -111,6 +128,7 @@ const MyTrips = () => {
         setModalRecord(record);
         showModal();
     };
+
     const showModal = () => {
         setIsModalOpen(true);
     };

@@ -1,25 +1,43 @@
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../store/store";
 import { IRentalData, IRentalRequestParams } from "../../store/rental/types";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Table, Typography, Tag, Modal } from "antd";
 import { ColumnsType, TablePaginationConfig } from "antd/es/table";
 import { FilterValue, SorterResult } from "antd/es/table/interface";
 import { GET_LESSOR_REQUESTS } from "../../store/rental/action";
 import LesseeDetailDialog from "../../components/modals/LesseeDetailDialog";
+import { useParams } from "react-router-dom";
+import { getRentRequestById } from "../../store/rental/handlers";
 
 const MyLessee = () => {
     const { lessorListRequest, loading } = useSelector((state: RootState) => state.rental);
     const dispatch = useDispatch();
     const [modalRecord, setModalRecord] = useState<IRentalData>({} as IRentalData);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const { id } = useParams<{ id: string }>();
 
     const [params, setParams] = useState<IRentalRequestParams>({
-        sortDescending: "",
+        sortDescending: "true",
         page: "0",
         size: "10",
         status: "",
     });
+
+    useEffect(() => {
+        if (id) {
+            fetchRentalRequestById(id);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [id, lessorListRequest]);
+
+    const fetchRentalRequestById = async (id: string) => {
+        const response = await getRentRequestById(id);
+        if (response?.success && response.data) {
+            setModalRecord(response.data);
+            showModal();
+        }
+    };
 
     useMemo(() => {
         dispatch({ type: GET_LESSOR_REQUESTS, payload: params });
@@ -140,7 +158,7 @@ const MyLessee = () => {
                 }}
                 onChange={handleTableChange}
             />
-            <Modal title="Chi tiết yêu cầu" open={isModalOpen} onOk={handleOk} width={860} onCancel={handleCancel} loading>
+            <Modal title="Chi tiết yêu cầu" open={isModalOpen} onOk={handleOk} width={860} onCancel={handleCancel}>
                 <LesseeDetailDialog record={modalRecord} setIsModalOpen={setIsModalOpen} setParams={setParams} params={params}></LesseeDetailDialog>
             </Modal>
         </div>

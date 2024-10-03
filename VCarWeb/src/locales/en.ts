@@ -45,6 +45,15 @@ const en = {
     rentNow: "Rent Now",
     english: "English",
     vietnamese: "Vietnamese",
+    notification: "Notification",
+    makeAsRead: "Mark as read",
+    delete: "Delete",
+
+    // RENTAL SYSTEM MESSAGE
+    LESSEE_SIGNED_CONTRACT: "Lessee signed contract",
+    NEW_RENTAL_REQUEST: "New rental request",
+    RENTAL_REQUEST_APPROVED: "Rental request approved",
+    RENTAL_REQUEST_REJECTED: "Rental request rejected",
   },
 };
 

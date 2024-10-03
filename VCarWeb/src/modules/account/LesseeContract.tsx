@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Modal, Table, Tag, Typography } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { GET_LESSEE_CONTRACTS } from "../../store/rental/action";
@@ -7,18 +7,36 @@ import { IContractData, IContractParams } from "../../store/rental/types";
 import { TablePaginationConfig } from "antd/es/table";
 import { formatPrice } from "../../utils";
 import LesseeContractModal from "../../components/modals/LesseeContractModal";
+import { useParams } from "react-router-dom";
+import { getContractById } from "../../store/rental/handlers";
 
 const LesseeContract = () => {
     const dispatch = useDispatch();
     const { lesseeListContract, loading } = useSelector((state: RootState) => state.rental);
     const [modalRecord, setModalRecord] = useState<IContractData>({} as IContractData);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const { id } = useParams<{ id: string }>();
 
     const [params, setParams] = useState<IContractParams>({
-        sortDescending: "",
+        sortDescending: "true",
         page: "0",
         size: "10",
     });
+
+    useEffect(() => {
+        if (id) {
+            fetchRentalContractById(id);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [id, lesseeListContract]);
+
+    const fetchRentalContractById = async (id: string) => {
+        const response = await getContractById(id);
+        if (response?.success && response.data) {
+            setModalRecord(response.data);
+            showModal();
+        }
+    };
 
     useMemo(() => {
         dispatch({ type: GET_LESSEE_CONTRACTS, payload: params });

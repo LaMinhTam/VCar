@@ -26,12 +26,11 @@ const messaging = getMessaging(app);
 const db = getFirestore(app);
 const generateToken = async () => {
   const permission = await Notification.requestPermission();
-  console.log("generateToken ~ permission:", permission);
   if (permission === "granted") {
     const token = await getToken(messaging, {
       vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY,
     });
-    console.log("Token: ", token);
+    return token;
   }
 };
 export { db, analytics, messaging, generateToken };

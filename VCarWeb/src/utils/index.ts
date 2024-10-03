@@ -1,5 +1,5 @@
 import Cookies from "js-cookie";
-import { ethers } from 'ethers';
+import { ethers } from "ethers";
 import { jwtDecode } from "jwt-decode";
 import { IUser } from "../store/auth/types";
 import CryptoJS from "crypto-js";
@@ -11,8 +11,12 @@ import { toast } from "react-toastify";
 import { setUploadProgress } from "../store/rental/reducers";
 import { AppDispatch } from "../store/store";
 import { RefObject } from "react";
-import SignatureCanvas from 'react-signature-canvas';
-import { CitizenIdentificationData, LicenseData } from "../store/profile/types";
+import SignatureCanvas from "react-signature-canvas";
+import {
+  CitizenIdentificationData,
+  LicenseData,
+} from "../store/profile/types";
+import {} from "../constants";
 
 const accessTokenKey = "VCAR_ACCESS_TOKEN";
 const refreshTokenKey = "VCAR_REFRESH_TOKEN";
@@ -135,7 +139,7 @@ export const formatDate = (date: string) => {
 
 export const convertDateToTimestamp = (date: string) => {
   return moment(date).valueOf();
-}
+};
 
 export const calculateDays = (
   startTimestamp: number | null,
@@ -152,39 +156,59 @@ export const calculateDays = (
 
 export const handleMetaMaskSignature = async (username: string) => {
   if (window?.ethereum && username) {
-      try {
-          const provider = new ethers.BrowserProvider(window?.ethereum);
-          const accounts = await provider.send("eth_requestAccounts", []);
-          const account = accounts[0];
-          const message = `Approve rental request for ${username}`;
-          const signature = await provider.send("personal_sign", [message, account]);
-          return {
-              account,
-              signature,
-              msg: message,
-          };
-      } catch (error) {
-          console.error(error);
-          message.error('Failed to sign with MetaMask');
-      }
+    try {
+      const provider = new ethers.BrowserProvider(window?.ethereum);
+      const accounts = await provider.send("eth_requestAccounts", []);
+      const account = accounts[0];
+      const message = `Approve rental request for ${username}`;
+      const signature = await provider.send("personal_sign", [
+        message,
+        account,
+      ]);
+      return {
+        account,
+        signature,
+        msg: message,
+      };
+    } catch (error) {
+      console.error(error);
+      message.error("Failed to sign with MetaMask");
+    }
   } else {
-      message.error('MetaMask is not installed or user data is missing');
+    message.error(
+      "MetaMask is not installed or user data is missing"
+    );
   }
 };
 
-export const fetchImageFromUrl = async (url: string): Promise<ArrayBuffer> => {
+export const fetchImageFromUrl = async (
+  url: string
+): Promise<ArrayBuffer> => {
   try {
-    const response = await axios.get(url, { responseType: 'arraybuffer' });
+    const response = await axios.get(url, {
+      responseType: "arraybuffer",
+    });
     return response.data;
   } catch (error) {
-    console.error('Error fetching image from URL:', error);
+    console.error("Error fetching image from URL:", error);
     throw error;
   }
 };
 
-export async function handleUploadSignature(sigCanvas: RefObject<SignatureCanvas>, dispatch: AppDispatch, rental_contract_id: string, userId: string, setLoading: (value: boolean) => void) {
+export async function handleUploadSignature(
+  sigCanvas: RefObject<SignatureCanvas>,
+  dispatch: AppDispatch,
+  rental_contract_id: string,
+  userId: string,
+  setLoading: (value: boolean) => void
+) {
   try {
-    const dataUrl = sigCanvas?.current?.getTrimmedCanvas()?.toDataURL('image/png');
+    const dataUrl = sigCanvas?.current
+      ?.getTrimmedCanvas()
+      ?.toDataURL("image/png");
+    if (!dataUrl) {
+      throw new Error("Failed to get data URL from signature canvas");
+    }
     const blob = await (await fetch(dataUrl)).blob();
     // Check if the blob size exceeds 10MB
     const size = blob.size / 1024 / 1024;
@@ -197,97 +221,146 @@ export async function handleUploadSignature(sigCanvas: RefObject<SignatureCanvas
     const fileName = `signature_${userId}_${timestamp}.png`;
 
     const formData = new FormData();
-    formData.append('file', blob, fileName);
-    formData.append('upload_preset', import.meta.env.VITE_CLOUDINARY_PRESET_NAME || '');
-    formData.append('public_id', fileName);
-    formData.append('folder', `contracts/${rental_contract_id}`);
+    formData.append("file", blob, fileName);
+    formData.append(
+      "upload_preset",
+      import.meta.env.VITE_CLOUDINARY_PRESET_NAME || ""
+    );
+    formData.append("public_id", fileName);
+    formData.append("folder", `contracts/${rental_contract_id}`);
     const imageUrl = await handleUploadFile(formData, dispatch);
     return imageUrl;
   } catch (error) {
     console.error("Error uploading signature:", error);
-    return '';
+    return "";
   }
 }
 
-export const handleRecognizeLicensePlate = async (formData: FormData) => {
+export const handleRecognizeLicensePlate = async (
+  formData: FormData
+) => {
   try {
     const response = await axios.post(
-        "https://api.fpt.ai/vision/dlr/vnm",
-        formData,
-        {
-            headers: {
-                "api-key": import.meta.env.VITE_FPT_KYC_SECRET_KEY,
-                "Content-Type": "multipart/form-data",
-            },
-        }
+      "https://api.fpt.ai/vision/dlr/vnm",
+      formData,
+      {
+        headers: {
+          "api-key": import.meta.env.VITE_FPT_KYC_SECRET_KEY,
+          "Content-Type": "multipart/form-data",
+        },
+      }
     );
 
-    console.log("handleRecognizeLicensePlate ~ response:", response.data);
-    console.log("handleRecognizeLicensePlate ~ response:", response.data.data.at(0));
-    
+    console.log(
+      "handleRecognizeLicensePlate ~ response:",
+      response.data
+    );
+    console.log(
+      "handleRecognizeLicensePlate ~ response:",
+      response.data.data.at(0)
+    );
+
     if (response?.data?.data) {
-        return {success: true, data: response.data.data.at(0) as LicenseData};
+      return {
+        success: true,
+        data: response.data.data.at(0) as LicenseData,
+      };
     }
   } catch (error) {
     console.error("Error during recognition:", error);
-    return {success: false, data: null};
+    return { success: false, data: null };
   }
-}
+};
 
-export const handleRecognizeCitizenIdentification = async (formData: FormData) => {
+export const handleRecognizeCitizenIdentification = async (
+  formData: FormData
+) => {
   try {
     const response = await axios.post(
-        "https://api.fpt.ai/vision/idr/vnm",
-        formData,
-        {
-            headers: {
-                "api-key": import.meta.env.VITE_FPT_KYC_SECRET_KEY,
-                "Content-Type": "multipart/form-data",
-            },
-        }
+      "https://api.fpt.ai/vision/idr/vnm",
+      formData,
+      {
+        headers: {
+          "api-key": import.meta.env.VITE_FPT_KYC_SECRET_KEY,
+          "Content-Type": "multipart/form-data",
+        },
+      }
     );
 
-    console.log("handleRecognizeCitizenIdentification ~ response:", response.data);
-    console.log("handleRecognizeCitizenIdentification ~ response:", response.data.data.at(0));
-    
+    console.log(
+      "handleRecognizeCitizenIdentification ~ response:",
+      response.data
+    );
+    console.log(
+      "handleRecognizeCitizenIdentification ~ response:",
+      response.data.data.at(0)
+    );
+
     if (response?.data?.data) {
-        return {success: true, data: response.data.data.at(0) as CitizenIdentificationData};
+      return {
+        success: true,
+        data: response.data.data.at(0) as CitizenIdentificationData,
+      };
     }
   } catch (error) {
     console.error("Error during recognition:", error);
-    return {success: false, data: null};
+    return { success: false, data: null };
   }
-}
+};
 
 export const handleUploadFile = async (
   formData: FormData,
   dispatch: AppDispatch
 ) => {
   try {
-      const response = await axios.post(
-          `https://api.cloudinary.com/v1_1/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/upload`,
-          formData,
-          {
-              onUploadProgress: (progressEvent) => {
-                  if (typeof progressEvent.total === "number") {
-                      const percentCompleted = Math.round(
-                          (progressEvent.loaded * 100) / progressEvent.total
-                      );
-                      dispatch(setUploadProgress(percentCompleted));
-                  } else {
-                      toast.warn("Total size is undefined.");
-                      dispatch(setUploadProgress(0));
-                  }
-              },
+    const response = await axios.post(
+      `https://api.cloudinary.com/v1_1/${
+        import.meta.env.VITE_CLOUDINARY_CLOUD_NAME
+      }/upload`,
+      formData,
+      {
+        onUploadProgress: (progressEvent) => {
+          if (typeof progressEvent.total === "number") {
+            const percentCompleted = Math.round(
+              (progressEvent.loaded * 100) / progressEvent.total
+            );
+            dispatch(setUploadProgress(percentCompleted));
+          } else {
+            toast.warn("Total size is undefined.");
+            dispatch(setUploadProgress(0));
           }
-      );
-      const imageUrl = response.data.secure_url;
-      if (imageUrl) {
-          return imageUrl;
+        },
       }
+    );
+    const imageUrl = response.data.secure_url;
+    if (imageUrl) {
+      return imageUrl;
+    }
   } catch (error) {
-      console.error("Error uploading file:", error);
+    console.error("Error uploading file:", error);
   }
+};
+
+export const handleFormatLink = (msg: string, id: string) => {
+  let url = "";
+  switch (msg) {
+    case "LESSEE_SIGNED_CONTRACT":
+      url = `lessor-contract/${id}`;
+      break;
+    case "NEW_RENTAL_REQUEST":
+      url = `my-car-lessee/${id}`;
+      break;
+    case "RENTAL_REQUEST_APPROVED":
+      url = `lessee-contract/${id}`;
+      break;
+    case "RENTAL_REQUEST_REJECTED":
+      url = `my-trips/${id}`;
+      break;
+    default:
+      url = "#";
+      break;
+  }
+  return url;
 };
 
 // export const handleDeleteFile = async (fileUrl: string) => {

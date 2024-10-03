@@ -67,7 +67,15 @@ const router = createBrowserRouter([
             element: <MyTrips />,
           },
           {
+            path: "my-trips/:id",
+            element: <MyTrips />,
+          },
+          {
             path: "my-car-lessee",
+            element: <MyLessee />,
+          },
+          {
+            path: "my-car-lessee/:id",
             element: <MyLessee />,
           },
           {
@@ -75,7 +83,15 @@ const router = createBrowserRouter([
             element: <LesseeContract />
           },
           {
+            path: 'lessee-contract/:id',
+            element: <LesseeContract />
+          },
+          {
             path: 'lessor-contract',
+            element: <LessorContract />
+          },
+          {
+            path: 'lessor-contract/:id',
             element: <LessorContract />
           },
           {

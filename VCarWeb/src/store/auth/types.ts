@@ -28,7 +28,7 @@ export interface IUser {
     full_name: string;
     dob: string;
     license_image_url: string;
-  }
+  };
   citizen_identification?: {
     citizen_identification_number: string;
     issued_date: string;
@@ -36,5 +36,23 @@ export interface IUser {
     permanent_address: string;
     contact_address: string;
     citizen_identification_image: string;
-  }
+  };
+}
+
+export interface INotificationParams {
+  page: number;
+  size: number;
+  sortBy: string;
+  sortDir: string;
+}
+
+export interface INotification {
+  id: string;
+  user_id: string;
+  message: string;
+  created_at: string;
+  type: string;
+  target_id: string;
+  link: string;
+  read: boolean;
 }
