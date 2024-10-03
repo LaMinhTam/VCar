@@ -56,7 +56,7 @@ public class RentalRequestServiceImpl implements RentalRequestService {
                 })
                 .doOnNext(savedRequest -> notificationUtils.createNotification(
                         savedRequest.getLessorId(),
-                        "New rental request",
+                        NotificationMessage.NEW_RENTAL_REQUEST,
                         NotificationType.RENTAL_REQUEST,
                         "/rental-requests/" + savedRequest.getId(),
                         savedRequest.getId()))
@@ -82,7 +82,7 @@ public class RentalRequestServiceImpl implements RentalRequestService {
                                             .flatMap(savedContract -> {
                                                 notificationUtils.createNotification(
                                                         savedContract.getLesseeId(),
-                                                        "Rental contract signed",
+                                                        NotificationMessage.RENTAL_REQUEST_APPROVED,
                                                         NotificationType.RENTAL_CONTRACT,
                                                         "/rental-contracts/" + savedContract.getId(),
                                                         savedContract.getId());
@@ -105,7 +105,7 @@ public class RentalRequestServiceImpl implements RentalRequestService {
                 })
                 .doOnNext(rentalRequest -> notificationUtils.createNotification(
                         rentalRequest.getLesseeId(),
-                        "Rental request rejected",
+                        NotificationMessage.RENTAL_REQUEST_REJECTED,
                         NotificationType.RENTAL_REQUEST,
                         "/rental-requests/" + rentalRequest.getId(),
                         rentalRequest.getId()))

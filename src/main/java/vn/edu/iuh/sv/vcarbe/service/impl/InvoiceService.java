@@ -135,7 +135,7 @@ public class InvoiceService {
                                             return rentalContractRepository.save(rentalContract)
                                                     .doOnSuccess(updatedRentalContract -> {
                                                         blockchainUtils.approveRentalContract(updatedRentalContract.getId().toHexString());
-                                                        notificationUtils.createNotification(rentalContract.getLessorId(), "Lessee has signed the contract", NotificationType.RENTAL_CONTRACT, "/rental-contracts/" + rentalContract.getId(), rentalContract.getId());
+                                                        notificationUtils.createNotification(rentalContract.getLessorId(), NotificationMessage.LESSEE_SIGNED_CONTRACT, NotificationType.RENTAL_CONTRACT, "/rental-contracts/" + rentalContract.getId(), rentalContract.getId());
                                                     })
                                                     .thenReturn(modelMapper.map(rentalContract, RentalContractDTO.class));
                                         })

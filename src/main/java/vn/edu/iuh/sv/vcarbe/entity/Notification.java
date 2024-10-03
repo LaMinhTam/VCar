@@ -19,7 +19,7 @@ public class Notification {
     @MongoId
     private ObjectId id;
     private ObjectId userId;
-    private String message;
+    private NotificationMessage message;
     private boolean isRead;
     private Date createdAt;
     private NotificationType type;

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import vn.edu.iuh.sv.vcarbe.entity.Notification;
+import vn.edu.iuh.sv.vcarbe.entity.NotificationMessage;
 import vn.edu.iuh.sv.vcarbe.entity.NotificationType;
 import vn.edu.iuh.sv.vcarbe.repository.NotificationRepository;
 import vn.edu.iuh.sv.vcarbe.repository.UserRepository;
@@ -24,7 +25,7 @@ public class NotificationUtils {
     @Value("${vcar.icon}")
     private String icon;
 
-    public void createNotification(ObjectId userId, String message, NotificationType type, String link, ObjectId targetId) {
+    public void createNotification(ObjectId userId, NotificationMessage message, NotificationType type, String link, ObjectId targetId) {
         Notification notification = new Notification();
         notification.setUserId(userId);
         notification.setMessage(message);
@@ -39,7 +40,7 @@ public class NotificationUtils {
 
         userRepository.findById(userId)
                 .flatMapMany(user -> Flux.fromIterable(user.getDeviceTokens()))
-                .flatMap(fcmToken -> Mono.fromRunnable(() -> sendPushNotification(fcmToken, message, link)))
+                .flatMap(fcmToken -> Mono.fromRunnable(() -> sendPushNotification(fcmToken, message.name(), link)))
                 .subscribe();
     }
 
