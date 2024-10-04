@@ -1,10 +1,10 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
 import { AppDispatch, RootState } from '../store/store';
 import { GET_CAR_BY_ID } from '../store/car/action';
 import { v4 as uuidv4 } from 'uuid';
-import { Avatar, Button, Carousel, Col, Divider, Rate, Row, Spin, Tag, Typography } from 'antd';
+import { Avatar, Button, Carousel, Col, Divider, Flex, Rate, Row, Spin, Tag, Typography } from 'antd';
 import { CarOutlined, HeartOutlined, MailOutlined, PhoneOutlined } from '@ant-design/icons';
 import gasStationIcon from "../assets/gas-station.png";
 import transmissionIcon from "../assets/transmission.png";
@@ -12,6 +12,8 @@ import { useTranslation } from 'react-i18next';
 import { DEFAULT_AVATAR } from '../config/apiConfig';
 import CarCard from '../components/CarCard';
 import CarCardSkeleton from '../components/common/CarCardSkeleton';
+import { getReviewByCarId } from '../store/rental/handlers';
+import { IReviewItem } from '../store/car/types';
 
 const CarDetailPage = () => {
     const navigate = useNavigate();
@@ -19,10 +21,21 @@ const CarDetailPage = () => {
     const { id } = useParams();
     const dispatch = useDispatch<AppDispatch>();
     const { carDetail, loading } = useSelector((state: RootState) => state.car);
-    const { car, related_cars, reviews } = carDetail;
+    const { car, related_cars } = carDetail;
+    const [listReviews, setListReviews] = useState<IReviewItem[]>([]);
     useMemo(() => {
         dispatch({ type: GET_CAR_BY_ID, payload: id });
     }, [dispatch, id])
+
+    useEffect(() => {
+        async function fetchReviews() {
+            const response = await getReviewByCarId(id ?? "");
+            if (response?.success) {
+                setListReviews(response.data);
+            }
+        }
+        fetchReviews();
+    }, [id])
     const handleRentNow = (id: string) => {
         localStorage.setItem("STORAGE_RENT_CAR_ID", id);
         navigate("/checkout");
@@ -139,18 +152,18 @@ const CarDetailPage = () => {
                         <Typography.Title level={4} style={{
                             margin: 0
                         }}>Đánh giá</Typography.Title>
-                        <Tag color='blue-inverse'>{reviews?.length ?? 0}</Tag>
+                        <Tag color='blue-inverse'>{listReviews?.length ?? 0}</Tag>
                     </div>
                     <Divider></Divider>
-                    <div>
-                        {reviews && reviews.map((review) => (
+                    <Flex vertical>
+                        {listReviews && listReviews.map((review) => (
                             <Row key={review.id}>
                                 <Col span={20}>
                                     <div className='flex items-start gap-x-2'>
-                                        <Avatar size={"large"} src={DEFAULT_AVATAR} alt='Avatar'></Avatar>
+                                        <Avatar size={"large"} src={review?.lessee_image_url ?? DEFAULT_AVATAR} alt='Avatar'></Avatar>
                                         <div className='flex-1'>
-                                            <Typography.Title level={5}>{review?.lessee?.display_name}</Typography.Title>
-                                            <Typography.Paragraph>{review?.comment}</Typography.Paragraph>
+                                            <Typography.Title level={5}>{review?.lessee_display_name}</Typography.Title>
+                                            {review?.comment && <Typography.Paragraph>{review?.comment}</Typography.Paragraph>}
                                         </div>
                                     </div>
                                 </Col>
@@ -160,9 +173,10 @@ const CarDetailPage = () => {
                                         <Rate disabled defaultValue={review?.rating} allowHalf></Rate>
                                     </div>
                                 </Col>
+                                <Divider></Divider>
                             </Row>
                         ))}
-                    </div>
+                    </Flex>
                 </div>
                 <div className="mt-10">
                     <div className="flex items-center justify-between mb-5">

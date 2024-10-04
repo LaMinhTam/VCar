@@ -2,18 +2,20 @@ import { Col, Divider, Image, Rate, Row, Typography } from "antd";
 import { formatPrice } from "../../utils";
 import { ICar } from "../../store/car/types";
 import { DEFAULT_AVATAR } from "../../config/apiConfig";
+import { useNavigate } from "react-router-dom";
 
 const RentalSummary = ({ car, totalDays }: {
     car: ICar,
     totalDays: number
 }) => {
+    const navigation = useNavigate();
     return (
         <div className="p-6 rounded-lg shadow-md bg-lite">
             <Typography.Title level={5}>Tóm tắt thuê xe</Typography.Title>
             <Typography.Paragraph className="text-sm text-custom-blue">Giá có thể thay đổi tùy thuộc vào thời gian thuê và giá của xe thuê của bạn.</Typography.Paragraph>
             <Row justify={"center"} gutter={[16, 0]}>
                 <Col span={8}>
-                    <Image preview={false} src={car?.image_url[0] ?? DEFAULT_AVATAR} alt={car?.name} className="object-contain w-full h-full rounded-lg"></Image>
+                    <Image preview={false} src={car?.image_url[0] ?? DEFAULT_AVATAR} alt={car?.name} className="object-contain w-full h-full rounded-lg cursor-pointer" onClick={() => navigation(`/car/${car.id}`)}></Image>
                 </Col>
                 <Col span={16}>
                     <Typography.Title level={4}>{car?.name}</Typography.Title>

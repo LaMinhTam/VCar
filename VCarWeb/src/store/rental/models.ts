@@ -21,6 +21,9 @@ export const ENDPOINTS = {
     `/vehicle-handover/${id}/approve-lessor`,
   GET_VEHICLE_HANDOVER_BY_CONTRACT_ID: (id: string) =>
     `/vehicle-handover/rental-contract/${id}`,
+  // [REVIEW]
+  CREATE_REVIEW: "/reviews",
+  GET_REVIEW_BY_CAR_ID: (id: string) => `/reviews/car/${id}`,
 };
 
 export const RentalRequestParams = {

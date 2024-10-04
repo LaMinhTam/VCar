@@ -35,6 +35,19 @@ export interface IReview {
   lessee: Owner;
 }
 
+export interface IReviewItem {
+  id: string;
+  car_id: string;
+  lessee_id: string;
+  rating: number;
+  comment: string;
+  lessee_display_name: string;
+  lessee_email: string;
+  lessee_image_url: string;
+  lessee_phone_number: string;
+  review_type: string;
+}
+
 export type CarDetail = {
   car: ICar;
   reviews: IReview[];

@@ -17,6 +17,7 @@ import { message } from "antd";
 import ReturnVehicleHandover from "./ReturnVehicleHandover";
 import { useForm } from "antd/es/form/Form";
 import ImageModule from 'docxtemplater-image-module-free';
+import CreateReviewModal from "./CreateReviewModal";
 
 const LesseeContractModal = ({ record }: {
     record: IContractData;
@@ -30,6 +31,7 @@ const LesseeContractModal = ({ record }: {
     const numberOfDays = calculateDays(record?.rental_start_date, record?.rental_end_date);
     const { carDetail, loading: carLoading } = useSelector((state: RootState) => state.car);
     const [isSignaturePadVisible, setIsSignaturePadVisible] = useState(false);
+    const [openReviewModal, setOpenReviewModal] = useState(false);
     const [openReturnModal, setOpenReturnModal] = useState(false);
     const [returnHandoverForm] = useForm();
 
@@ -367,6 +369,7 @@ const LesseeContractModal = ({ record }: {
                             {record?.rental_status === 'SIGNED' && vehicleHandover?.status === 'CREATED' && <Button type="primary" loading={signLoading} onClick={() => setIsSignaturePadVisible(true)}>Approve handover</Button>}
                             {record?.rental_status === 'SIGNED' && vehicleHandover?.status === 'RENDING' && <Button type="primary" onClick={() => setOpenReturnModal(true)} disabled={loading}>Return Vehicle</Button>}
                             {record.rental_status === 'PENDING' && <Button type="primary" onClick={() => setIsSignaturePadVisible(true)} loading={signLoading}>Sign Contract</Button>}
+                            {record.rental_status === 'SIGNED' && vehicleHandover?.status === 'RETURNED' && <Button type="primary" onClick={() => setOpenReviewModal(true)} loading={signLoading}>Review</Button>}
                         </div>
                     </Col>
                 </Col>
@@ -404,6 +407,14 @@ const LesseeContractModal = ({ record }: {
                         setReturnVehicleLoading={setLoading}
                         vehicle_handover_id={vehicleHandover?.id}
                     ></ReturnVehicleHandover>
+                </Modal>
+                <Modal
+                    title="Đánh giá xe"
+                    open={openReviewModal}
+                    onCancel={() => setOpenReviewModal(false)}
+                    footer={false}
+                >
+                    <CreateReviewModal contract_id={record?.id} setOpen={setOpenReviewModal}></CreateReviewModal>
                 </Modal>
             </Row>}
         </>

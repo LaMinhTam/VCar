@@ -388,3 +388,44 @@ export async function lessorApproveReturn(
     return { success: false, data: null };
   }
 }
+
+export async function createReview({
+  rental_contract_id,
+  rating,
+  comment,
+}: {
+  rental_contract_id: string;
+  rating: number;
+  comment: string;
+}) {
+  try {
+    const response = await axiosPrivate.post(
+      ENDPOINTS.CREATE_REVIEW,
+      {
+        rental_contract_id,
+        rating,
+        comment,
+      }
+    );
+    if (response?.data?.code === 200) {
+      return { success: true, data: response.data.data };
+    }
+  } catch (error) {
+    console.error(error);
+    return { success: false, data: null };
+  }
+}
+
+export async function getReviewByCarId(car_id: string) {
+  try {
+    const response = await axiosPrivate.get(
+      ENDPOINTS.GET_REVIEW_BY_CAR_ID(car_id)
+    );
+    if (response?.data?.code === 200) {
+      return { success: true, data: response.data.data };
+    }
+  } catch (error) {
+    console.error(error);
+    return { success: false, data: null };
+  }
+}
