@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import TransmissionFilter from "./TransmissionFilter";
 import SeatsFilter from "./SeatsFilter";
 import FuelConsumptionFilter from "./FuelConsumptionFilter";
