@@ -24,7 +24,6 @@ const CreateReviewModal = ({ contract_id, setOpen }: {
             comment: values.comment,
         });
         if (response?.success) {
-            console.log("handleFinish ~ response:", response)
             setOpen(false);
             form.resetFields();
         } else {

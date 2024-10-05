@@ -9,12 +9,10 @@ export const axiosInstance = axios.create({
   baseURL: API_BASE_URL,
 });
 
-// Apply axios-retry to the standard axios instance
 axiosRetry(axiosInstance, {
-  retries: RETRIES, // Number of retry attempts
-  retryDelay: axiosRetry.exponentialDelay, // Exponential back-off delay between retries
+  retries: RETRIES,
+  retryDelay: axiosRetry.exponentialDelay,
   retryCondition: (error) => {
-    // Retry for specific error codes or conditions
     return error.response ? error.response.status >= 500 : false;
   },
 });

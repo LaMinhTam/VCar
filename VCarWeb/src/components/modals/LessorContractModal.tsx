@@ -62,7 +62,6 @@ const LessorContractModal = ({ record }: {
                     address: account,
                     signature_url: imageUrl
                 }, vehicleHandover?.id);
-                console.log(response?.data);
                 if (response?.success) {
                     message.success("Approved vehicle handover successfully");
                     setLoading(false);
@@ -98,7 +97,6 @@ const LessorContractModal = ({ record }: {
             getImage: async (tagValue: string) => {
                 // Use utility function to fetch image from URL
                 const imageBuffer = await fetchImageFromUrl(tagValue);
-                console.log("getImage: ~ imageBuffer:", imageBuffer)
                 return imageBuffer;
             },
             getSize: () => [150, 50] as [number, number] // Set image size, can be customized

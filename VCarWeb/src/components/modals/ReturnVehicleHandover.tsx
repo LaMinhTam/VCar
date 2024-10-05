@@ -48,7 +48,6 @@ const ReturnVehicleHandover = ({ form, vehicle_handover_id, setReturnVehicleLoad
     };
 
     const onFinish = async (values: ReturnHandoverFieldTypes) => {
-        console.log("onFinish ~ values:", values)
         setReturnVehicleLoading(true);
         if (sigCanvas?.current) {
             const imageUrl = await handleUploadSignature(sigCanvas, dispatch, vehicle_handover_id, userInfo.id, setReturnVehicleLoading);

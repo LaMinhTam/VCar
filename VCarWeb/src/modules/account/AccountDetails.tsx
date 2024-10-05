@@ -64,7 +64,6 @@ const AccountDetails = () => {
             const imageUrl = await handleUploadFile(formData, dispatch);
 
             if (imageUrl) {
-                console.log("Upload success");
 
                 // Prepare data for driver's license recognition API
                 const recognitionData = new FormData();
@@ -102,7 +101,6 @@ const AccountDetails = () => {
             } else {
                 setUpdateIdentificationLoading(false);
                 message.error("Upload failed");
-                console.log("Upload failed");
             }
         }
     }
@@ -125,8 +123,6 @@ const AccountDetails = () => {
             const imageUrl = await handleUploadFile(formData, dispatch);
 
             if (imageUrl) {
-                console.log("Upload success");
-
                 // Prepare data for driver's license recognition API
                 const recognitionData = new FormData();
                 recognitionData.append("image", file);
@@ -156,7 +152,6 @@ const AccountDetails = () => {
             } else {
                 setUpdateLicenseLoading(false);
                 message.error("Upload failed");
-                console.log("Upload failed");
             }
         }
     };
