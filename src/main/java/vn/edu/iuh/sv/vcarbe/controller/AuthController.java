@@ -4,10 +4,10 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -55,8 +55,8 @@ public class AuthController {
     @PostMapping("/refresh")
     public ResponseEntity<ApiResponseWrapper> refreshToken(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
-            ServerHttpRequest req) {
-        String refreshToken = req.getHeaders().get("authorization").get(0).substring(7);
+            HttpServletRequest req) {
+        String refreshToken = req.getHeader("authorization").substring(7);
         return ResponseEntity.ok(new ApiResponseWrapper(200, MessageKeys.REFRESH_TOKEN_SUCCESS.name(), authService.refreshToken(userPrincipal, refreshToken)));
     }
 

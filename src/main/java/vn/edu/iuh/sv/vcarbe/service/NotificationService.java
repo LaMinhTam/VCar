@@ -2,12 +2,8 @@ package vn.edu.iuh.sv.vcarbe.service;
 
 import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 import vn.edu.iuh.sv.vcarbe.dto.NotificationDTO;
 import vn.edu.iuh.sv.vcarbe.entity.User;
-
-import java.util.Optional;
 
 public interface NotificationService {
     Page<NotificationDTO> getNotificationsForUser(ObjectId userId, int page, int size, String sortBy, String sortDir);

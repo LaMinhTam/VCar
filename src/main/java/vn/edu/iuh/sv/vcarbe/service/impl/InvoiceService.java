@@ -1,13 +1,11 @@
 package vn.edu.iuh.sv.vcarbe.service.impl;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.bson.types.ObjectId;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Service;
-import org.springframework.util.MultiValueMap;
-import reactor.core.publisher.Mono;
 import vn.edu.iuh.sv.vcarbe.config.VNPayConfig;
 import vn.edu.iuh.sv.vcarbe.dto.InvoiceDTO;
 import vn.edu.iuh.sv.vcarbe.dto.RentalContractDTO;
@@ -48,7 +46,7 @@ public class InvoiceService {
         this.blockchainUtils = blockchainUtils;
     }
 
-    public String createPaymentUrl(ServerHttpRequest req, UserPrincipal userPrincipal, SignRequest signRequest) throws UnsupportedEncodingException {
+    public String createPaymentUrl(HttpServletRequest req, UserPrincipal userPrincipal, SignRequest signRequest) throws UnsupportedEncodingException {
         RentalContract rentalContract = rentalContractRepository.findByLesseeIdAndId(userPrincipal.getId(), signRequest.contractId())
                 .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND.value(), MessageKeys.CONTRACT_NOT_FOUND.name()));
         User lessee = userRepository.findById(userPrincipal.getId())
@@ -94,13 +92,13 @@ public class InvoiceService {
         return vnPayConfig.getVnp_PayUrl() + "?" + queryUrl + "&vnp_SecureHash=" + vnpSecureHash;
     }
 
-    public RentalContractDTO handlePaymentCallback(ServerHttpRequest req) {
+    public RentalContractDTO handlePaymentCallback(HttpServletRequest req) {
         Map<String, String> fields = extractFieldsFromRequest(req);
 
         Invoice invoice = invoiceRepository.findByTxnRef(fields.get("vnp_TxnRef"))
                 .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND.value(), MessageKeys.INVOICE_NOT_FOUND.name()));
 
-        String vnpSecureHash = req.getQueryParams().getFirst("vnp_SecureHash");
+        String vnpSecureHash = req.getParameter("vnp_SecureHash");
         fields.remove("vnp_SecureHash");
         String signValue = vnPayConfig.hashAllFields(fields);
 
@@ -112,12 +110,12 @@ public class InvoiceService {
             throw new AppException(HttpStatus.FORBIDDEN.value(), MessageKeys.PAYMENT_NOT_VALID.name());
         }
 
-        String vnpResponseCode = req.getQueryParams().getFirst("vnp_ResponseCode");
+        String vnpResponseCode = req.getParameter("vnp_ResponseCode");
         if ("00".equals(vnpResponseCode)) {
             invoice.setPaymentStatus(PaymentStatus.PAID);
             invoice.setContent("Thanh toán thành công");
-            invoice.setTransactionNo(req.getQueryParams().getFirst("vnp_TransactionNo"));
-            invoice.setTransactionDate(Long.parseLong(req.getQueryParams().getFirst("vnp_PayDate")));
+            invoice.setTransactionNo(req.getParameter("vnp_TransactionNo"));
+            invoice.setTransactionDate(Long.parseLong(req.getParameter("vnp_PayDate")));
             Invoice savedInvoice = invoiceRepository.save(invoice);
             RentalContract rentalContract = rentalContractRepository.findById(savedInvoice.getContractId())
                     .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND.value(), MessageKeys.CONTRACT_NOT_FOUND.name()));
@@ -160,20 +158,19 @@ public class InvoiceService {
         return query.toString();
     }
 
-    private Map<String, String> extractFieldsFromRequest(ServerHttpRequest req) {
+    private Map<String, String> extractFieldsFromRequest(HttpServletRequest req) {
         Map<String, String> fields = new HashMap<>();
-        MultiValueMap<String, String> queryParams = req.getQueryParams();
-
-        queryParams.forEach((key, values) -> {
+        Map<String, String[]> parameterMap = req.getParameterMap();
+        for (String key : parameterMap.keySet()) {
+            String[] values = parameterMap.get(key);
             try {
                 String encodedKey = URLEncoder.encode(key, StandardCharsets.US_ASCII.toString());
-                String encodedValue = URLEncoder.encode(values.get(0), StandardCharsets.US_ASCII.toString());
+                String encodedValue = URLEncoder.encode(values[0], StandardCharsets.US_ASCII.toString());
                 fields.put(encodedKey, encodedValue);
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             }
-        });
-
+        }
         return fields;
     }
 

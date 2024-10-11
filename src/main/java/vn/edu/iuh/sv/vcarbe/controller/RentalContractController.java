@@ -3,15 +3,15 @@ package vn.edu.iuh.sv.vcarbe.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.web.bind.annotation.*;
 import vn.edu.iuh.sv.vcarbe.dto.*;
 import vn.edu.iuh.sv.vcarbe.exception.MessageKeys;
@@ -39,7 +39,7 @@ public class RentalContractController {
     })
     @PostMapping("/lessee-approve")
     public ResponseEntity<ApiResponseWrapper> createPayment(
-            ServerHttpRequest req,
+            HttpServletRequest req,
             @CurrentUser UserPrincipal userPrincipal,
             @Valid @RequestBody SignRequest signRequest) throws UnsupportedEncodingException {
         EthersUtils.verifyMessage(signRequest.digitalSignature());
@@ -52,7 +52,7 @@ public class RentalContractController {
             @ApiResponse(responseCode = "400", description = "Invalid request or invoice not found")
     })
     @PostMapping("/payment-callback")
-    public ResponseEntity<ApiResponseWrapper> approveRentalRequest(ServerHttpRequest req) {
+    public ResponseEntity<ApiResponseWrapper> approveRentalRequest(HttpServletRequest req) {
         return ResponseEntity.ok(new ApiResponseWrapper(200, MessageKeys.PAYMENT_CALLBACK_SUCCESS.name(), invoiceService.handlePaymentCallback(req)));
     }
 
