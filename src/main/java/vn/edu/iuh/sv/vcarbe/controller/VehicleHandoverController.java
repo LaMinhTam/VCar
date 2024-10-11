@@ -35,7 +35,7 @@ public class VehicleHandoverController {
     public ResponseEntity<ApiResponseWrapper> createVehicleHandover(
             @CurrentUser UserPrincipal userPrincipal,
             @RequestBody @Valid VehicleHandoverRequest request) {
-        EthersUtils.verifyMessage(request.getDigitalSignature());
+//        EthersUtils.verifyMessage(request.getDigitalSignature());
         return ResponseEntity.ok(new ApiResponseWrapper(200, MessageKeys.VEHICLE_HANDOVER_CREATE_SUCCESS.name(), vehicleHandoverService.createVehicleHandover(userPrincipal, request)));
     }
 
@@ -51,7 +51,7 @@ public class VehicleHandoverController {
             @Parameter(description = "Vehicle Handover Document ID (must be a valid ObjectId)", schema = @Schema(type = "string", example = "60c72b2f9b1e8c001f0a0b4e"))
             @PathVariable ObjectId id,
             @RequestBody DigitalSignature digitalSignature) {
-        EthersUtils.verifyMessage(digitalSignature);
+//        EthersUtils.verifyMessage(digitalSignature);
         return ResponseEntity.ok(new ApiResponseWrapper(200, MessageKeys.VEHICLE_HANDOVER_APPROVE_BY_LESSEE_SUCCESS.name(), vehicleHandoverService.approveByLessee(id, userPrincipal, digitalSignature)));
     }
 
@@ -67,7 +67,7 @@ public class VehicleHandoverController {
             @Parameter(description = "Vehicle Handover Document ID (must be a valid ObjectId)", schema = @Schema(type = "string", example = "60c72b2f9b1e8c001f0a0b4e"))
             @PathVariable ObjectId id,
             @RequestBody DigitalSignature digitalSignature) {
-        EthersUtils.verifyMessage(digitalSignature);
+//        EthersUtils.verifyMessage(digitalSignature);
         return ResponseEntity.ok(new ApiResponseWrapper(200, MessageKeys.VEHICLE_HANDOVER_APPROVE_BY_LESSOR_SUCCESS.name(), vehicleHandoverService.approveByLessor(id, userPrincipal, digitalSignature)));
     }
 
@@ -83,7 +83,7 @@ public class VehicleHandoverController {
             @Parameter(description = "Vehicle Handover Document ID (must be a valid ObjectId)", schema = @Schema(type = "string", example = "60c72b2f9b1e8c001f0a0b4e"))
             @PathVariable ObjectId id,
             @RequestBody @Valid VehicleReturnRequest request) {
-        EthersUtils.verifyMessage(request.getDigitalSignature());
+//        EthersUtils.verifyMessage(request.getDigitalSignature());
         return ResponseEntity.ok(new ApiResponseWrapper(200, MessageKeys.VEHICLE_HANDOVER_UPDATE_BY_LESSEE_SUCCESS.name(), vehicleHandoverService.updateVehicleReturn(id, request, userPrincipal)));
     }
 

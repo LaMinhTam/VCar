@@ -42,7 +42,7 @@ public class RentalContractController {
             HttpServletRequest req,
             @CurrentUser UserPrincipal userPrincipal,
             @Valid @RequestBody SignRequest signRequest) throws UnsupportedEncodingException {
-        EthersUtils.verifyMessage(signRequest.digitalSignature());
+//        EthersUtils.verifyMessage(signRequest.digitalSignature());
         return ResponseEntity.ok(new ApiResponseWrapper(200, MessageKeys.PAYMENT_CREATE_SUCCESS.name(), invoiceService.createPaymentUrl(req, userPrincipal, signRequest)));
     }
 

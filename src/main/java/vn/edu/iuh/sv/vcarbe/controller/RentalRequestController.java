@@ -53,7 +53,7 @@ public class RentalRequestController {
     public ResponseEntity<ApiResponseWrapper> approveRentalRequest(
             @CurrentUser UserPrincipal userPrincipal,
             @RequestBody ApprovalRequest approvalRequest) throws Exception {
-        EthersUtils.verifyMessage(approvalRequest.digitalSignature());
+//        EthersUtils.verifyMessage(approvalRequest.digitalSignature());
         return ResponseEntity.ok(new ApiResponseWrapper(200, MessageKeys.RENTAL_APPROVE_SUCCESS.name(), rentalRequestService.approveRentalContract(userPrincipal, approvalRequest)));
     }
 
