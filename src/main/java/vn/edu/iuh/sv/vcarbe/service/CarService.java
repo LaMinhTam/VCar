@@ -10,18 +10,20 @@ import vn.edu.iuh.sv.vcarbe.entity.Car;
 import vn.edu.iuh.sv.vcarbe.entity.Province;
 import vn.edu.iuh.sv.vcarbe.security.UserPrincipal;
 
+import java.util.List;
+
 public interface CarService {
-    Mono<CarDTO> createCar(Car car);
+    CarDTO createCar(Car car);
 
-    Mono<CarDTO> updateCar(UserPrincipal userPrincipal, ObjectId id, Car car);
+    CarDTO updateCar(UserPrincipal userPrincipal, ObjectId id, Car car);
 
-    Mono<Car> deleteCar(UserPrincipal userPrincipal, ObjectId id);
+    Car deleteCar(UserPrincipal userPrincipal, ObjectId id);
 
-    Mono<CarDetailDTO> findCarById(ObjectId id);
+    CarDetailDTO findCarById(ObjectId id);
 
-    Flux<String> autocomplete(String query, Province province);
+    List<String> autocomplete(String query, Province province);
 
-    Flux<CarDTO> search(SearchCriteria criteria);
+    List<CarDTO> search(SearchCriteria criteria);
 
-    Flux<CarDTO> getCarsByOwner(UserPrincipal userPrincipal);
+    List<CarDTO> getCarsByOwner(UserPrincipal userPrincipal);
 }

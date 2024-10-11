@@ -7,6 +7,7 @@ import reactor.core.publisher.Mono;
 import vn.edu.iuh.sv.vcarbe.dto.CarReviewDTO;
 import vn.edu.iuh.sv.vcarbe.dto.LesseeReviewDTO;
 import vn.edu.iuh.sv.vcarbe.dto.ReviewRequest;
+import vn.edu.iuh.sv.vcarbe.entity.RentalContract;
 import vn.edu.iuh.sv.vcarbe.entity.Review;
 import vn.edu.iuh.sv.vcarbe.entity.ReviewType;
 import vn.edu.iuh.sv.vcarbe.exception.AppException;
@@ -26,28 +27,26 @@ public class ReviewServiceImpl implements ReviewService {
     private RentalContractRepository rentalContractRepository;
 
     @Override
-    public Mono<Review> addReview(UserPrincipal userPrincipal, ReviewRequest reviewRequest) {
-        return rentalContractRepository.findById(reviewRequest.getRentalContractId())
-                .switchIfEmpty(Mono.error(new AppException(404, MessageKeys.CONTRACT_NOT_FOUND.name())))
-                .flatMap(rentalContract -> {
-                    Review review = new Review();
-                    review.setRentalContractId(reviewRequest.getRentalContractId());
-                    review.setCarId(rentalContract.getCarId());
-                    review.setLesseeId(rentalContract.getLesseeId());
-                    review.setLessorId(rentalContract.getLessorId());
-                    review.setRating(reviewRequest.getRating());
-                    review.setComment(reviewRequest.getComment());
+    public Review addReview(UserPrincipal userPrincipal, ReviewRequest reviewRequest) {
+        RentalContract rentalContract = rentalContractRepository.findById(reviewRequest.getRentalContractId())
+                .orElseThrow(() -> new AppException(404, MessageKeys.CONTRACT_NOT_FOUND.name()));
+        Review review = new Review();
+        review.setRentalContractId(reviewRequest.getRentalContractId());
+        review.setCarId(rentalContract.getCarId());
+        review.setLesseeId(rentalContract.getLesseeId());
+        review.setLessorId(rentalContract.getLessorId());
+        review.setRating(reviewRequest.getRating());
+        review.setComment(reviewRequest.getComment());
 
-                    if (userPrincipal.getId().equals(rentalContract.getLessorId())) {
-                        review.setReviewType(ReviewType.LESSEE_REVIEW);
-                    }  else if(userPrincipal.getId().equals(rentalContract.getLesseeId())) {
-                        review.setReviewType(ReviewType.CAR_REVIEW);
-                    }else{
-                        return Mono.error(new AppException(403, MessageKeys.USER_NOT_AUTHORIZED.name()));
-                    }
+        if (userPrincipal.getId().equals(rentalContract.getLessorId())) {
+            review.setReviewType(ReviewType.LESSEE_REVIEW);
+        } else if (userPrincipal.getId().equals(rentalContract.getLesseeId())) {
+            review.setReviewType(ReviewType.CAR_REVIEW);
+        } else {
+            throw new AppException(403, MessageKeys.USER_NOT_AUTHORIZED.name());
+        }
 
-                    return reviewRepository.save(review);
-                });
+        return reviewRepository.save(review);
     }
 
     @Override

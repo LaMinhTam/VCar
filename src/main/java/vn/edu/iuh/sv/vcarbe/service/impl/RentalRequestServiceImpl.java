@@ -5,8 +5,6 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 import vn.edu.iuh.sv.vcarbe.dto.ApprovalRequest;
 import vn.edu.iuh.sv.vcarbe.dto.RentRequestDTO;
 import vn.edu.iuh.sv.vcarbe.dto.RentalContractDTO;
@@ -24,6 +22,7 @@ import vn.edu.iuh.sv.vcarbe.util.BlockchainUtils;
 import vn.edu.iuh.sv.vcarbe.util.NotificationUtils;
 
 import java.util.Date;
+import java.util.List;
 
 @Service
 public class RentalRequestServiceImpl implements RentalRequestService {
@@ -47,140 +46,118 @@ public class RentalRequestServiceImpl implements RentalRequestService {
     }
 
     @Override
-    public Mono<RentalRequestDTO> createRentalRequest(RentRequestDTO rentRequestDTO, ObjectId lesseeId) {
-        return carRepository.findById(rentRequestDTO.carId())
-                .switchIfEmpty(Mono.error(new AppException(404, MessageKeys.CAR_NOT_FOUND.name())))
-                .flatMap(car -> {
-                    RentalRequest request = new RentalRequest(rentRequestDTO, car, lesseeId);
-                    return rentalRequestRepository.save(request);
-                })
-                .doOnNext(savedRequest -> notificationUtils.createNotification(
-                        savedRequest.getLessorId(),
-                        NotificationMessage.NEW_RENTAL_REQUEST,
-                        NotificationType.RENTAL_REQUEST,
-                        "/rental-requests/" + savedRequest.getId(),
-                        savedRequest.getId()))
-                .map(savedRequest -> modelMapper.map(savedRequest, RentalRequestDTO.class));
+    public RentalRequestDTO createRentalRequest(RentRequestDTO rentRequestDTO, ObjectId lesseeId) {
+        Car car = carRepository.findById(rentRequestDTO.carId())
+                .orElseThrow(() -> new AppException(404, MessageKeys.CAR_NOT_FOUND.name()));
+
+        RentalRequest request = new RentalRequest(rentRequestDTO, car, lesseeId);
+        RentalRequest savedRequest = rentalRequestRepository.save(request);
+        notificationUtils.createNotification(
+                savedRequest.getLessorId(),
+                NotificationMessage.NEW_RENTAL_REQUEST,
+                NotificationType.RENTAL_REQUEST,
+                "/rental-requests/" + savedRequest.getId(),
+                savedRequest.getId());
+        return modelMapper.map(savedRequest, RentalRequestDTO.class);
     }
 
 
-    public Mono<RentalContractDTO> approveRentalContract(UserPrincipal userPrincipal, ApprovalRequest approvalRequest) {
-        return rentalRequestRepository.findByIdAndLessorId(approvalRequest.requestId(), userPrincipal.getId())
-                .switchIfEmpty(Mono.error(new AppException(404, MessageKeys.RENTAL_REQUEST_NOT_FOUND.name())))
-                .flatMap(rentalRequest -> {
-                    rentalRequest.setStatus(RentRequestStatus.APPROVED);
-                    rentalRequest.setUpdatedAt(new Date());
-                    return rentalRequestRepository.save(rentalRequest);
-                })
-                .flatMap(rentalRequest -> carRepository.findById(rentalRequest.getCarId())
-                        .switchIfEmpty(Mono.error(new AppException(404, MessageKeys.CAR_NOT_FOUND.name())))
-                        .flatMap(car -> userRepository.findById(rentalRequest.getLessorId())
-                                .switchIfEmpty(Mono.error(new AppException(404, MessageKeys.USER_NOT_FOUND.name())))
-                                .flatMap(lessorUser -> {
-                                    RentalContract rentalContract = new RentalContract(rentalRequest, lessorUser, car, approvalRequest);
-                                    return rentalContractRepository.save(rentalContract)
-                                            .flatMap(savedContract -> {
-                                                notificationUtils.createNotification(
-                                                        savedContract.getLesseeId(),
-                                                        NotificationMessage.RENTAL_REQUEST_APPROVED,
-                                                        NotificationType.RENTAL_CONTRACT,
-                                                        "/rental-contracts/" + savedContract.getId(),
-                                                        savedContract.getId());
-                                                return blockchainUtils.createRentalContract(savedContract).thenReturn(savedContract);
-                                            })
-                                            .map(savedContract -> modelMapper.map(savedContract, RentalContractDTO.class));
-                                })
-                        )
-                )
-                .onErrorResume(e -> Mono.error(new AppException(500, e.getMessage())));
+    public RentalContractDTO approveRentalContract(UserPrincipal userPrincipal, ApprovalRequest approvalRequest) {
+        RentalRequest rentalRequest = rentalRequestRepository.findByIdAndLessorId(approvalRequest.requestId(), userPrincipal.getId())
+                .orElseThrow(() -> new AppException(404, MessageKeys.RENTAL_REQUEST_NOT_FOUND.name()));
+
+        rentalRequest.setStatus(RentRequestStatus.APPROVED);
+        rentalRequest.setUpdatedAt(new Date());
+        rentalRequestRepository.save(rentalRequest);
+        Car car = carRepository.findById(rentalRequest.getCarId())
+                .orElseThrow(() -> new AppException(404, MessageKeys.CAR_NOT_FOUND.name()));
+
+        User lessorUser = userRepository.findById(rentalRequest.getLessorId())
+                .orElseThrow(() -> new AppException(404, MessageKeys.USER_NOT_FOUND.name()));
+        RentalContract rentalContract = new RentalContract(rentalRequest, lessorUser, car, approvalRequest);
+        RentalContract savedContract = rentalContractRepository.save(rentalContract);
+
+        notificationUtils.createNotification(
+                savedContract.getLesseeId(),
+                NotificationMessage.RENTAL_REQUEST_APPROVED,
+                NotificationType.RENTAL_CONTRACT,
+                "/rental-contracts/" + savedContract.getId(),
+                savedContract.getId());
+        blockchainUtils.createRentalContract(savedContract);
+        return modelMapper.map(savedContract, RentalContractDTO.class);
     }
 
     @Override
-    public Mono<RentalRequestDTO> rejectRentalContract(UserPrincipal userPrincipal, ApprovalRequest approvalRequest) {
-        return rentalRequestRepository.findByIdAndLessorId(approvalRequest.requestId(), userPrincipal.getId())
-                .switchIfEmpty(Mono.error(new AppException(404, MessageKeys.RENTAL_REQUEST_NOT_FOUND.name())))
-                .flatMap(rentalRequest -> {
-                    rentalRequest.setStatus(RentRequestStatus.REJECTED);
-                    return rentalRequestRepository.save(rentalRequest);
-                })
-                .doOnNext(rentalRequest -> notificationUtils.createNotification(
-                        rentalRequest.getLesseeId(),
-                        NotificationMessage.RENTAL_REQUEST_REJECTED,
-                        NotificationType.RENTAL_REQUEST,
-                        "/rental-requests/" + rentalRequest.getId(),
-                        rentalRequest.getId()))
-                .map(rentalRequest -> modelMapper.map(rentalRequest, RentalRequestDTO.class));
+    public RentalRequestDTO rejectRentalContract(UserPrincipal userPrincipal, ApprovalRequest approvalRequest) {
+        RentalRequest rentalRequest = rentalRequestRepository.findByIdAndLessorId(approvalRequest.requestId(), userPrincipal.getId())
+                .orElseThrow(() -> new AppException(404, MessageKeys.RENTAL_REQUEST_NOT_FOUND.name()));
+
+        rentalRequest.setStatus(RentRequestStatus.REJECTED);
+        rentalRequestRepository.save(rentalRequest);
+        notificationUtils.createNotification(
+                rentalRequest.getLesseeId(),
+                NotificationMessage.RENTAL_REQUEST_REJECTED,
+                NotificationType.RENTAL_REQUEST,
+                "/rental-requests/" + rentalRequest.getId(),
+                rentalRequest.getId());
+        return modelMapper.map(rentalRequest, RentalRequestDTO.class);
     }
 
     @Override
-    public Mono<Page<RentalRequestDTO>> getRentalRequestForLessor(
+    public Page<RentalRequestDTO> getRentalRequestForLessor(
             ObjectId id, String sortField, boolean sortDescending, RentRequestStatus status, int page, int size) {
 
         Sort sort = sortDescending ? Sort.by(Sort.Order.desc(sortField)) : Sort.by(Sort.Order.asc(sortField));
         Pageable pageable = PageRequest.of(page, size, sort);
 
-        Flux<RentalRequest> rentalRequests;
-        Mono<Long> countMono;
-
+        Page<RentalRequest> rentalRequestPage;
         if (status != null) {
-            rentalRequests = rentalRequestRepository.findByLessorIdAndStatus(id, status, pageable);
-            countMono = rentalRequestRepository.countByLessorIdAndStatus(id, status);
+            rentalRequestPage = rentalRequestRepository.findByLessorIdAndStatus(id, status, pageable);
         } else {
-            rentalRequests = rentalRequestRepository.findByLessorId(id, pageable);
-            countMono = rentalRequestRepository.countByLessorId(id);
+            rentalRequestPage = rentalRequestRepository.findByLessorId(id, pageable);
         }
 
-        return rentalRequests.collectList()
-                .zipWith(countMono, (requests, total) -> new PageImpl<>(
-                        requests.stream()
-                                .map(request -> modelMapper.map(request, RentalRequestDTO.class))
-                                .toList(),
-                        pageable,
-                        total
-                ));
+        List<RentalRequestDTO> rentalRequestDTOs = rentalRequestPage.getContent().stream()
+                .map(request -> modelMapper.map(request, RentalRequestDTO.class))
+                .toList();
+
+        return new PageImpl<>(rentalRequestDTOs, pageable, rentalRequestPage.getTotalElements());
     }
 
 
     @Override
-    public Mono<Page<RentalRequestDTO>> getRentalRequestForLessee(
+    public Page<RentalRequestDTO> getRentalRequestForLessee(
             ObjectId id, String sortField, boolean sortDescending, RentRequestStatus status, int page, int size) {
 
         Sort sort = sortDescending ? Sort.by(Sort.Order.desc(sortField)) : Sort.by(Sort.Order.asc(sortField));
         Pageable pageable = PageRequest.of(page, size, sort);
 
-        Flux<RentalRequest> rentalRequests;
-        Mono<Long> countMono;
-
+        Page<RentalRequest> rentalRequestPage;
         if (status != null) {
-            rentalRequests = rentalRequestRepository.findByLesseeIdAndStatus(id, status, pageable);
-            countMono = rentalRequestRepository.countByLesseeIdAndStatus(id, status);
+            rentalRequestPage = rentalRequestRepository.findByLesseeIdAndStatus(id, status, pageable);
         } else {
-            rentalRequests = rentalRequestRepository.findByLesseeId(id, pageable);
-            countMono = rentalRequestRepository.countByLesseeId(id);
+            rentalRequestPage = rentalRequestRepository.findByLesseeId(id, pageable);
         }
 
-        return rentalRequests.collectList()
-                .zipWith(countMono, (requests, total) -> new PageImpl<>(
-                        requests.stream()
-                                .map(request -> modelMapper.map(request, RentalRequestDTO.class))
-                                .toList(),
-                        pageable,
-                        total
-                ));
+        List<RentalRequestDTO> rentalRequestDTOs = rentalRequestPage.getContent().stream()
+                .map(request -> modelMapper.map(request, RentalRequestDTO.class))
+                .toList();
+
+        return new PageImpl<>(rentalRequestDTOs, pageable, rentalRequestPage.getTotalElements());
     }
 
 
     @Override
-    public Mono<RentalRequestDTO> getRentalRequest(ObjectId id) {
-        return rentalRequestRepository.findById(id)
-                .switchIfEmpty(Mono.error(new AppException(404, MessageKeys.RENTAL_REQUEST_NOT_FOUND.name())))
-                .map(rentalRequest -> modelMapper.map(rentalRequest, RentalRequestDTO.class));
+    public RentalRequestDTO getRentalRequest(ObjectId id) {
+        RentalRequest rentalRequest = rentalRequestRepository.findById(id)
+                .orElseThrow(() -> new AppException(404, MessageKeys.RENTAL_REQUEST_NOT_FOUND.name()));
+        return modelMapper.map(rentalRequest, RentalRequestDTO.class);
     }
 
     @Override
-    public Mono<RentalContractDTO> getRentalContractByRentalRequestId(ObjectId id) {
-        return rentalContractRepository.findByRentalRequestId(id)
-                .switchIfEmpty(Mono.error(new AppException(404, MessageKeys.RENTAL_REQUEST_NOT_FOUND.name())))
-                .map(rentalContract -> modelMapper.map(rentalContract, RentalContractDTO.class));
+    public RentalContractDTO getRentalContractByRentalRequestId(ObjectId id) {
+        RentalContract rentalContract = rentalContractRepository.findByRentalRequestId(id)
+                .orElseThrow(() -> new AppException(404, MessageKeys.RENTAL_REQUEST_NOT_FOUND.name()));
+        return modelMapper.map(rentalContract, RentalContractDTO.class);
     }
 }

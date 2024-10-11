@@ -1,6 +1,7 @@
 package vn.edu.iuh.sv.vcarbe.repository;
 
 import org.bson.types.ObjectId;
+import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
 import org.springframework.stereotype.Repository;
@@ -12,10 +13,10 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface UserRepository extends ReactiveMongoRepository<User, ObjectId>, UserRepositoryCustom {
-    Mono<User> findByEmail(String email);
+public interface UserRepository extends MongoRepository<User, ObjectId>, UserRepositoryCustom {
+    Optional<User> findByEmail(String email);
 
-    Mono<Boolean> existsByEmail(String email);
+    Boolean existsByEmail(String email);
 
     List<User> findByIdIn(List<ObjectId> userIds);
 }

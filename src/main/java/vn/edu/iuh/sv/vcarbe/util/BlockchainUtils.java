@@ -36,7 +36,7 @@ public class BlockchainUtils {
         );
     }
 
-    public Mono<TransactionReceipt> createRentalContract(RentalContract rentalContract) {
+    public TransactionReceipt createRentalContract(RentalContract rentalContract) {
         CarRental carRentalContract = loadCarRentalContract();
         RemoteFunctionCall<TransactionReceipt> transactionReceipt = carRentalContract.createContract(
                 rentalContract.getId().toHexString(),
@@ -49,13 +49,11 @@ public class BlockchainUtils {
                 BigInteger.valueOf((long) rentalContract.getTotalRentalValue())
         );
 
-        return Mono.fromCallable(() -> {
-            try {
-                return executeTransaction(transactionReceipt);
-            } catch (Exception e) {
-                throw new AppException(500, e.getMessage());
-            }
-        }).subscribeOn(Schedulers.boundedElastic());
+        try {
+            return executeTransaction(transactionReceipt);
+        } catch (Exception e) {
+            throw new AppException(500, e.getMessage());
+        }
     }
 
 

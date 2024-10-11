@@ -8,11 +8,9 @@ import vn.edu.iuh.sv.vcarbe.dto.SignRequest;
 import vn.edu.iuh.sv.vcarbe.security.UserPrincipal;
 
 public interface RentalContractService {
-    Mono<RentalContractDTO> getRentalContract(ObjectId id) throws Exception;
+    RentalContractDTO getRentalContract(ObjectId id) throws Exception;
 
-    Mono<Page<RentalContractDTO>> getRentalContractForLessor(ObjectId id, String sortField, boolean sortDescending, int page, int size);
+    Page<RentalContractDTO> getRentalContractForLessor(ObjectId id, String sortField, boolean sortDescending, int page, int size);
 
-    Mono<Page<RentalContractDTO>> getRentalContractForLessee(ObjectId id, String sortField, boolean sortDescending, int page, int size);
-
-    Mono<RentalContractDTO> signRentalContract(UserPrincipal userPrincipal, SignRequest signRequest) throws Exception;
+    Page<RentalContractDTO> getRentalContractForLessee(ObjectId id, String sortField, boolean sortDescending, int page, int size);
 }

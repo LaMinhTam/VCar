@@ -10,17 +10,17 @@ import vn.edu.iuh.sv.vcarbe.dto.VehicleReturnRequest;
 import vn.edu.iuh.sv.vcarbe.security.UserPrincipal;
 
 public interface VehicleHandoverService {
-    Mono<VehicleHandoverDocumentDTO> createVehicleHandover(UserPrincipal userPrincipal, VehicleHandoverRequest request);
+    VehicleHandoverDocumentDTO createVehicleHandover(UserPrincipal userPrincipal, VehicleHandoverRequest request);
 
-    Mono<VehicleHandoverDocumentDTO> approveByLessee(ObjectId id, UserPrincipal userPrincipal, DigitalSignature digitalSignature);
+    VehicleHandoverDocumentDTO approveByLessee(ObjectId id, UserPrincipal userPrincipal, DigitalSignature digitalSignature);
 
-    Mono<VehicleHandoverDocumentDTO> approveByLessor(ObjectId id, UserPrincipal userPrincipal, DigitalSignature digitalSignature);
+    VehicleHandoverDocumentDTO approveByLessor(ObjectId id, UserPrincipal userPrincipal, DigitalSignature digitalSignature);
 
-    Mono<VehicleHandoverDocumentDTO> updateVehicleReturn(ObjectId id, VehicleReturnRequest request, UserPrincipal userPrincipal);
+    VehicleHandoverDocumentDTO updateVehicleReturn(ObjectId id, VehicleReturnRequest request, UserPrincipal userPrincipal);
 
-    Mono<VehicleHandoverDocumentDTO> getVehicleHandoverByRentalContractId(ObjectId rentalContractId);
+    VehicleHandoverDocumentDTO getVehicleHandoverByRentalContractId(ObjectId rentalContractId);
 
-    Mono<Page<VehicleHandoverDocumentDTO>> getVehicleHandoverForLessor(ObjectId id, String sortField, boolean sortDescending, int page, int size);
+    Page<VehicleHandoverDocumentDTO> getVehicleHandoverForLessor(ObjectId id, String sortField, boolean sortDescending, int page, int size);
 
-    Mono<Page<VehicleHandoverDocumentDTO>> getVehicleHandoverForLessee(ObjectId id, String sortField, boolean sortDescending, int page, int size);
+    Page<VehicleHandoverDocumentDTO> getVehicleHandoverForLessee(ObjectId id, String sortField, boolean sortDescending, int page, int size);
 }

@@ -11,12 +11,10 @@ import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import reactor.core.publisher.Mono;
 import vn.edu.iuh.sv.vcarbe.dto.ApiResponseWrapper;
 import vn.edu.iuh.sv.vcarbe.dto.CarReviewDTO;
 import vn.edu.iuh.sv.vcarbe.dto.LesseeReviewDTO;
 import vn.edu.iuh.sv.vcarbe.dto.ReviewRequest;
-import vn.edu.iuh.sv.vcarbe.entity.Review;
 import vn.edu.iuh.sv.vcarbe.exception.MessageKeys;
 import vn.edu.iuh.sv.vcarbe.security.CurrentUser;
 import vn.edu.iuh.sv.vcarbe.security.UserPrincipal;
@@ -37,13 +35,11 @@ public class ReviewController {
             @ApiResponse(responseCode = "404", description = "Rental contract not found")
     })
     @PostMapping
-    public Mono<ResponseEntity<ApiResponseWrapper>> addReview(
+    public ResponseEntity<ApiResponseWrapper> addReview(
             @CurrentUser UserPrincipal userPrincipal,
             @RequestBody @Valid ReviewRequest reviewRequest) {
-        return reviewService.addReview(userPrincipal, reviewRequest)
-                .map(review -> ResponseEntity.ok(new ApiResponseWrapper(200, MessageKeys.REVIEW_CREATE_SUCCESS.name(), review)));
+        return ResponseEntity.ok(new ApiResponseWrapper(200, MessageKeys.REVIEW_CREATE_SUCCESS.name(), reviewService.addReview(userPrincipal, reviewRequest)));
     }
-
 
     @Operation(summary = "Get reviews by car ID", description = "Retrieves all reviews for a specific car")
     @ApiResponses(value = {

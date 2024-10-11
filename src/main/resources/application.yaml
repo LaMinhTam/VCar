@@ -2,7 +2,6 @@ spring:
   application:
     name: VCarBE
   main:
-    web-application-type: reactive
     allow-bean-definition-overriding: true
   data:
     redis:

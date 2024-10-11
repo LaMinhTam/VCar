@@ -8,10 +8,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
-import reactor.core.publisher.Mono;
 import vn.edu.iuh.sv.vcarbe.dto.ApiResponseWrapper;
 import vn.edu.iuh.sv.vcarbe.dto.ApiResponseWrapperWithMeta;
+import vn.edu.iuh.sv.vcarbe.dto.InvoiceDTO;
 import vn.edu.iuh.sv.vcarbe.dto.PaginationMetadata;
 import vn.edu.iuh.sv.vcarbe.exception.MessageKeys;
 import vn.edu.iuh.sv.vcarbe.security.CurrentUser;
@@ -31,23 +32,14 @@ public class InvoiceController {
             @ApiResponse(responseCode = "401", description = "Unauthorized request")
     })
     @GetMapping
-    public Mono<ApiResponseWrapperWithMeta> getUserInvoices(
+    public ApiResponseWrapperWithMeta getUserInvoices(
             @CurrentUser UserPrincipal userPrincipal,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "createdAt") String sortBy,
             @RequestParam(defaultValue = "asc") String sortDir) {
-        return invoiceService.getUserInvoices(userPrincipal, page, size, sortBy, sortDir).map(paginatedInvoices -> {
-            PaginationMetadata pagination = new PaginationMetadata(
-                    paginatedInvoices.getNumber(),
-                    paginatedInvoices.getSize(),
-                    paginatedInvoices.getTotalElements(),
-                    paginatedInvoices.getTotalPages(),
-                    paginatedInvoices.hasPrevious(),
-                    paginatedInvoices.hasNext()
-            );
-            return new ApiResponseWrapperWithMeta(200, MessageKeys.SUCCESS.name(), paginatedInvoices.getContent(), pagination);
-        });
+        Page<InvoiceDTO> invoices = invoiceService.getUserInvoices(userPrincipal, page, size, sortBy, sortDir);
+        return new ApiResponseWrapperWithMeta(200, MessageKeys.SUCCESS.name(), invoices.getContent(), new PaginationMetadata(invoices));
     }
 
     @Operation(summary = "Get invoice by ID", description = "Retrieves an invoice by its ID for the authenticated user")
@@ -57,14 +49,13 @@ public class InvoiceController {
             @ApiResponse(responseCode = "401", description = "Unauthorized request")
     })
     @GetMapping("/{id}")
-    public Mono<ApiResponseWrapper> getInvoice(
+    public ApiResponseWrapper getInvoice(
             @CurrentUser UserPrincipal userPrincipal,
             @Parameter(
                     description = "Car ID (must be a valid ObjectId)",
                     schema = @Schema(type = "string")
             )
             @PathVariable ObjectId id) {
-        return invoiceService.getInvoiceById(userPrincipal, id)
-                .map(invoice -> new ApiResponseWrapper(200, MessageKeys.SUCCESS.name(), invoice));
+        return new ApiResponseWrapper(200, MessageKeys.SUCCESS.name(), invoiceService.getInvoiceById(userPrincipal, id));
     }
 }

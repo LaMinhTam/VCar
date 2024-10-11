@@ -11,17 +11,17 @@ import vn.edu.iuh.sv.vcarbe.entity.RentRequestStatus;
 import vn.edu.iuh.sv.vcarbe.security.UserPrincipal;
 
 public interface RentalRequestService {
-    Mono<RentalRequestDTO> createRentalRequest(RentRequestDTO rentRequestDTO, ObjectId lesseeId);
+    RentalRequestDTO createRentalRequest(RentRequestDTO rentRequestDTO, ObjectId lesseeId);
 
-    Mono<RentalContractDTO> approveRentalContract(UserPrincipal userPrincipal, ApprovalRequest approvalRequest) throws Exception;
+    RentalContractDTO approveRentalContract(UserPrincipal userPrincipal, ApprovalRequest approvalRequest) throws Exception;
 
-    Mono<RentalRequestDTO> rejectRentalContract(UserPrincipal userPrincipal, ApprovalRequest approvalRequest);
+    RentalRequestDTO rejectRentalContract(UserPrincipal userPrincipal, ApprovalRequest approvalRequest);
 
-    Mono<Page<RentalRequestDTO>> getRentalRequestForLessor(ObjectId id, String sortField, boolean sortDescending, RentRequestStatus status, int page, int size);
+    Page<RentalRequestDTO> getRentalRequestForLessor(ObjectId id, String sortField, boolean sortDescending, RentRequestStatus status, int page, int size);
 
-    Mono<Page<RentalRequestDTO>> getRentalRequestForLessee(ObjectId id, String sortField, boolean sortDescending, RentRequestStatus status, int page, int size);
+    Page<RentalRequestDTO> getRentalRequestForLessee(ObjectId id, String sortField, boolean sortDescending, RentRequestStatus status, int page, int size);
 
-    Mono<RentalRequestDTO> getRentalRequest(ObjectId id);
+    RentalRequestDTO getRentalRequest(ObjectId id);
 
-    Mono<RentalContractDTO> getRentalContractByRentalRequestId(ObjectId id);
+    RentalContractDTO getRentalContractByRentalRequestId(ObjectId id);
 }

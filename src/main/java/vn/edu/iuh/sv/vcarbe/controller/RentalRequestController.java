@@ -9,9 +9,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import reactor.core.publisher.Mono;
 import vn.edu.iuh.sv.vcarbe.dto.*;
 import vn.edu.iuh.sv.vcarbe.entity.RentRequestStatus;
 import vn.edu.iuh.sv.vcarbe.exception.MessageKeys;
@@ -34,14 +34,13 @@ public class RentalRequestController {
             @ApiResponse(responseCode = "400", description = "User is not verified or request is invalid")
     })
     @PostMapping("/rent")
-    public Mono<ResponseEntity<ApiResponseWrapper>> createRentalContract(
+    public ResponseEntity<ApiResponseWrapper> createRentalContract(
             @RequestBody RentRequestDTO rentRequestDTO,
             @CurrentUser UserPrincipal userPrincipal) {
         if (!userPrincipal.isVerify()) {
-            return Mono.just(ResponseEntity.badRequest().body(new ApiResponseWrapper(400, MessageKeys.USER_NOT_VERIFIED.name(), null)));
+            return ResponseEntity.badRequest().body(new ApiResponseWrapper(400, MessageKeys.USER_NOT_VERIFIED.name(), null));
         }
-        return rentalRequestService.createRentalRequest(rentRequestDTO, userPrincipal.getId())
-                .map(createdContract -> ResponseEntity.ok(new ApiResponseWrapper(200, MessageKeys.RENTAL_CREATE_SUCCESS.name(), createdContract)));
+        return ResponseEntity.ok(new ApiResponseWrapper(200, MessageKeys.RENTAL_CREATE_SUCCESS.name(), rentalRequestService.createRentalRequest(rentRequestDTO, userPrincipal.getId())));
     }
 
 
@@ -51,12 +50,11 @@ public class RentalRequestController {
             @ApiResponse(responseCode = "400", description = "Request is invalid or user is not authorized")
     })
     @PostMapping("/approve")
-    public Mono<ResponseEntity<ApiResponseWrapper>> approveRentalRequest(
+    public ResponseEntity<ApiResponseWrapper> approveRentalRequest(
             @CurrentUser UserPrincipal userPrincipal,
             @RequestBody ApprovalRequest approvalRequest) throws Exception {
         EthersUtils.verifyMessage(approvalRequest.digitalSignature());
-        return rentalRequestService.approveRentalContract(userPrincipal, approvalRequest)
-                .map(updatedContract -> ResponseEntity.ok(new ApiResponseWrapper(200, MessageKeys.RENTAL_APPROVE_SUCCESS.name(), updatedContract)));
+        return ResponseEntity.ok(new ApiResponseWrapper(200, MessageKeys.RENTAL_APPROVE_SUCCESS.name(), rentalRequestService.approveRentalContract(userPrincipal, approvalRequest)));
     }
 
     @Operation(summary = "Reject a rental request", description = "Rejects a rental request")
@@ -65,11 +63,10 @@ public class RentalRequestController {
             @ApiResponse(responseCode = "400", description = "Request is invalid")
     })
     @PostMapping("/reject")
-    public Mono<ResponseEntity<ApiResponseWrapper>> rejectRentalRequest(
+    public ResponseEntity<ApiResponseWrapper> rejectRentalRequest(
             @CurrentUser UserPrincipal userPrincipal,
             @Valid @RequestBody ApprovalRequest approvalRequest) {
-        return rentalRequestService.rejectRentalContract(userPrincipal, approvalRequest)
-                .map(updatedContract -> ResponseEntity.ok(new ApiResponseWrapper(200, MessageKeys.RENTAL_REJECT_SUCCESS.name(), updatedContract)));
+        return ResponseEntity.ok(new ApiResponseWrapper(200, MessageKeys.RENTAL_REJECT_SUCCESS.name(), rentalRequestService.rejectRentalContract(userPrincipal, approvalRequest)));
     }
 
     @Operation(summary = "Get rental requests for lessor", description = "Retrieves rental requests for the lessor based on various criteria")
@@ -77,25 +74,15 @@ public class RentalRequestController {
             @ApiResponse(responseCode = "200", description = "Rental requests retrieved successfully")
     })
     @GetMapping("/lessor")
-    public Mono<ApiResponseWrapperWithMeta> getRentalRequestForLessor(
+    public ApiResponseWrapperWithMeta getRentalRequestForLessor(
             @CurrentUser UserPrincipal userPrincipal,
             @RequestParam(defaultValue = "createdAt") String sortField,
             @RequestParam(defaultValue = "false") boolean sortDescending,
             @RequestParam(required = false) RentRequestStatus status,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        return rentalRequestService.getRentalRequestForLessor(userPrincipal.getId(), sortField, sortDescending, status, page, size)
-                .map(paginatedRequests -> {
-                    PaginationMetadata pagination = new PaginationMetadata(
-                            paginatedRequests.getNumber(),
-                            paginatedRequests.getSize(),
-                            paginatedRequests.getTotalElements(),
-                            paginatedRequests.getTotalPages(),
-                            paginatedRequests.hasPrevious(),
-                            paginatedRequests.hasNext()
-                    );
-                    return new ApiResponseWrapperWithMeta(200, MessageKeys.SUCCESS.name(), paginatedRequests.getContent(), pagination);
-                });
+        Page<RentalRequestDTO> rentalRequestPage = rentalRequestService.getRentalRequestForLessor(userPrincipal.getId(), sortField, sortDescending, status, page, size);
+        return new ApiResponseWrapperWithMeta(200, MessageKeys.SUCCESS.name(), rentalRequestPage.getContent(), new PaginationMetadata(rentalRequestPage));
     }
 
 
@@ -104,25 +91,15 @@ public class RentalRequestController {
             @ApiResponse(responseCode = "200", description = "Rental requests retrieved successfully")
     })
     @GetMapping("/lessee")
-    public Mono<ApiResponseWrapperWithMeta> getRentalRequestForLessee(
+    public ApiResponseWrapperWithMeta getRentalRequestForLessee(
             @CurrentUser UserPrincipal userPrincipal,
             @RequestParam(defaultValue = "createdAt") String sortField,
             @RequestParam(defaultValue = "false") boolean sortDescending,
             @RequestParam(required = false) RentRequestStatus status,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        return rentalRequestService.getRentalRequestForLessee(userPrincipal.getId(), sortField, sortDescending, status, page, size)
-                .map(paginatedRequests -> {
-                    PaginationMetadata pagination = new PaginationMetadata(
-                            paginatedRequests.getNumber(),
-                            paginatedRequests.getSize(),
-                            paginatedRequests.getTotalElements(),
-                            paginatedRequests.getTotalPages(),
-                            paginatedRequests.hasPrevious(),
-                            paginatedRequests.hasNext()
-                    );
-                    return new ApiResponseWrapperWithMeta(200, MessageKeys.SUCCESS.name(), paginatedRequests.getContent(), pagination);
-                });
+        Page<RentalRequestDTO> rentalRequestPage = rentalRequestService.getRentalRequestForLessee(userPrincipal.getId(), sortField, sortDescending, status, page, size);
+        return new ApiResponseWrapperWithMeta(200, MessageKeys.SUCCESS.name(), rentalRequestPage.getContent(), new PaginationMetadata(rentalRequestPage));
     }
 
 
@@ -132,11 +109,10 @@ public class RentalRequestController {
             @ApiResponse(responseCode = "404", description = "Rental request not found")
     })
     @GetMapping("/{id}")
-    public Mono<ResponseEntity<ApiResponseWrapper>> getRentalRequest(
+    public ResponseEntity<ApiResponseWrapper> getRentalRequest(
             @Parameter(description = "Rental request ID (must be a valid ObjectId)", schema = @Schema(type = "string", example = "64b64c8f12e94c080e8e4567"))
             @PathVariable ObjectId id) {
-        return rentalRequestService.getRentalRequest(id)
-                .map(rentalRequest -> ResponseEntity.ok(new ApiResponseWrapper(200, MessageKeys.SUCCESS.name(), rentalRequest)));
+        return ResponseEntity.ok(new ApiResponseWrapper(200, MessageKeys.SUCCESS.name(), rentalRequestService.getRentalRequest(id)));
     }
 
     @Operation(summary = "Get rental contract by a rental request by ID", description = "Finds a rental contract by a rental request ID")
@@ -145,10 +121,9 @@ public class RentalRequestController {
             @ApiResponse(responseCode = "404", description = "Rental contract not found")
     })
     @GetMapping("/{id}/contract")
-    public Mono<ResponseEntity<ApiResponseWrapper>> getRentalContractByRequest(
+    public ResponseEntity<ApiResponseWrapper> getRentalContractByRequest(
             @Parameter(description = "Rental request ID (must be a valid ObjectId)", schema = @Schema(type = "string", example = "64b64c8f12e94c080e8e4567"))
             @PathVariable ObjectId id) {
-        return rentalRequestService.getRentalContractByRentalRequestId(id)
-                .map(rentalContract -> ResponseEntity.ok(new ApiResponseWrapper(200, MessageKeys.SUCCESS.name(), rentalContract)));
+        return ResponseEntity.ok(new ApiResponseWrapper(200, MessageKeys.SUCCESS.name(), rentalRequestService.getRentalContractByRentalRequestId(id)));
     }
 }

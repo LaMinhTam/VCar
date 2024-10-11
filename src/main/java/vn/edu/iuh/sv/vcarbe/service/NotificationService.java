@@ -10,13 +10,13 @@ import vn.edu.iuh.sv.vcarbe.entity.User;
 import java.util.Optional;
 
 public interface NotificationService {
-    Mono<Page<NotificationDTO>> getNotificationsForUser(ObjectId userId, int page, int size, String sortBy, String sortDir);
+    Page<NotificationDTO> getNotificationsForUser(ObjectId userId, int page, int size, String sortBy, String sortDir);
 
-    Mono<NotificationDTO> markAsRead(ObjectId notificationId);
+    NotificationDTO markAsRead(ObjectId notificationId);
 
-    Mono<User> addDeviceToken(ObjectId id, String deviceToken);
+    User addDeviceToken(ObjectId id, String deviceToken);
 
-    Mono<User> removeDeviceToken(ObjectId id, String token);
+    User removeDeviceToken(ObjectId id, String token);
 
-    Mono<NotificationDTO> sendMessage(String deviceToken, String message);
+    NotificationDTO sendMessage(String deviceToken, String message);
 }

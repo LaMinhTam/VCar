@@ -48,106 +48,92 @@ public class InvoiceService {
         this.blockchainUtils = blockchainUtils;
     }
 
-    public Mono<String> createPaymentUrl(ServerHttpRequest req, UserPrincipal userPrincipal, SignRequest signRequest) throws UnsupportedEncodingException {
-        return rentalContractRepository.findByLesseeIdAndId(userPrincipal.getId(), signRequest.contractId())
-                .switchIfEmpty(Mono.error(new AppException(HttpStatus.NOT_FOUND.value(), MessageKeys.CONTRACT_NOT_FOUND.name())))
-                .flatMap(rentalContract -> userRepository.findById(userPrincipal.getId())
-                        .switchIfEmpty(Mono.error(new AppException(HttpStatus.NOT_FOUND.value(), MessageKeys.USER_NOT_FOUND.name())))
-                        .flatMap(lessee -> {
-                            rentalContract.sign(lessee, signRequest);
+    public String createPaymentUrl(ServerHttpRequest req, UserPrincipal userPrincipal, SignRequest signRequest) throws UnsupportedEncodingException {
+        RentalContract rentalContract = rentalContractRepository.findByLesseeIdAndId(userPrincipal.getId(), signRequest.contractId())
+                .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND.value(), MessageKeys.CONTRACT_NOT_FOUND.name()));
+        User lessee = userRepository.findById(userPrincipal.getId())
+                .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND.value(), MessageKeys.USER_NOT_FOUND.name()));
 
-                            return rentalContractRepository.save(rentalContract)
-                                    .flatMap(savedRentalContract -> {
-                                        String txnRef = VNPayConfig.getRandomNumber(8);
-                                        Invoice invoice = new Invoice();
-                                        invoice.setContractId(savedRentalContract.getId());
-                                        invoice.setTxnRef(txnRef);
-                                        invoice.setAmount((long) (savedRentalContract.getTotalRentalValue() * 30L));
-                                        invoice.setLesseeId(savedRentalContract.getLesseeId());
-                                        invoice.setLessorId(savedRentalContract.getLessorId());
-                                        invoice.setPaymentStatus(PaymentStatus.PENDING);
+        rentalContract.sign(lessee, signRequest);
+        RentalContract savedRentalContract = rentalContractRepository.save(rentalContract);
 
-                                        Map<String, String> vnpParams = new HashMap<>();
-                                        vnpParams.put("vnp_Version", vnPayConfig.getVnp_Version());
-                                        vnpParams.put("vnp_Command", vnPayConfig.getVnp_Command());
-                                        vnpParams.put("vnp_TmnCode", vnPayConfig.getVnp_TmnCode());
-                                        vnpParams.put("vnp_Amount", String.valueOf(invoice.getAmount()));
-                                        vnpParams.put("vnp_CurrCode", "VND");
-                                        vnpParams.put("vnp_TxnRef", txnRef);
-                                        vnpParams.put("vnp_OrderInfo", "Thanh toan don hang: " + txnRef);
-                                        vnpParams.put("vnp_OrderType", "other");
-                                        vnpParams.put("vnp_Locale", "vn");
-                                        vnpParams.put("vnp_ReturnUrl", vnPayConfig.getVnp_ReturnUrl());
-                                        vnpParams.put("vnp_IpAddr", VNPayConfig.getIpAddress(req));
+        String txnRef = VNPayConfig.getRandomNumber(8);
+        Invoice invoice = new Invoice();
+        invoice.setContractId(savedRentalContract.getId());
+        invoice.setTxnRef(txnRef);
+        invoice.setAmount((long) (savedRentalContract.getTotalRentalValue() * 30L));
+        invoice.setLesseeId(savedRentalContract.getLesseeId());
+        invoice.setLessorId(savedRentalContract.getLessorId());
+        invoice.setPaymentStatus(PaymentStatus.PENDING);
 
-                                        Calendar cld = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));
-                                        cld.add(Calendar.HOUR, vnPayConfig.getTimezoneOffset());
-                                        SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
-                                        vnpParams.put("vnp_CreateDate", formatter.format(cld.getTime()));
-                                        invoice.setCreateDate(formatter.format(cld.getTime()));
+        Map<String, String> vnpParams = new HashMap<>();
+        vnpParams.put("vnp_Version", vnPayConfig.getVnp_Version());
+        vnpParams.put("vnp_Command", vnPayConfig.getVnp_Command());
+        vnpParams.put("vnp_TmnCode", vnPayConfig.getVnp_TmnCode());
+        vnpParams.put("vnp_Amount", String.valueOf(invoice.getAmount()));
+        vnpParams.put("vnp_CurrCode", "VND");
+        vnpParams.put("vnp_TxnRef", txnRef);
+        vnpParams.put("vnp_OrderInfo", "Thanh toan don hang: " + txnRef);
+        vnpParams.put("vnp_OrderType", "other");
+        vnpParams.put("vnp_Locale", "vn");
+        vnpParams.put("vnp_ReturnUrl", vnPayConfig.getVnp_ReturnUrl());
+        vnpParams.put("vnp_IpAddr", VNPayConfig.getIpAddress(req));
 
-                                        return invoiceRepository.save(invoice)
-                                                .flatMap(savedInvoice -> {
-                                                    cld.add(Calendar.MINUTE, 15);
-                                                    vnpParams.put("vnp_ExpireDate", formatter.format(cld.getTime()));
+        Calendar cld = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));
+        cld.add(Calendar.HOUR, vnPayConfig.getTimezoneOffset());
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
+        vnpParams.put("vnp_CreateDate", formatter.format(cld.getTime()));
+        invoice.setCreateDate(formatter.format(cld.getTime()));
+        invoiceRepository.save(invoice);
+        cld.add(Calendar.MINUTE, 15);
+        vnpParams.put("vnp_ExpireDate", formatter.format(cld.getTime()));
 
-                                                    String queryUrl = generateQueryUrl(vnpParams);
-                                                    String vnpSecureHash = VNPayConfig.hmacSHA512(vnPayConfig.getSecretKey(), queryUrl);
+        String queryUrl = generateQueryUrl(vnpParams);
+        String vnpSecureHash = VNPayConfig.hmacSHA512(vnPayConfig.getSecretKey(), queryUrl);
 
-                                                    return Mono.just(vnPayConfig.getVnp_PayUrl() + "?" + queryUrl + "&vnp_SecureHash=" + vnpSecureHash);
-                                                });
-                                    });
-                        })
-                );
+        return vnPayConfig.getVnp_PayUrl() + "?" + queryUrl + "&vnp_SecureHash=" + vnpSecureHash;
     }
 
-    public Mono<RentalContractDTO> handlePaymentCallback(ServerHttpRequest req) {
+    public RentalContractDTO handlePaymentCallback(ServerHttpRequest req) {
         Map<String, String> fields = extractFieldsFromRequest(req);
 
-        return invoiceRepository.findByTxnRef(fields.get("vnp_TxnRef"))
-                .switchIfEmpty(Mono.error(new AppException(HttpStatus.NOT_FOUND.value(), MessageKeys.INVOICE_NOT_FOUND.name())))
-                .flatMap(invoice -> {
-                    String vnpSecureHash = req.getQueryParams().getFirst("vnp_SecureHash");
-                    fields.remove("vnp_SecureHash");
-                    String signValue = vnPayConfig.hashAllFields(fields);
+        Invoice invoice = invoiceRepository.findByTxnRef(fields.get("vnp_TxnRef"))
+                .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND.value(), MessageKeys.INVOICE_NOT_FOUND.name()));
 
-                    if (!vnpSecureHash.equals(signValue)) {
-                        invoice.setPaymentStatus(PaymentStatus.CANCELLED);
-                        invoice.setContent("Giao dịch thất bại. Sai mã xác thực");
+        String vnpSecureHash = req.getQueryParams().getFirst("vnp_SecureHash");
+        fields.remove("vnp_SecureHash");
+        String signValue = vnPayConfig.hashAllFields(fields);
 
-                        return invoiceRepository.save(invoice)
-                                .then(Mono.error(new AppException(HttpStatus.FORBIDDEN.value(), MessageKeys.PAYMENT_NOT_VALID.name())));
-                    }
+        if (!vnpSecureHash.equals(signValue)) {
+            invoice.setPaymentStatus(PaymentStatus.CANCELLED);
+            invoice.setContent("Giao dịch thất bại. Sai mã xác thực");
 
-                    String vnpResponseCode = req.getQueryParams().getFirst("vnp_ResponseCode");
-                    if ("00".equals(vnpResponseCode)) {
-                        invoice.setPaymentStatus(PaymentStatus.PAID);
-                        invoice.setContent("Thanh toán thành công");
-                        invoice.setTransactionNo(req.getQueryParams().getFirst("vnp_TransactionNo"));
-                        invoice.setTransactionDate(Long.parseLong(req.getQueryParams().getFirst("vnp_PayDate")));
+            invoiceRepository.save(invoice);
+            throw new AppException(HttpStatus.FORBIDDEN.value(), MessageKeys.PAYMENT_NOT_VALID.name());
+        }
 
-                        return invoiceRepository.save(invoice)
-                                .flatMap(savedInvoice -> rentalContractRepository.findById(savedInvoice.getContractId())
-                                        .switchIfEmpty(Mono.error(new AppException(HttpStatus.NOT_FOUND.value(), MessageKeys.CONTRACT_NOT_FOUND.name())))
-                                        .flatMap(rentalContract -> {
-                                            rentalContract.setRentalStatus(RentalStatus.SIGNED);
+        String vnpResponseCode = req.getQueryParams().getFirst("vnp_ResponseCode");
+        if ("00".equals(vnpResponseCode)) {
+            invoice.setPaymentStatus(PaymentStatus.PAID);
+            invoice.setContent("Thanh toán thành công");
+            invoice.setTransactionNo(req.getQueryParams().getFirst("vnp_TransactionNo"));
+            invoice.setTransactionDate(Long.parseLong(req.getQueryParams().getFirst("vnp_PayDate")));
+            Invoice savedInvoice = invoiceRepository.save(invoice);
+            RentalContract rentalContract = rentalContractRepository.findById(savedInvoice.getContractId())
+                    .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND.value(), MessageKeys.CONTRACT_NOT_FOUND.name()));
+            rentalContract.setRentalStatus(RentalStatus.SIGNED);
 
-                                            return rentalContractRepository.save(rentalContract)
-                                                    .doOnSuccess(updatedRentalContract -> {
-                                                        blockchainUtils.approveRentalContract(updatedRentalContract.getId().toHexString());
-                                                        notificationUtils.createNotification(rentalContract.getLessorId(), NotificationMessage.LESSEE_SIGNED_CONTRACT, NotificationType.RENTAL_CONTRACT, "/rental-contracts/" + rentalContract.getId(), rentalContract.getId());
-                                                    })
-                                                    .thenReturn(modelMapper.map(rentalContract, RentalContractDTO.class));
-                                        })
-                                );
-                    } else {
-                        invoice.setPaymentStatus(PaymentStatus.CANCELLED);
-                        invoice.setContent("Giao dịch thất bại. Mã lỗi: " + vnpResponseCode);
+            rentalContractRepository.save(rentalContract);
+            blockchainUtils.approveRentalContract(rentalContract.getId().toHexString());
+            notificationUtils.createNotification(rentalContract.getLessorId(), NotificationMessage.LESSEE_SIGNED_CONTRACT, NotificationType.RENTAL_CONTRACT, "/rental-contracts/" + rentalContract.getId(), rentalContract.getId());
+            return modelMapper.map(rentalContract, RentalContractDTO.class);
+        } else {
+            invoice.setPaymentStatus(PaymentStatus.CANCELLED);
+            invoice.setContent("Giao dịch thất bại. Mã lỗi: " + vnpResponseCode);
 
-                        return invoiceRepository.save(invoice)
-                                .then(Mono.error(new AppException(HttpStatus.BAD_REQUEST.value(), MessageKeys.PAYMENT_FAILED.name())));
-                    }
-                });
+            invoiceRepository.save(invoice);
+            throw new AppException(HttpStatus.BAD_REQUEST.value(), MessageKeys.PAYMENT_FAILED.name());
+        }
     }
 
     private String generateQueryUrl(Map<String, String> vnp_Params) {
@@ -191,22 +177,18 @@ public class InvoiceService {
         return fields;
     }
 
-    public Mono<Page<InvoiceDTO>> getUserInvoices(UserPrincipal userPrincipal, int page, int size, String sortBy, String sortDir) {
+    public Page<InvoiceDTO> getUserInvoices(UserPrincipal userPrincipal, int page, int size, String sortBy, String sortDir) {
         Sort sort = Sort.by(Sort.Direction.fromString(sortDir.toUpperCase()), sortBy);
         Pageable pageable = PageRequest.of(page, size, sort);
-        return invoiceRepository.findByLesseeId(userPrincipal.getId(), pageable)
-                .collectList()
-                .flatMap(invoices ->
-                        invoiceRepository.countByLesseeId(userPrincipal.getId())
-                                .map(total -> new PageImpl<>(
-                                        invoices.stream()
-                                                .map(invoice -> modelMapper.map(invoice, InvoiceDTO.class))
-                                                .toList(), pageable, total))
-                );
+        Page<Invoice> invoicePage = invoiceRepository.findByLesseeId(userPrincipal.getId(), pageable);
+        List<InvoiceDTO> invoiceDTOs = invoicePage.getContent().stream()
+                .map(invoice -> modelMapper.map(invoice, InvoiceDTO.class))
+                .toList();
+        return new PageImpl<>(invoiceDTOs, pageable, invoicePage.getTotalElements());
     }
 
-    public Mono<InvoiceDTO> getInvoiceById(UserPrincipal userPrincipal, ObjectId invoiceId) {
-        return invoiceRepository.findByIdAndLesseeId(invoiceId, userPrincipal.getId())
-                .map(invoice -> modelMapper.map(invoice, InvoiceDTO.class));
+    public InvoiceDTO getInvoiceById(UserPrincipal userPrincipal, ObjectId invoiceId) {
+        Invoice invoice = invoiceRepository.findByIdAndLesseeId(invoiceId, userPrincipal.getId()).orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND.value(), MessageKeys.INVOICE_NOT_FOUND.name()));
+        return modelMapper.map(invoice, InvoiceDTO.class);
     }
 }

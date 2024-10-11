@@ -10,6 +10,5 @@ import vn.edu.iuh.sv.vcarbe.repository.custom.ReviewRepositoryCustom;
 
 import java.util.List;
 
-public interface ReviewRepository extends ReactiveMongoRepository<Review, ObjectId>, ReviewRepositoryCustom {
-    Flux<Review> findByCarId(ObjectId carId);
+public interface ReviewRepository extends MongoRepository<Review, ObjectId>, ReviewRepositoryCustom {
 }

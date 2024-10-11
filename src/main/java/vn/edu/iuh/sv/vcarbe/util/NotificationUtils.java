@@ -6,15 +6,16 @@ import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 import vn.edu.iuh.sv.vcarbe.entity.Notification;
 import vn.edu.iuh.sv.vcarbe.entity.NotificationMessage;
 import vn.edu.iuh.sv.vcarbe.entity.NotificationType;
+import vn.edu.iuh.sv.vcarbe.entity.User;
 import vn.edu.iuh.sv.vcarbe.repository.NotificationRepository;
 import vn.edu.iuh.sv.vcarbe.repository.UserRepository;
 
 import java.util.Date;
+import java.util.Optional;
+import java.util.Set;
 
 @Component
 public class NotificationUtils {
@@ -35,13 +36,18 @@ public class NotificationUtils {
         notification.setCreatedAt(new Date());
         notification.setTargetId(targetId);
 
-        notificationRepository.save(notification)
-                .subscribe();
+        notificationRepository.save(notification);
+        Optional<User> userOptional = userRepository.findById(userId);
 
-        userRepository.findById(userId)
-                .flatMapMany(user -> Flux.fromIterable(user.getDeviceTokens()))
-                .flatMap(fcmToken -> Mono.fromRunnable(() -> sendPushNotification(fcmToken, message.name(), link)))
-                .subscribe();
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            Set<String> deviceTokens = user.getDeviceTokens();
+
+            for (String fcmToken : deviceTokens) {
+                sendPushNotification(fcmToken, message.name(), link);
+            }
+        }
+
     }
 
 

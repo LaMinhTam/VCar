@@ -1,11 +1,7 @@
 package vn.edu.iuh.sv.vcarbe.repository.custom;
 
-import com.mongodb.client.AggregateIterable;
-import com.mongodb.client.FindIterable;
+import com.mongodb.client.*;
 import com.mongodb.client.model.*;
-import com.mongodb.reactivestreams.client.MongoClient;
-import com.mongodb.reactivestreams.client.MongoCollection;
-import com.mongodb.reactivestreams.client.MongoDatabase;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
@@ -13,8 +9,6 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 import vn.edu.iuh.sv.vcarbe.dto.*;
 import vn.edu.iuh.sv.vcarbe.entity.*;
 
@@ -161,7 +155,7 @@ public class CarRepositoryCustomImpl implements CarRepositoryCustom {
     }
 
     @Override
-    public Flux<String> autocomplete(String query, Province province) {
+    public List<String> autocomplete(String query, Province province) {
         MongoCollection<Document> collection = getCollection("cars");
 
         Bson finalQuery = buildSearchQuery(new SearchCriteria());
@@ -170,33 +164,33 @@ public class CarRepositoryCustomImpl implements CarRepositoryCustom {
                 Projections.excludeId()
         );
 
-        return Flux.from(collection.find(finalQuery).projection(projection).limit(5))
-                .map(result -> result.getString("name"))
-                .distinct();
+        FindIterable<Document> results = collection.find(finalQuery).projection(projection).limit(5);
+        List<String> carNames = new ArrayList<>();
+        for (Document result : results) {
+            carNames.add(result.getString("name"));
+        }
+        return new ArrayList<>(new HashSet<>(carNames));
     }
 
     @Override
-    public Mono<CarDetailDTO> findByIdCustom(ObjectId id) {
+    public CarDetailDTO findByIdCustom(ObjectId id) {
         MongoCollection<Document> carCollection = getCollection("cars");
 
         Bson idFilter = Filters.eq("_id", id);
         List<Bson> pipeline = buildPipeline(idFilter, null, null, null, null);
 
-        return Mono.from(carCollection.aggregate(pipeline).first())
-                .flatMap(carResult -> {
-                    if (carResult == null) {
-                        return Mono.empty();
-                    }
-                    CarModel carModel = mapCarResultToModel(carResult);
-                    Flux<ReviewDTO> reviewDTOs = getReviewsForCar(id);
-                    Flux<CarDTO> relatedCars = getRelatedCars(id, carResult);
-                    return Mono.zip(
-                            reviewDTOs.collectList(),
-                            relatedCars.collectList(),
-                            (reviews, relatedCarsList) -> new CarDetailDTO(carModel, reviews, relatedCarsList)
-                    );
-                });
+        AggregateIterable<Document> carResults = carCollection.aggregate(pipeline);
+        Document carResult = carResults.first();
 
+        if (carResult == null) {
+            return null; // or throw an exception
+        }
+
+        CarModel carModel = mapCarResultToModel(carResult);
+        List<ReviewDTO> reviewDTOs = getReviewsForCar(id);
+        List<CarDTO> relatedCars = getRelatedCars(id, carResult);
+
+        return new CarDetailDTO(carModel, reviewDTOs, relatedCars);
     }
 
     private CarModel mapCarResultToModel(Document carResult) {
@@ -209,11 +203,14 @@ public class CarRepositoryCustomImpl implements CarRepositoryCustom {
         return carModel;
     }
 
-    private Flux<ReviewDTO> getReviewsForCar(ObjectId carId) {
+    private List<ReviewDTO> getReviewsForCar(ObjectId carId) {
         MongoCollection<Document> reviewCollection = getCollection("reviews");
         Bson reviewFilter = Filters.and(Filters.eq("carId", carId), Filters.eq("reviewType", "LESSEE_REVIEW"));
-        return Flux.from(reviewCollection.find(reviewFilter))
-                .map(ReviewDTO::new);
+        List<ReviewDTO> reviewDTOs = new ArrayList<>();
+        for (Document review : reviewCollection.find(reviewFilter)) {
+            reviewDTOs.add(modelMapper.map(review, ReviewDTO.class));
+        }
+        return reviewDTOs;
     }
 
 //    private void populateLesseeDetails(Set<ObjectId> lesseeIds, List<ReviewDTO> reviewDTOs) {
@@ -236,7 +233,7 @@ public class CarRepositoryCustomImpl implements CarRepositoryCustom {
 //        }
 //    }
 
-    private Flux<CarDTO> getRelatedCars(ObjectId id, Document carResult) {
+    private List<CarDTO> getRelatedCars(ObjectId id, Document carResult) {
         MongoCollection<Document> carCollection = getCollection("cars");
         Bson relatedCarsFilter = Filters.and(
                 Filters.ne("_id", id),
@@ -244,35 +241,44 @@ public class CarRepositoryCustomImpl implements CarRepositoryCustom {
                 Filters.eq("transmission", carResult.getString("transmission"))
         );
 
-
-        return Flux.from(carCollection.aggregate(Arrays.asList(
+        List<CarDTO> relatedCars = new ArrayList<>();
+        AggregateIterable<Document> relatedCarResults = carCollection.aggregate(Arrays.asList(
                 Aggregates.match(relatedCarsFilter),
                 Aggregates.project(Projections.fields(
                         Projections.computed("id", "$_id"),
                         Projections.include("name", "status", "imageUrl", "province", "location", "dailyRate", "seat", "transmission", "fuel", "fuelConsumption", "description", "features", "color", "licensePlate", "registrationNumber", "registrationDate", "registrationLocation")
                 )),
                 Aggregates.limit(5)
-        ))).map(document -> modelMapper.map(document, CarDTO.class));
+        ));
+
+        for (Document document : relatedCarResults) {
+            relatedCars.add(modelMapper.map(document, CarDTO.class));
+        }
+
+        return relatedCars;
     }
 
 
     @Override
-    public Flux<CarDTO> search(SearchCriteria criteria, Pageable pageable) {
+    public List<CarDTO> search(SearchCriteria criteria, Pageable pageable) {
         MongoCollection<Document> collection = getCollection("cars");
 
         Bson finalQuery = buildSearchQuery(criteria);
         List<Bson> pipeline = buildPipeline(finalQuery, pageable, new Date(criteria.getRentalStartDate()), new Date(criteria.getRentalEndDate()), criteria.getRating());
 
-        return Flux.from(collection.aggregate(pipeline))
-                .map(result -> {
-                    CarDTO carDTO = modelMapper.map(result, CarDTO.class);
-                    carDTO.setOwner(modelMapper.map(result.get("owner"), UserDTO.class));
-                    return carDTO;
-                });
+        List<CarDTO> carDTOs = new ArrayList<>();
+        AggregateIterable<Document> searchResults = collection.aggregate(pipeline);
+        for (Document result : searchResults) {
+            CarDTO carDTO = modelMapper.map(result, CarDTO.class);
+            carDTO.setOwner(modelMapper.map(result.get("owner"), UserDTO.class));
+            carDTOs.add(carDTO);
+        }
+
+        return carDTOs;
     }
 
     @Override
-    public Flux<CarDTO> findByOwner(ObjectId id) {
+    public List<CarDTO> findByOwner(ObjectId id) {
         MongoCollection<Document> carCollection = getCollection("cars");
 
         Bson ownerFilter = Filters.eq("owner", id);
@@ -282,8 +288,13 @@ public class CarRepositoryCustomImpl implements CarRepositoryCustom {
                 Projections.include("name", "status", "imageUrl", "province", "location", "dailyRate", "seat", "transmission", "fuel", "fuelConsumption", "description", "features", "color", "licensePlate", "registrationNumber", "registrationDate", "registrationLocation")
         );
 
-        return Flux.from(carCollection.find(ownerFilter).projection(projection))
-                .map(document -> modelMapper.map(document, CarDTO.class));
+        List<CarDTO> ownerCars = new ArrayList<>();
+        FindIterable<Document> ownerCarResults = carCollection.find(ownerFilter).projection(projection);
+        for (Document document : ownerCarResults) {
+            ownerCars.add(modelMapper.map(document, CarDTO.class));
+        }
+
+        return ownerCars;
     }
 
 }

@@ -11,7 +11,7 @@ import vn.edu.iuh.sv.vcarbe.security.UserPrincipal;
 import java.util.List;
 
 public interface ReviewService {
-    Mono<Review> addReview(UserPrincipal userPrincipal, ReviewRequest reviewRequest);
+    Review addReview(UserPrincipal userPrincipal, ReviewRequest reviewRequest);
 
     List<CarReviewDTO> getReviewsByCarId(ObjectId carId);
 

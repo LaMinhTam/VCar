@@ -9,9 +9,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import reactor.core.publisher.Mono;
 import vn.edu.iuh.sv.vcarbe.dto.*;
 import vn.edu.iuh.sv.vcarbe.exception.MessageKeys;
 import vn.edu.iuh.sv.vcarbe.security.CurrentUser;
@@ -32,12 +32,11 @@ public class VehicleHandoverController {
             @ApiResponse(responseCode = "404", description = "Rental contract not found")
     })
     @PostMapping
-    public Mono<ResponseEntity<ApiResponseWrapper>> createVehicleHandover(
+    public ResponseEntity<ApiResponseWrapper> createVehicleHandover(
             @CurrentUser UserPrincipal userPrincipal,
             @RequestBody @Valid VehicleHandoverRequest request) {
         EthersUtils.verifyMessage(request.getDigitalSignature());
-        return vehicleHandoverService.createVehicleHandover(userPrincipal, request)
-                .map(document -> ResponseEntity.ok(new ApiResponseWrapper(200, MessageKeys.VEHICLE_HANDOVER_CREATE_SUCCESS.name(), document)));
+        return ResponseEntity.ok(new ApiResponseWrapper(200, MessageKeys.VEHICLE_HANDOVER_CREATE_SUCCESS.name(), vehicleHandoverService.createVehicleHandover(userPrincipal, request)));
     }
 
     @Operation(summary = "Approve vehicle handover by lessee", description = "Approves the vehicle handover document by the lessee")
@@ -47,14 +46,13 @@ public class VehicleHandoverController {
             @ApiResponse(responseCode = "404", description = "Vehicle handover document not found")
     })
     @PutMapping("/{id}/approve-lessee")
-    public Mono<ResponseEntity<ApiResponseWrapper>> approveVehicleHandoverByLessee(
+    public ResponseEntity<ApiResponseWrapper> approveVehicleHandoverByLessee(
             @CurrentUser UserPrincipal userPrincipal,
             @Parameter(description = "Vehicle Handover Document ID (must be a valid ObjectId)", schema = @Schema(type = "string", example = "60c72b2f9b1e8c001f0a0b4e"))
             @PathVariable ObjectId id,
             @RequestBody DigitalSignature digitalSignature) {
         EthersUtils.verifyMessage(digitalSignature);
-        return vehicleHandoverService.approveByLessee(id, userPrincipal, digitalSignature)
-                .map(document -> ResponseEntity.ok(new ApiResponseWrapper(200, MessageKeys.VEHICLE_HANDOVER_APPROVE_BY_LESSEE_SUCCESS.name(), document)));
+        return ResponseEntity.ok(new ApiResponseWrapper(200, MessageKeys.VEHICLE_HANDOVER_APPROVE_BY_LESSEE_SUCCESS.name(), vehicleHandoverService.approveByLessee(id, userPrincipal, digitalSignature)));
     }
 
     @Operation(summary = "Approve vehicle return by lessor", description = "Approves the vehicle return document by the lessor")
@@ -64,14 +62,13 @@ public class VehicleHandoverController {
             @ApiResponse(responseCode = "404", description = "Vehicle handover document not found")
     })
     @PutMapping("/{id}/approve-lessor")
-    public Mono<ResponseEntity<ApiResponseWrapper>> approveVehicleReturnByLessor(
+    public ResponseEntity<ApiResponseWrapper> approveVehicleReturnByLessor(
             @CurrentUser UserPrincipal userPrincipal,
             @Parameter(description = "Vehicle Handover Document ID (must be a valid ObjectId)", schema = @Schema(type = "string", example = "60c72b2f9b1e8c001f0a0b4e"))
             @PathVariable ObjectId id,
             @RequestBody DigitalSignature digitalSignature) {
         EthersUtils.verifyMessage(digitalSignature);
-        return vehicleHandoverService.approveByLessor(id, userPrincipal, digitalSignature)
-                .map(document -> ResponseEntity.ok(new ApiResponseWrapper(200, MessageKeys.VEHICLE_HANDOVER_APPROVE_BY_LESSOR_SUCCESS.name(), document)));
+        return ResponseEntity.ok(new ApiResponseWrapper(200, MessageKeys.VEHICLE_HANDOVER_APPROVE_BY_LESSOR_SUCCESS.name(), vehicleHandoverService.approveByLessor(id, userPrincipal, digitalSignature)));
     }
 
     @Operation(summary = "Update vehicle handover document with return details", description = "Updates the vehicle handover document with return details by the lessee")
@@ -81,14 +78,13 @@ public class VehicleHandoverController {
             @ApiResponse(responseCode = "404", description = "Vehicle handover document not found")
     })
     @PutMapping("/{id}/return")
-    public Mono<ResponseEntity<ApiResponseWrapper>> updateVehicleHandover(
+    public ResponseEntity<ApiResponseWrapper> updateVehicleHandover(
             @CurrentUser UserPrincipal userPrincipal,
             @Parameter(description = "Vehicle Handover Document ID (must be a valid ObjectId)", schema = @Schema(type = "string", example = "60c72b2f9b1e8c001f0a0b4e"))
             @PathVariable ObjectId id,
             @RequestBody @Valid VehicleReturnRequest request) {
         EthersUtils.verifyMessage(request.getDigitalSignature());
-        return vehicleHandoverService.updateVehicleReturn(id, request, userPrincipal)
-                .map(document -> ResponseEntity.ok(new ApiResponseWrapper(200, MessageKeys.VEHICLE_HANDOVER_UPDATE_BY_LESSEE_SUCCESS.name(), document)));
+        return ResponseEntity.ok(new ApiResponseWrapper(200, MessageKeys.VEHICLE_HANDOVER_UPDATE_BY_LESSEE_SUCCESS.name(), vehicleHandoverService.updateVehicleReturn(id, request, userPrincipal)));
     }
 
     @Operation(summary = "Retrieve vehicle handover document by rental contract ID", description = "Retrieves the vehicle handover document associated with a rental contract ID")
@@ -97,11 +93,10 @@ public class VehicleHandoverController {
             @ApiResponse(responseCode = "404", description = "Vehicle handover document not found")
     })
     @GetMapping("/rental-contract/{rentalContractId}")
-    public Mono<ResponseEntity<ApiResponseWrapper>> getVehicleHandoverByRentalContractId(
+    public ResponseEntity<ApiResponseWrapper> getVehicleHandoverByRentalContractId(
             @Parameter(description = "Rental Contract ID (must be a valid ObjectId)", schema = @Schema(type = "string", example = "60c72b2f9b1e8c001f0a0b4e"))
             @PathVariable ObjectId rentalContractId) {
-        return vehicleHandoverService.getVehicleHandoverByRentalContractId(rentalContractId)
-                .map(document -> ResponseEntity.ok(new ApiResponseWrapper(200, MessageKeys.SUCCESS.name(), document)));
+        return ResponseEntity.ok(new ApiResponseWrapper(200, MessageKeys.SUCCESS.name(), vehicleHandoverService.getVehicleHandoverByRentalContractId(rentalContractId)));
     }
 
     @Operation(summary = "Get all vehicle handover documents for lessor", description = "Fetches all vehicle handover documents for the authenticated lessor with pagination and sorting options")
@@ -109,7 +104,7 @@ public class VehicleHandoverController {
             @ApiResponse(responseCode = "200", description = "Vehicle handover documents retrieved successfully")
     })
     @GetMapping("/lessor")
-    public Mono<ResponseEntity<ApiResponseWrapperWithMeta>> getVehicleHandoverForLessor(
+    public ResponseEntity<ApiResponseWrapperWithMeta> getVehicleHandoverForLessor(
             @CurrentUser UserPrincipal userPrincipal,
             @Parameter(description = "Sort field", schema = @Schema(type = "string", example = "createdAt"))
             @RequestParam(defaultValue = "createdAt") String sortField,
@@ -119,18 +114,8 @@ public class VehicleHandoverController {
             @RequestParam(defaultValue = "0") int page,
             @Parameter(description = "Page size", schema = @Schema(type = "integer", example = "10"))
             @RequestParam(defaultValue = "10") int size) {
-        return vehicleHandoverService.getVehicleHandoverForLessor(userPrincipal.getId(), sortField, sortDescending, page, size)
-                .map(pageData -> {
-                    PaginationMetadata pagination = new PaginationMetadata(
-                            pageData.getNumber(),
-                            pageData.getSize(),
-                            pageData.getTotalElements(),
-                            pageData.getTotalPages(),
-                            pageData.hasPrevious(),
-                            pageData.hasNext()
-                    );
-                    return ResponseEntity.ok(new ApiResponseWrapperWithMeta(200, MessageKeys.SUCCESS.name(), pageData.getContent(), pagination));
-                });
+        Page<VehicleHandoverDocumentDTO> documentPage = vehicleHandoverService.getVehicleHandoverForLessor(userPrincipal.getId(), sortField, sortDescending, page, size);
+        return ResponseEntity.ok(new ApiResponseWrapperWithMeta(200, MessageKeys.SUCCESS.name(), documentPage.getContent(), new PaginationMetadata(documentPage)));
     }
 
     @Operation(summary = "Get all vehicle handover documents for lessee", description = "Fetches all vehicle handover documents for the authenticated lessee with pagination and sorting options")
@@ -138,7 +123,7 @@ public class VehicleHandoverController {
             @ApiResponse(responseCode = "200", description = "Vehicle handover documents retrieved successfully")
     })
     @GetMapping("/lessee")
-    public Mono<ResponseEntity<ApiResponseWrapperWithMeta>> getVehicleHandoverForLessee(
+    public ResponseEntity<ApiResponseWrapperWithMeta> getVehicleHandoverForLessee(
             @CurrentUser UserPrincipal userPrincipal,
             @Parameter(description = "Sort field", schema = @Schema(type = "string", example = "createdAt"))
             @RequestParam(defaultValue = "createdAt") String sortField,
@@ -148,17 +133,7 @@ public class VehicleHandoverController {
             @RequestParam(defaultValue = "0") int page,
             @Parameter(description = "Page size", schema = @Schema(type = "integer", example = "10"))
             @RequestParam(defaultValue = "10") int size) {
-        return vehicleHandoverService.getVehicleHandoverForLessee(userPrincipal.getId(), sortField, sortDescending, page, size)
-                .map(pageData -> {
-                    PaginationMetadata pagination = new PaginationMetadata(
-                            pageData.getNumber(),
-                            pageData.getSize(),
-                            pageData.getTotalElements(),
-                            pageData.getTotalPages(),
-                            pageData.hasPrevious(),
-                            pageData.hasNext()
-                    );
-                    return ResponseEntity.ok(new ApiResponseWrapperWithMeta(200, MessageKeys.SUCCESS.name(), pageData.getContent(), pagination));
-                });
+        Page<VehicleHandoverDocumentDTO> documentPage = vehicleHandoverService.getVehicleHandoverForLessee(userPrincipal.getId(), sortField, sortDescending, page, size);
+        return ResponseEntity.ok(new ApiResponseWrapperWithMeta(200, MessageKeys.SUCCESS.name(), documentPage.getContent(), new PaginationMetadata(documentPage)));
     }
 }

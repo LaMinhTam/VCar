@@ -9,10 +9,10 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.web.bind.annotation.*;
-import reactor.core.publisher.Mono;
 import vn.edu.iuh.sv.vcarbe.dto.*;
 import vn.edu.iuh.sv.vcarbe.exception.MessageKeys;
 import vn.edu.iuh.sv.vcarbe.security.CurrentUser;
@@ -38,13 +38,12 @@ public class RentalContractController {
             @ApiResponse(responseCode = "400", description = "Invalid request or user not found")
     })
     @PostMapping("/lessee-approve")
-    public Mono<ResponseEntity<ApiResponseWrapper>> createPayment(
+    public ResponseEntity<ApiResponseWrapper> createPayment(
             ServerHttpRequest req,
             @CurrentUser UserPrincipal userPrincipal,
             @Valid @RequestBody SignRequest signRequest) throws UnsupportedEncodingException {
         EthersUtils.verifyMessage(signRequest.digitalSignature());
-        return invoiceService.createPaymentUrl(req, userPrincipal, signRequest)
-                .map(paymentUrl -> ResponseEntity.ok(new ApiResponseWrapper(200, MessageKeys.PAYMENT_CREATE_SUCCESS.name(), paymentUrl)));
+        return ResponseEntity.ok(new ApiResponseWrapper(200, MessageKeys.PAYMENT_CREATE_SUCCESS.name(), invoiceService.createPaymentUrl(req, userPrincipal, signRequest)));
     }
 
     @Operation(summary = "Handle payment callback", description = "Handles the callback from VNPay after a payment is made")
@@ -53,9 +52,8 @@ public class RentalContractController {
             @ApiResponse(responseCode = "400", description = "Invalid request or invoice not found")
     })
     @PostMapping("/payment-callback")
-    public Mono<ResponseEntity<ApiResponseWrapper>> approveRentalRequest(ServerHttpRequest req) {
-        return invoiceService.handlePaymentCallback(req)
-                .map(updatedContract -> ResponseEntity.ok(new ApiResponseWrapper(200, MessageKeys.PAYMENT_CALLBACK_SUCCESS.name(), updatedContract)));
+    public ResponseEntity<ApiResponseWrapper> approveRentalRequest(ServerHttpRequest req) {
+        return ResponseEntity.ok(new ApiResponseWrapper(200, MessageKeys.PAYMENT_CALLBACK_SUCCESS.name(), invoiceService.handlePaymentCallback(req)));
     }
 
 
@@ -65,11 +63,10 @@ public class RentalContractController {
             @ApiResponse(responseCode = "404", description = "Rental contract not found")
     })
     @GetMapping("/{id}")
-    public Mono<ResponseEntity<ApiResponseWrapper>> getRentalContract(
+    public ResponseEntity<ApiResponseWrapper> getRentalContract(
             @Parameter(description = "Rental contract ID (must be a valid ObjectId)", schema = @Schema(type = "string"))
             @PathVariable ObjectId id) throws Exception {
-        return rentalContractService.getRentalContract(id)
-                .map(rentalContract -> ResponseEntity.ok(new ApiResponseWrapper(200, MessageKeys.SUCCESS.name(), rentalContract)));
+        return ResponseEntity.ok(new ApiResponseWrapper(200, MessageKeys.SUCCESS.name(), rentalContractService.getRentalContract(id)));
     }
 
     @Operation(summary = "Get rental contracts for lessor", description = "Fetches all rental contracts for the authenticated lessor with pagination and sorting options")
@@ -77,24 +74,14 @@ public class RentalContractController {
             @ApiResponse(responseCode = "200", description = "Rental contracts retrieved successfully")
     })
     @GetMapping("/lessor")
-    public Mono<ApiResponseWrapperWithMeta> getRentalContractForLessor(
+    public ApiResponseWrapperWithMeta getRentalContractForLessor(
             @CurrentUser UserPrincipal userPrincipal,
             @RequestParam(defaultValue = "createdAt") String sortField,
             @RequestParam(defaultValue = "false") boolean sortDescending,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        return rentalContractService.getRentalContractForLessor(userPrincipal.getId(), sortField, sortDescending, page, size)
-                .map(paginatedContracts -> {
-                    PaginationMetadata pagination = new PaginationMetadata(
-                            paginatedContracts.getNumber(),
-                            paginatedContracts.getSize(),
-                            paginatedContracts.getTotalElements(),
-                            paginatedContracts.getTotalPages(),
-                            paginatedContracts.hasPrevious(),
-                            paginatedContracts.hasNext()
-                    );
-                    return new ApiResponseWrapperWithMeta(200, MessageKeys.SUCCESS.name(), paginatedContracts.getContent(), pagination);
-                });
+        Page<RentalContractDTO> rentalPage = rentalContractService.getRentalContractForLessor(userPrincipal.getId(), sortField, sortDescending, page, size);
+        return new ApiResponseWrapperWithMeta(200, MessageKeys.SUCCESS.name(), rentalPage.getContent(), new PaginationMetadata(rentalPage));
     }
 
 
@@ -103,24 +90,13 @@ public class RentalContractController {
             @ApiResponse(responseCode = "200", description = "Rental contracts retrieved successfully")
     })
     @GetMapping("/lessee")
-    public Mono<ApiResponseWrapperWithMeta> getRentalContractForLessee(
+    public ApiResponseWrapperWithMeta getRentalContractForLessee(
             @CurrentUser UserPrincipal userPrincipal,
             @RequestParam(defaultValue = "createdAt") String sortField,
             @RequestParam(defaultValue = "false") boolean sortDescending,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        return rentalContractService.getRentalContractForLessee(userPrincipal.getId(), sortField, sortDescending, page, size)
-                .map(paginatedContracts -> {
-                    PaginationMetadata pagination = new PaginationMetadata(
-                            paginatedContracts.getNumber(),
-                            paginatedContracts.getSize(),
-                            paginatedContracts.getTotalElements(),
-                            paginatedContracts.getTotalPages(),
-                            paginatedContracts.hasPrevious(),
-                            paginatedContracts.hasNext()
-                    );
-                    return new ApiResponseWrapperWithMeta(200, MessageKeys.SUCCESS.name(), paginatedContracts.getContent(), pagination);
-                });
+        Page<RentalContractDTO> rentalPage = rentalContractService.getRentalContractForLessee(userPrincipal.getId(), sortField, sortDescending, page, size);
+        return new ApiResponseWrapperWithMeta(200, MessageKeys.SUCCESS.name(), rentalPage.getContent(), new PaginationMetadata(rentalPage));
     }
-
 }

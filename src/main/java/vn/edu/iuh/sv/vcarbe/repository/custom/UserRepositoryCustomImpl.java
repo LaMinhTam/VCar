@@ -3,10 +3,8 @@ package vn.edu.iuh.sv.vcarbe.repository.custom;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Repository;
-import reactor.core.publisher.Mono;
-import reactor.core.publisher.Flux;
 import vn.edu.iuh.sv.vcarbe.dto.UserDetailDTO;
 
 import java.util.Arrays;
@@ -14,22 +12,26 @@ import java.util.List;
 
 @Repository
 public class UserRepositoryCustomImpl implements UserRepositoryCustom {
-
-    private final ReactiveMongoTemplate reactiveMongoTemplate;
+    private final MongoTemplate mongoTemplate;
 
     @Autowired
-    public UserRepositoryCustomImpl(ReactiveMongoTemplate reactiveMongoTemplate) {
-        this.reactiveMongoTemplate = reactiveMongoTemplate;
+    public UserRepositoryCustomImpl(MongoTemplate mongoTemplate) {
+        this.mongoTemplate = mongoTemplate;
     }
 
+
     @Override
-    public Mono<UserDetailDTO> getUserDetailById(ObjectId id) {
+    public UserDetailDTO getUserDetailById(ObjectId id) {
         List<Document> aggregationPipeline = createAggregationPipeline(id);
+        Document userDetailDocument = mongoTemplate.getCollection("users")
+                .aggregate(aggregationPipeline)
+                .first();
 
-        return reactiveMongoTemplate.getCollection("users")
-                .flatMap(collection -> Mono.from(collection.aggregate(aggregationPipeline, Document.class)))
-                .map(UserDetailDTO::new);
+        if (userDetailDocument == null) {
+            return null;
+        }
 
+        return new UserDetailDTO(userDetailDocument);
     }
 
     private List<Document> createAggregationPipeline(ObjectId userId) {

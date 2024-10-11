@@ -13,22 +13,14 @@ import vn.edu.iuh.sv.vcarbe.entity.RentalRequest;
 
 import java.util.Optional;
 
-public interface RentalRequestRepository extends ReactiveMongoRepository<RentalRequest, ObjectId> {
-    Mono<RentalRequest> findByIdAndLessorId(ObjectId lesseeId, ObjectId lessorId);
+public interface RentalRequestRepository extends MongoRepository<RentalRequest, ObjectId> {
+    Optional<RentalRequest> findByIdAndLessorId(ObjectId lesseeId, ObjectId lessorId);
 
-    Flux<RentalRequest> findByLessorIdAndStatus(ObjectId lessorId, RentRequestStatus status, Pageable pageable);
+    Page<RentalRequest> findByLessorIdAndStatus(ObjectId lessorId, RentRequestStatus status, Pageable pageable);
 
-    Flux<RentalRequest> findByLessorId(ObjectId id, Pageable pageable);
+    Page<RentalRequest> findByLessorId(ObjectId id, Pageable pageable);
 
-    Flux<RentalRequest> findByLesseeIdAndStatus(ObjectId id, RentRequestStatus status, Pageable pageable);
+    Page<RentalRequest> findByLesseeIdAndStatus(ObjectId id, RentRequestStatus status, Pageable pageable);
 
-    Flux<RentalRequest> findByLesseeId(ObjectId id, Pageable pageable);
-
-    Mono<Long> countByLessorIdAndStatus(ObjectId id, RentRequestStatus status);
-
-    Mono<Long> countByLesseeIdAndStatus(ObjectId id, RentRequestStatus status);
-
-    Mono<Long> countByLessorId(ObjectId id);
-
-    Mono<Long> countByLesseeId(ObjectId id);
+    Page<RentalRequest> findByLesseeId(ObjectId id, Pageable pageable);
 }
