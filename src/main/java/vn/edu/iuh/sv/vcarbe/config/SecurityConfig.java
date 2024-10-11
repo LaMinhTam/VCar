@@ -74,6 +74,10 @@ public class SecurityConfig {
                         .permitAll()
                         .requestMatchers(HttpMethod.GET, "/cars/**", "/reviews/**")
                         .permitAll()
+                        .requestMatchers(HttpMethod.GET, "/cars/owned")
+                        .permitAll()
+                        .requestMatchers(HttpMethod.POST, "/rental-contracts/payment-callback")
+                        .permitAll()
                         .anyRequest()
                         .authenticated())
                 .addFilterBefore(tokenAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
