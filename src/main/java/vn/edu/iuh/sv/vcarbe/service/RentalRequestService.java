@@ -22,4 +22,6 @@ public interface RentalRequestService {
     Mono<Page<RentalRequestDTO>> getRentalRequestForLessee(ObjectId id, String sortField, boolean sortDescending, RentRequestStatus status, int page, int size);
 
     Mono<RentalRequestDTO> getRentalRequest(ObjectId id);
+
+    Mono<RentalContractDTO> getRentalContractByRentalRequestId(ObjectId id);
 }

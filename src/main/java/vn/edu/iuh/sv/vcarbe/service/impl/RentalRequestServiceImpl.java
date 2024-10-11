@@ -176,4 +176,11 @@ public class RentalRequestServiceImpl implements RentalRequestService {
                 .switchIfEmpty(Mono.error(new AppException(404, MessageKeys.RENTAL_REQUEST_NOT_FOUND.name())))
                 .map(rentalRequest -> modelMapper.map(rentalRequest, RentalRequestDTO.class));
     }
+
+    @Override
+    public Mono<RentalContractDTO> getRentalContractByRentalRequestId(ObjectId id) {
+        return rentalContractRepository.findByRentalRequestId(id)
+                .switchIfEmpty(Mono.error(new AppException(404, MessageKeys.RENTAL_REQUEST_NOT_FOUND.name())))
+                .map(rentalContract -> modelMapper.map(rentalContract, RentalContractDTO.class));
+    }
 }

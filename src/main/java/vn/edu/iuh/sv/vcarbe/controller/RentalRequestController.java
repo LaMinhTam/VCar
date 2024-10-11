@@ -138,4 +138,17 @@ public class RentalRequestController {
         return rentalRequestService.getRentalRequest(id)
                 .map(rentalRequest -> ResponseEntity.ok(new ApiResponseWrapper(200, MessageKeys.SUCCESS.name(), rentalRequest)));
     }
+
+    @Operation(summary = "Get rental contract by a rental request by ID", description = "Finds a rental contract by a rental request ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Rental contract found successfully"),
+            @ApiResponse(responseCode = "404", description = "Rental contract not found")
+    })
+    @GetMapping("/{id}/contract")
+    public Mono<ResponseEntity<ApiResponseWrapper>> getRentalContractByRequest(
+            @Parameter(description = "Rental request ID (must be a valid ObjectId)", schema = @Schema(type = "string", example = "64b64c8f12e94c080e8e4567"))
+            @PathVariable ObjectId id) {
+        return rentalRequestService.getRentalContractByRentalRequestId(id)
+                .map(rentalContract -> ResponseEntity.ok(new ApiResponseWrapper(200, MessageKeys.SUCCESS.name(), rentalContract)));
+    }
 }

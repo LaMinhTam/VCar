@@ -17,4 +17,5 @@ public interface RentalContractRepository extends ReactiveMongoRepository<Rental
     Mono<RentalContract> findByLessorIdAndId(ObjectId lessor, ObjectId id);
     Mono<Long> countByLessorId(ObjectId id);
     Mono<Long> countByLesseeId(ObjectId id);
+    Mono<RentalContract> findByRentalRequestId(ObjectId rentalRequestId);
 }

@@ -25,6 +25,9 @@ public class VCarBeApplication {
         System.setProperty("REDIS_PASSWORD", dotenv.get("REDIS_PASSWORD"));
         System.setProperty("TIMEZONE_OFFSET", dotenv.get("TIMEZONE_OFFSET"));
         System.setProperty("VCAR_ICON", dotenv.get("VCAR_ICON"));
+        System.setProperty("MONGODB_URI", dotenv.get("MONGODB_URI"));
+        System.setProperty("MAIL_USERNAME", dotenv.get("MAIL_USERNAME"));
+        System.setProperty("MAIL_PASSWORD", dotenv.get("MAIL_PASSWORD"));
 
         SpringApplication.run(VCarBeApplication.class, args);
     }
