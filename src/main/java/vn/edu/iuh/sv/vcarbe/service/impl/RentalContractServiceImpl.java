@@ -68,7 +68,9 @@ public class RentalContractServiceImpl implements RentalContractService {
         if (!hasPostHandoverIssues) {
             User user = userRepository.findById(rentalContract.getLesseeId())
                     .orElseThrow(() -> new AppException(404, MessageKeys.USER_NOT_FOUND.name()));
-            blockchainUtils.sendSepoliaETH(user.getMetamaskAddress(), BigDecimal.valueOf(0.05));
+            if (user.getMetamaskAddress() != null) {
+                blockchainUtils.sendSepoliaETH(user.getMetamaskAddress(), BigDecimal.valueOf(0.05));
+            }
         }
         rentalContractRepository.save(rentalContract);
     }
