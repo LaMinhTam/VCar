@@ -41,9 +41,9 @@ public class RentalContractController {
     public ResponseEntity<ApiResponseWrapper> createPayment(
             HttpServletRequest req,
             @CurrentUser UserPrincipal userPrincipal,
-            @Valid @RequestBody SignRequest signRequest) throws UnsupportedEncodingException {
+            @Valid @RequestBody SignRequest signRequest) {
 //        EthersUtils.verifyMessage(signRequest.digitalSignature());
-        return ResponseEntity.ok(new ApiResponseWrapper(200, MessageKeys.PAYMENT_CREATE_SUCCESS.name(), invoiceService.createPaymentUrl(req, userPrincipal, signRequest)));
+        return ResponseEntity.ok(new ApiResponseWrapper(200, MessageKeys.PAYMENT_CREATE_SUCCESS.name(), invoiceService.createPaymentUrlContract(req, userPrincipal, signRequest)));
     }
 
     @Operation(summary = "Handle payment callback", description = "Handles the callback from VNPay after a payment is made")
@@ -53,7 +53,7 @@ public class RentalContractController {
     })
     @PostMapping("/payment-callback")
     public ResponseEntity<ApiResponseWrapper> approveRentalRequest(HttpServletRequest req) {
-        return ResponseEntity.ok(new ApiResponseWrapper(200, MessageKeys.PAYMENT_CALLBACK_SUCCESS.name(), invoiceService.handlePaymentCallback(req)));
+        return ResponseEntity.ok(new ApiResponseWrapper(200, MessageKeys.PAYMENT_CALLBACK_SUCCESS.name(), invoiceService.handlePaymentCallbackContract(req)));
     }
 
 

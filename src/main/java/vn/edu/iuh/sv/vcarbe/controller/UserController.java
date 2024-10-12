@@ -6,19 +6,19 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import vn.edu.iuh.sv.vcarbe.dto.ApiResponseWrapper;
-import vn.edu.iuh.sv.vcarbe.dto.UpdateCarLicenseDTO;
-import vn.edu.iuh.sv.vcarbe.dto.UpdateCitizenIdentificationDTO;
-import vn.edu.iuh.sv.vcarbe.dto.UpdateUserDTO;
+import vn.edu.iuh.sv.vcarbe.dto.*;
 import vn.edu.iuh.sv.vcarbe.exception.MessageKeys;
 import vn.edu.iuh.sv.vcarbe.security.CurrentUser;
 import vn.edu.iuh.sv.vcarbe.security.UserPrincipal;
 import vn.edu.iuh.sv.vcarbe.service.UserService;
+import vn.edu.iuh.sv.vcarbe.service.impl.InvoiceService;
 
 @RestController
 @RequestMapping("/users")
@@ -26,6 +26,8 @@ import vn.edu.iuh.sv.vcarbe.service.UserService;
 public class UserController {
     @Autowired
     private UserService userService;
+    @Autowired
+    private InvoiceService invoiceService;
 
     @Operation(summary = "Get user by ID", description = "Retrieves a user by their ID")
     @ApiResponses(value = {
@@ -83,5 +85,32 @@ public class UserController {
             @CurrentUser UserPrincipal userPrincipal,
             @Valid @RequestBody UpdateCitizenIdentificationDTO updateCitizenIdentificationDTO) {
         return ResponseEntity.ok(new ApiResponseWrapper(200, MessageKeys.USER_UPDATE_IDENTIFICATION_SUCCESS.name(), userService.updateCitizenIdentification(userPrincipal.getId(), updateCitizenIdentificationDTO)));
+    }
+
+    @PostMapping("/test-token/{address}")
+    public ResponseEntity<ApiResponseWrapper> testToken(
+            @AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable String address) {
+        userService.addToken(userPrincipal.getId(), address);
+        return ResponseEntity.ok(new ApiResponseWrapper(200, MessageKeys.SUCCESS.name(), null));
+    }
+
+    @PutMapping("/update-metamask-address")
+    public ResponseEntity<ApiResponseWrapper> updateMetamaskAddress(
+            @AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody MetamaskAddress address) {
+        userService.updateMetamaskAddress(userPrincipal.getId(), address.address());
+        return ResponseEntity.ok(new ApiResponseWrapper(200, MessageKeys.SUCCESS.name(), null));
+    }
+
+    @PostMapping("/buy-token")
+    public ResponseEntity<ApiResponseWrapper> buyToken(
+            HttpServletRequest req,
+            @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        return ResponseEntity.ok(new ApiResponseWrapper(200, MessageKeys.SUCCESS.name(), invoiceService.createPaymentUrlInvoice(req, userPrincipal)));
+    }
+
+    @PostMapping("/handle-payment-callback")
+    public ResponseEntity<ApiResponseWrapper> handlePaymentCallback(
+            HttpServletRequest req) {
+        return ResponseEntity.ok(new ApiResponseWrapper(200, MessageKeys.SUCCESS.name(), invoiceService.handlePaymentCallbackInvoice(req)));
     }
 }

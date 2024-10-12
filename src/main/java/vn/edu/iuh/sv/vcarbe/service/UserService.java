@@ -13,4 +13,8 @@ public interface UserService {
     UserDTO updateCitizenIdentification(ObjectId userId, UpdateCitizenIdentificationDTO updateCitizenIdentificationDTO);
 
     UserDetailDTO getUserDetailById(ObjectId id);
+
+    void addToken(ObjectId id, String address);
+
+    void updateMetamaskAddress(ObjectId id, String address);
 }

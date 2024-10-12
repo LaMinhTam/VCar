@@ -5,14 +5,28 @@ import org.springframework.stereotype.Component;
 import org.web3j.crypto.Credentials;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.RemoteFunctionCall;
+import org.web3j.protocol.core.methods.request.Transaction;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
 import org.web3j.protocol.http.HttpService;
 import org.web3j.tuples.generated.Tuple9;
+import org.web3j.tx.Transfer;
 import org.web3j.tx.gas.StaticGasProvider;
+import org.web3j.utils.Convert;
 import vn.edu.iuh.sv.vcarbe.entity.CarRental;
 import vn.edu.iuh.sv.vcarbe.entity.RentalContract;
 import vn.edu.iuh.sv.vcarbe.exception.AppException;
+import org.web3j.tx.RawTransactionManager;
+import org.web3j.tx.TransactionManager;
+import org.web3j.protocol.Web3j;
+import org.web3j.protocol.core.methods.request.Transaction;
+import org.web3j.protocol.core.methods.response.EthSendTransaction;
+import org.web3j.protocol.core.methods.response.TransactionReceipt;
+import org.web3j.protocol.http.HttpService;
+import org.web3j.crypto.Credentials;
+import org.web3j.utils.Convert;
+import vn.edu.iuh.sv.vcarbe.exception.AppException;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.List;
 
@@ -24,6 +38,27 @@ public class BlockchainUtils {
     private String infuraUrl;
     @Value("${blockchain.privateKey}")
     private String privateKey;
+
+    public String sendSepoliaETH(String toAddress, BigDecimal amountInEth) {
+        try {
+            Web3j web3j = Web3j.build(new HttpService(infuraUrl));
+            TransactionManager transactionManager = new RawTransactionManager(
+                    web3j,
+                    Credentials.create(privateKey)
+            );
+            Transfer transfer = new Transfer(web3j, transactionManager);
+            TransactionReceipt transactionReceipt = transfer.sendFunds(
+                    toAddress,
+                    amountInEth,
+                    Convert.Unit.ETHER,
+                    BigInteger.valueOf(20000000000L),
+                    BigInteger.valueOf(21000L)
+            ).send();
+            return null;
+        } catch (Exception e) {
+            throw new AppException(500, "Failed to send SepoliaETH: " + e.getMessage());
+        }
+    }
 
     public CarRental loadCarRentalContract() {
         return CarRental.load(

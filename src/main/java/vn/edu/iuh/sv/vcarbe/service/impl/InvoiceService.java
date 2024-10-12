@@ -21,6 +21,7 @@ import vn.edu.iuh.sv.vcarbe.util.BlockchainUtils;
 import vn.edu.iuh.sv.vcarbe.util.NotificationUtils;
 
 import java.io.UnsupportedEncodingException;
+import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
@@ -46,7 +47,7 @@ public class InvoiceService {
         this.blockchainUtils = blockchainUtils;
     }
 
-    public String createPaymentUrl(HttpServletRequest req, UserPrincipal userPrincipal, SignRequest signRequest) throws UnsupportedEncodingException {
+    public String createPaymentUrlContract(HttpServletRequest req, UserPrincipal userPrincipal, SignRequest signRequest) {
         RentalContract rentalContract = rentalContractRepository.findByLesseeIdAndId(userPrincipal.getId(), signRequest.contractId())
                 .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND.value(), MessageKeys.CONTRACT_NOT_FOUND.name()));
         User lessee = userRepository.findById(userPrincipal.getId())
@@ -55,13 +56,27 @@ public class InvoiceService {
         rentalContract.sign(lessee, signRequest);
         RentalContract savedRentalContract = rentalContractRepository.save(rentalContract);
 
-        String txnRef = VNPayConfig.getRandomNumber(8);
         Invoice invoice = new Invoice();
         invoice.setContractId(savedRentalContract.getId());
-        invoice.setTxnRef(txnRef);
         invoice.setAmount((long) (savedRentalContract.getTotalRentalValue() * 30L));
         invoice.setLesseeId(savedRentalContract.getLesseeId());
         invoice.setLessorId(savedRentalContract.getLessorId());
+
+        return createPaymentUrl(req, invoice);
+    }
+
+    public String createPaymentUrlInvoice(HttpServletRequest req, UserPrincipal userPrincipal) {
+        User user = userRepository.findById(userPrincipal.getId())
+                .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND.value(), MessageKeys.USER_NOT_FOUND.name()));
+        Invoice invoice = new Invoice();
+        invoice.setMetamaskAddress(user.getMetamaskAddress());
+        invoice.setAmount(2000000000L);
+        return createPaymentUrl(req, invoice);
+    }
+
+    public String createPaymentUrl(HttpServletRequest req, Invoice invoice) {
+        String txnRef = VNPayConfig.getRandomNumber(8);
+        invoice.setTxnRef(txnRef);
         invoice.setPaymentStatus(PaymentStatus.PENDING);
 
         Map<String, String> vnpParams = new HashMap<>();
@@ -92,7 +107,26 @@ public class InvoiceService {
         return vnPayConfig.getVnp_PayUrl() + "?" + queryUrl + "&vnp_SecureHash=" + vnpSecureHash;
     }
 
-    public RentalContractDTO handlePaymentCallback(HttpServletRequest req) {
+    public RentalContractDTO handlePaymentCallbackContract(HttpServletRequest req) {
+        Invoice invoice = handlePaymentCallback(req);
+
+        RentalContract rentalContract = rentalContractRepository.findById(invoice.getContractId())
+                .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND.value(), MessageKeys.CONTRACT_NOT_FOUND.name()));
+        rentalContract.setRentalStatus(RentalStatus.SIGNED);
+
+        rentalContractRepository.save(rentalContract);
+        blockchainUtils.approveRentalContract(rentalContract.getId().toHexString());
+        notificationUtils.createNotification(rentalContract.getLessorId(), NotificationMessage.LESSEE_SIGNED_CONTRACT, NotificationType.RENTAL_CONTRACT, "/rental-contracts/" + rentalContract.getId(), rentalContract.getId());
+        return modelMapper.map(rentalContract, RentalContractDTO.class);
+    }
+
+    public InvoiceDTO handlePaymentCallbackInvoice(HttpServletRequest req) {
+        Invoice invoice = handlePaymentCallback(req);
+        blockchainUtils.sendSepoliaETH(invoice.getMetamaskAddress(), BigDecimal.valueOf(0.5));
+        return modelMapper.map(invoice, InvoiceDTO.class);
+    }
+
+    public Invoice handlePaymentCallback(HttpServletRequest req) {
         Map<String, String> fields = extractFieldsFromRequest(req);
 
         Invoice invoice = invoiceRepository.findByTxnRef(fields.get("vnp_TxnRef"))
@@ -116,19 +150,10 @@ public class InvoiceService {
             invoice.setContent("Thanh toán thành công");
             invoice.setTransactionNo(req.getParameter("vnp_TransactionNo"));
             invoice.setTransactionDate(Long.parseLong(req.getParameter("vnp_PayDate")));
-            Invoice savedInvoice = invoiceRepository.save(invoice);
-            RentalContract rentalContract = rentalContractRepository.findById(savedInvoice.getContractId())
-                    .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND.value(), MessageKeys.CONTRACT_NOT_FOUND.name()));
-            rentalContract.setRentalStatus(RentalStatus.SIGNED);
-
-            rentalContractRepository.save(rentalContract);
-            blockchainUtils.approveRentalContract(rentalContract.getId().toHexString());
-            notificationUtils.createNotification(rentalContract.getLessorId(), NotificationMessage.LESSEE_SIGNED_CONTRACT, NotificationType.RENTAL_CONTRACT, "/rental-contracts/" + rentalContract.getId(), rentalContract.getId());
-            return modelMapper.map(rentalContract, RentalContractDTO.class);
+            return invoiceRepository.save(invoice);
         } else {
             invoice.setPaymentStatus(PaymentStatus.CANCELLED);
             invoice.setContent("Giao dịch thất bại. Mã lỗi: " + vnpResponseCode);
-
             invoiceRepository.save(invoice);
             throw new AppException(HttpStatus.BAD_REQUEST.value(), MessageKeys.PAYMENT_FAILED.name());
         }

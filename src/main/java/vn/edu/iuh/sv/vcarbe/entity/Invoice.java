@@ -15,6 +15,7 @@ public class Invoice {
     @MongoId
     private ObjectId id;
     private ObjectId contractId;
+    private String metamaskAddress;
     private ObjectId lessorId;
     private ObjectId lesseeId;
     private String txnRef;

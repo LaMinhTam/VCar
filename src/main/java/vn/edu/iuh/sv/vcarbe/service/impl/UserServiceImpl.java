@@ -12,6 +12,9 @@ import vn.edu.iuh.sv.vcarbe.exception.AppException;
 import vn.edu.iuh.sv.vcarbe.exception.MessageKeys;
 import vn.edu.iuh.sv.vcarbe.repository.UserRepository;
 import vn.edu.iuh.sv.vcarbe.service.UserService;
+import vn.edu.iuh.sv.vcarbe.util.BlockchainUtils;
+
+import java.math.BigDecimal;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -19,6 +22,8 @@ public class UserServiceImpl implements UserService {
     private UserRepository userRepository;
     @Autowired
     private ModelMapper modelMapper;
+    @Autowired
+    private BlockchainUtils blockchainUtils;
 
     private User getUserByIdFromRepository(ObjectId userId) {
         return userRepository.findById(userId)
@@ -69,5 +74,17 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDetailDTO getUserDetailById(ObjectId id) {
         return userRepository.getUserDetailById(id);
+    }
+
+    @Override
+    public void addToken(ObjectId id, String address) {
+        blockchainUtils.sendSepoliaETH(address, BigDecimal.valueOf(0.5));
+    }
+
+    @Override
+    public void updateMetamaskAddress(ObjectId id, String address) {
+        User user = getUserByIdFromRepository(id);
+        user.setMetamaskAddress(address);
+        userRepository.save(user);
     }
 }

@@ -38,6 +38,7 @@ public class User {
     private CarLicense carLicense;
     private CitizenIdentification citizenIdentification;
     private Set<String> deviceTokens = new HashSet<>();
+    private String metamaskAddress;
 
     public User(ObjectId id) {
         this.id = id;
