@@ -99,4 +99,19 @@ public class RentalContractController {
         Page<RentalContractDTO> rentalPage = rentalContractService.getRentalContractForLessee(userPrincipal.getId(), sortField, sortDescending, page, size);
         return new ApiResponseWrapperWithMeta(200, MessageKeys.SUCCESS.name(), rentalPage.getContent(), new PaginationMetadata(rentalPage));
     }
+
+    @PatchMapping("/{id}/post-handover")
+    @Operation(summary = "Update post-handover issues status", description = "Update whether there are any post-handover issues for the rental contract")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Post-handover status updated successfully"),
+            @ApiResponse(responseCode = "404", description = "Rental contract not found")
+    })
+    public ResponseEntity<ApiResponseWrapper> updatePostHandoverStatus(
+            @CurrentUser UserPrincipal userPrincipal,
+            @Parameter(description = "Rental contract ID (must be a valid ObjectId)", schema = @Schema(type = "string"))
+            @PathVariable ObjectId id,
+            @Valid @RequestBody PostHandoverUpdateDTO postHandoverUpdateDTO) {
+        rentalContractService.updatePostHandoverIssues(userPrincipal, id, postHandoverUpdateDTO.hasPostHandoverIssues());
+        return ResponseEntity.ok(new ApiResponseWrapper(200, MessageKeys.SUCCESS.name(), null));
+    }
 }

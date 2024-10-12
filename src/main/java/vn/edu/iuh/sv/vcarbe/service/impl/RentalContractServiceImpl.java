@@ -7,13 +7,17 @@ import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import vn.edu.iuh.sv.vcarbe.dto.RentalContractDTO;
 import vn.edu.iuh.sv.vcarbe.entity.RentalContract;
+import vn.edu.iuh.sv.vcarbe.entity.User;
 import vn.edu.iuh.sv.vcarbe.exception.AppException;
 import vn.edu.iuh.sv.vcarbe.exception.MessageKeys;
 import vn.edu.iuh.sv.vcarbe.repository.RentalContractRepository;
+import vn.edu.iuh.sv.vcarbe.repository.UserRepository;
+import vn.edu.iuh.sv.vcarbe.security.UserPrincipal;
 import vn.edu.iuh.sv.vcarbe.service.RentalContractService;
 import vn.edu.iuh.sv.vcarbe.util.BlockchainUtils;
 import vn.edu.iuh.sv.vcarbe.util.NotificationUtils;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Service
@@ -26,6 +30,8 @@ public class RentalContractServiceImpl implements RentalContractService {
     private NotificationUtils notificationUtils;
     @Autowired
     private BlockchainUtils blockchainUtils;
+    @Autowired
+    private UserRepository userRepository;
 
     @Override
     public Page<RentalContractDTO> getRentalContractForLessor(
@@ -52,6 +58,19 @@ public class RentalContractServiceImpl implements RentalContractService {
                 .map(contract -> modelMapper.map(contract, RentalContractDTO.class))
                 .toList();
         return new PageImpl<>(rentalContracts, pageable, rentalPage.getTotalElements());
+    }
+
+    @Override
+    public void updatePostHandoverIssues(UserPrincipal userPrincipal, ObjectId id, boolean hasPostHandoverIssues) {
+        RentalContract rentalContract = rentalContractRepository.findByLessorIdAndId(userPrincipal.getId(), id)
+                .orElseThrow(() -> new AppException(404, MessageKeys.CONTRACT_NOT_FOUND.name()));
+        rentalContract.setHasPostHandoverIssues(hasPostHandoverIssues);
+        if (!hasPostHandoverIssues) {
+            User user = userRepository.findById(rentalContract.getLesseeId())
+                    .orElseThrow(() -> new AppException(404, MessageKeys.USER_NOT_FOUND.name()));
+            blockchainUtils.sendSepoliaETH(user.getMetamaskAddress(), BigDecimal.valueOf(0.05));
+        }
+        rentalContractRepository.save(rentalContract);
     }
 
 

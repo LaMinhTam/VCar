@@ -70,6 +70,7 @@ public class RentalContract extends RentalDetails {
     private ObjectId rentalRequestId;
     // Rental status
     private RentalStatus rentalStatus;
+    private boolean hasPostHandoverIssues;
 
     public RentalContract(RentalRequest rentalRequest, User lessorUser, Car car, ApprovalRequest approvalRequest) {
         super(rentalRequest.getCarId(), rentalRequest.getLesseeId(), rentalRequest.getLessorId(), rentalRequest.getRentalStartDate(), rentalRequest.getRentalEndDate(), rentalRequest.getVehicleHandOverLocation());
