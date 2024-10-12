@@ -12,13 +12,18 @@ import vn.edu.iuh.sv.vcarbe.dto.SearchCriteria;
 import vn.edu.iuh.sv.vcarbe.entity.Car;
 import vn.edu.iuh.sv.vcarbe.entity.CarStatus;
 import vn.edu.iuh.sv.vcarbe.entity.Province;
+import vn.edu.iuh.sv.vcarbe.entity.User;
 import vn.edu.iuh.sv.vcarbe.exception.AppException;
 import vn.edu.iuh.sv.vcarbe.exception.MessageKeys;
 import vn.edu.iuh.sv.vcarbe.repository.CarRepository;
+import vn.edu.iuh.sv.vcarbe.repository.UserRepository;
 import vn.edu.iuh.sv.vcarbe.security.UserPrincipal;
 import vn.edu.iuh.sv.vcarbe.service.CarService;
 import vn.edu.iuh.sv.vcarbe.util.BeanUtils;
+import vn.edu.iuh.sv.vcarbe.util.BlockchainUtils;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.List;
 
 @Service
@@ -27,6 +32,10 @@ public class CarServiceImpl implements CarService {
     private CarRepository carRepository;
     @Autowired
     private ModelMapper modelMapper;
+    @Autowired
+    private BlockchainUtils blockchainUtils;
+    @Autowired
+    private UserRepository userRepository;
 
     @Override
     public CarDTO createCar(Car car) {
@@ -46,7 +55,17 @@ public class CarServiceImpl implements CarService {
 
     @Override
     public Car deleteCar(UserPrincipal userPrincipal, ObjectId id) {
-        return carRepository.deleteByIdAndOwner(id, userPrincipal.getId());
+        Car existingCar = carRepository.findByOwnerAndId(userPrincipal.getId(), id).orElseThrow(
+                () -> new AppException(404, MessageKeys.CAR_NOT_FOUND.toString())
+        );
+        User owner = userRepository.findById(userPrincipal.getId()).orElseThrow(
+                () -> new AppException(404, MessageKeys.USER_NOT_FOUND.toString())
+        );
+        if(owner.getMetamaskAddress() != null){
+            blockchainUtils.sendSepoliaETH(owner.getMetamaskAddress(), BigDecimal.valueOf(0.05));
+        }
+        carRepository.delete(existingCar);
+        return existingCar;
     }
 
     @Override
