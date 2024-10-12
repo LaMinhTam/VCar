@@ -122,7 +122,7 @@ public class InvoiceService {
 
     public InvoiceDTO handlePaymentCallbackInvoice(HttpServletRequest req) {
         Invoice invoice = handlePaymentCallback(req);
-        blockchainUtils.sendSepoliaETH(invoice.getMetamaskAddress(), BigDecimal.valueOf(0.5));
+        blockchainUtils.sendSepoliaETH(invoice.getMetamaskAddress(), BigDecimal.valueOf(0.05));
         return modelMapper.map(invoice, InvoiceDTO.class);
     }
 
