@@ -1,6 +1,7 @@
 package vn.edu.iuh.sv.vcarbe.service;
 
 import org.bson.types.ObjectId;
+import org.springframework.data.domain.Page;
 import vn.edu.iuh.sv.vcarbe.dto.CarDTO;
 import vn.edu.iuh.sv.vcarbe.dto.CarDetailDTO;
 import vn.edu.iuh.sv.vcarbe.dto.SearchCriteria;
@@ -23,5 +24,5 @@ public interface CarService {
 
     List<CarDTO> search(SearchCriteria criteria);
 
-    List<CarDTO> getCarsByOwner(UserPrincipal userPrincipal);
+    Page<CarDTO> getCarsByOwner(UserPrincipal userPrincipal, int page, int size, String sortField, boolean sortDescending, String searchQuery);
 }

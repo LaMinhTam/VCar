@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -44,14 +45,21 @@ public class CarController {
         return ResponseEntity.ok(new ApiResponseWrapper(200, MessageKeys.CAR_CREATE_SUCCESS.name(), savedCar));
     }
 
-    @Operation(summary = "Get cars owned by the authenticated user", description = "Retrieves cars owned by the authenticated user")
+    @Operation(summary = "Get cars owned by the authenticated user", description = "Retrieves cars owned by the authenticated user with pagination, sorting, and optional search")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Cars retrieved successfully")
     })
     @GetMapping("/owned")
-    public ResponseEntity<ApiResponseWrapper> getCarsByOwner(
-            @AuthenticationPrincipal UserPrincipal userPrincipal) {
-        return ResponseEntity.ok(new ApiResponseWrapper(200, MessageKeys.SUCCESS.name(), carService.getCarsByOwner(userPrincipal)));
+    public ResponseEntity<ApiResponseWrapperWithMeta> getCarsByOwner(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "createdAt") String sortField,
+            @RequestParam(defaultValue = "false") boolean sortDescending,
+            @RequestParam(required = false) String searchQuery
+    ) {
+        Page<CarDTO> carPage = carService.getCarsByOwner(userPrincipal, page, size, sortField, sortDescending, searchQuery);
+        return ResponseEntity.ok(new ApiResponseWrapperWithMeta(200, MessageKeys.SUCCESS.name(), carPage.getContent(), new PaginationMetadata(carPage)));
     }
 
     @Operation(summary = "Update car details", description = "Updates the details of an existing car owned by the authenticated user")

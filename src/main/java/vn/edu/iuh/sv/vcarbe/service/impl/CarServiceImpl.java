@@ -3,8 +3,10 @@ package vn.edu.iuh.sv.vcarbe.service.impl;
 import org.bson.types.ObjectId;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import vn.edu.iuh.sv.vcarbe.dto.CarDTO;
 import vn.edu.iuh.sv.vcarbe.dto.CarDetailDTO;
@@ -23,7 +25,6 @@ import vn.edu.iuh.sv.vcarbe.util.BeanUtils;
 import vn.edu.iuh.sv.vcarbe.util.BlockchainUtils;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.List;
 
 @Service
@@ -85,7 +86,8 @@ public class CarServiceImpl implements CarService {
     }
 
     @Override
-    public List<CarDTO> getCarsByOwner(UserPrincipal userPrincipal) {
-        return carRepository.findByOwner(userPrincipal.getId());
+    public Page<CarDTO> getCarsByOwner(UserPrincipal userPrincipal, int page, int size, String sortField, boolean sortDescending, String searchQuery) {
+        Pageable pageable = PageRequest.of(page, size, sortDescending ? Sort.Direction.DESC : Sort.Direction.ASC, sortField);
+        return carRepository.findByOwner(userPrincipal.getId(), searchQuery, pageable);
     }
 }

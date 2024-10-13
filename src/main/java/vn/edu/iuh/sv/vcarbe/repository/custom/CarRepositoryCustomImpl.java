@@ -7,6 +7,8 @@ import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import vn.edu.iuh.sv.vcarbe.dto.*;
@@ -278,23 +280,39 @@ public class CarRepositoryCustomImpl implements CarRepositoryCustom {
     }
 
     @Override
-    public List<CarDTO> findByOwner(ObjectId id) {
+    public Page<CarDTO> findByOwner(ObjectId ownerId, String searchQuery, Pageable pageable) {
         MongoCollection<Document> carCollection = getCollection("cars");
 
-        Bson ownerFilter = Filters.eq("owner", id);
+        Bson ownerFilter = Filters.eq("owner", ownerId);
+
+        if (searchQuery != null && !searchQuery.isEmpty()) {
+            Bson searchFilter = Filters.regex("name", searchQuery, "i"); // Case-insensitive search
+            ownerFilter = Filters.and(ownerFilter, searchFilter);
+        }
+
+        Bson sort = pageable.getSort().stream()
+                .map(order -> order.isAscending() ? Sorts.ascending(order.getProperty()) : Sorts.descending(order.getProperty()))
+                .reduce(Sorts::orderBy)
+                .orElse(Sorts.ascending("name"));
 
         Bson projection = Projections.fields(
                 Projections.computed("id", "$_id"),
                 Projections.include("name", "status", "imageUrl", "province", "location", "dailyRate", "seat", "transmission", "fuel", "fuelConsumption", "description", "features", "color", "licensePlate", "registrationNumber", "registrationDate", "registrationLocation")
         );
 
+        FindIterable<Document> ownerCarResults = carCollection.find(ownerFilter)
+                .sort(sort)
+                .skip((int) pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .projection(projection);
+
         List<CarDTO> ownerCars = new ArrayList<>();
-        FindIterable<Document> ownerCarResults = carCollection.find(ownerFilter).projection(projection);
         for (Document document : ownerCarResults) {
             ownerCars.add(modelMapper.map(document, CarDTO.class));
         }
 
-        return ownerCars;
-    }
+        long totalRecords = carCollection.countDocuments(ownerFilter);
 
+        return new PageImpl<>(ownerCars, pageable, totalRecords);
+    }
 }

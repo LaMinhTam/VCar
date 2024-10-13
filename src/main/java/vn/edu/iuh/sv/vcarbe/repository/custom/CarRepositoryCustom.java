@@ -1,6 +1,7 @@
 package vn.edu.iuh.sv.vcarbe.repository.custom;
 
 import org.bson.types.ObjectId;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import vn.edu.iuh.sv.vcarbe.dto.CarDTO;
 import vn.edu.iuh.sv.vcarbe.dto.CarDetailDTO;
@@ -16,5 +17,5 @@ public interface CarRepositoryCustom {
 
     List<CarDTO> search(SearchCriteria criteria, Pageable pageable);
 
-    List<CarDTO> findByOwner(ObjectId id);
+    Page<CarDTO> findByOwner(ObjectId id, String searchQuery, Pageable pageable);
 }
