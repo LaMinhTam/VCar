@@ -128,11 +128,15 @@ public class CarRepositoryCustomImpl implements CarRepositoryCustom {
                 Accumulators.first("ownerId", "$ownerDetails._id"),
                 Accumulators.first("ownerEmail", "$ownerDetails.email"),
                 Accumulators.first("ownerDisplayName", "$ownerDetails.displayName"),
-                Accumulators.first("ownerPhoneNumber", "$ownerDetails.phoneNumber")
+                Accumulators.first("ownerPhoneNumber", "$ownerDetails.phoneNumber"),
+                Accumulators.first("brand", "$brand"),
+                Accumulators.first("manufacturingYear", "$manufacturingYear"),
+                Accumulators.first("washingPrice", "$washingPrice"),
+                Accumulators.first("deodorisePrice", "$deodorisePrice")
         ));
 
         pipeline.add(Aggregates.project(Projections.fields(
-                Projections.include("name", "status", "imageUrl", "province", "location", "dailyRate", "seat", "transmission", "fuel", "fuelConsumption", "description", "features", "color", "licensePlate", "registrationNumber", "registrationDate", "registrationLocation", "mileageLimitPerDay", "extraMileageCharge", "extraHourlyCharge"),
+                Projections.include("name", "status", "imageUrl", "province", "location", "dailyRate", "seat", "transmission", "fuel", "fuelConsumption", "description", "features", "color", "licensePlate", "registrationNumber", "registrationDate", "registrationLocation", "mileageLimitPerDay", "extraMileageCharge", "extraHourlyCharge", "brand", "manufacturingYear", "washingPrice", "deodorisePrice"),
                 Projections.computed("id", "$_id"),
                 Projections.computed("owner.id", "$ownerId"),
                 Projections.computed("owner.email", "$ownerEmail"),
@@ -284,7 +288,6 @@ public class CarRepositoryCustomImpl implements CarRepositoryCustom {
         MongoCollection<Document> carCollection = getCollection("cars");
 
         Bson ownerFilter = Filters.eq("owner", ownerId);
-
         if (searchQuery != null && !searchQuery.isEmpty()) {
             Bson searchFilter = Filters.regex("name", searchQuery, "i"); // Case-insensitive search
             ownerFilter = Filters.and(ownerFilter, searchFilter);
@@ -295,16 +298,50 @@ public class CarRepositoryCustomImpl implements CarRepositoryCustom {
                 .reduce(Sorts::orderBy)
                 .orElse(Sorts.ascending("name"));
 
-        Bson projection = Projections.fields(
-                Projections.computed("id", "$_id"),
-                Projections.include("name", "status", "imageUrl", "province", "location", "dailyRate", "seat", "transmission", "fuel", "fuelConsumption", "description", "features", "color", "licensePlate", "registrationNumber", "registrationDate", "registrationLocation")
-        );
+        List<Bson> pipeline = new ArrayList<>();
+        pipeline.add(Aggregates.match(ownerFilter));
+        pipeline.add(Aggregates.lookup("reviews", "_id", "carId", "reviews"));
+        pipeline.add(Aggregates.unwind("$reviews", new UnwindOptions().preserveNullAndEmptyArrays(true)));
+        pipeline.add(Aggregates.group(
+                "$_id",
+                Accumulators.avg("averageRating", "$reviews.rating"),
+                Accumulators.first("name", "$name"),
+                Accumulators.first("status", "$status"),
+                Accumulators.first("imageUrl", "$imageUrl"),
+                Accumulators.first("province", "$province"),
+                Accumulators.first("location", "$location"),
+                Accumulators.first("dailyRate", "$dailyRate"),
+                Accumulators.first("seat", "$seat"),
+                Accumulators.first("transmission", "$transmission"),
+                Accumulators.first("fuel", "$fuel"),
+                Accumulators.first("fuelConsumption", "$fuelConsumption"),
+                Accumulators.first("description", "$description"),
+                Accumulators.first("features", "$features"),
+                Accumulators.first("color", "$color"),
+                Accumulators.first("licensePlate", "$licensePlate"),
+                Accumulators.first("registrationNumber", "$registrationNumber"),
+                Accumulators.first("registrationDate", "$registrationDate"),
+                Accumulators.first("registrationLocation", "$registrationLocation"),
+                Accumulators.first("brand", "$brand"),
+                Accumulators.first("manufacturingYear", "$manufacturingYear"),
+                Accumulators.first("mileageLimitPerDay", "$mileageLimitPerDay"),
+                Accumulators.first("extraMileageCharge", "$extraMileageCharge"),
+                Accumulators.first("extraHourlyCharge", "$extraHourlyCharge"),
+                Accumulators.first("washingPrice", "$washingPrice"),
+                Accumulators.first("deodorisePrice", "$deodorisePrice")
+        ));
 
-        FindIterable<Document> ownerCarResults = carCollection.find(ownerFilter)
-                .sort(sort)
-                .skip((int) pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .projection(projection);
+        pipeline.add(Aggregates.sort(sort));
+        pipeline.add(Aggregates.skip((int) pageable.getOffset()));
+        pipeline.add(Aggregates.limit(pageable.getPageSize()));
+
+        pipeline.add(Aggregates.project(Projections.fields(
+                Projections.include("name", "status", "imageUrl", "province", "location", "dailyRate", "seat", "transmission", "fuel", "fuelConsumption", "description", "features", "color", "licensePlate", "registrationNumber", "registrationDate", "registrationLocation", "brand", "manufacturingYear", "mileageLimitPerDay", "extraMileageCharge", "extraHourlyCharge", "washingPrice", "deodorisePrice"),
+                Projections.computed("id", "$_id"),
+                Projections.computed("averageRating", "$averageRating")
+        )));
+
+        AggregateIterable<Document> ownerCarResults = carCollection.aggregate(pipeline);
 
         List<CarDTO> ownerCars = new ArrayList<>();
         for (Document document : ownerCarResults) {
@@ -315,4 +352,5 @@ public class CarRepositoryCustomImpl implements CarRepositoryCustom {
 
         return new PageImpl<>(ownerCars, pageable, totalRecords);
     }
+
 }

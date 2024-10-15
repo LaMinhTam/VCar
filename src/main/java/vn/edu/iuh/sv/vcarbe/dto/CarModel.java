@@ -33,7 +33,11 @@ public class CarModel {
     private int mileageLimitPerDay;
     private double extraMileageCharge;
     private double extraHourlyCharge;
+    private double washingPrice;
+    private double deodorisePrice;
     private List<ReviewDTO> reviews;
     private List<CarDTO> relatedCars;
     private double averageRating;
+    private String brand;
+    private int manufacturingYear;
 }

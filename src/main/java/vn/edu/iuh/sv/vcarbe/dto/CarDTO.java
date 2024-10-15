@@ -31,4 +31,12 @@ public class CarDTO {
     private String registrationDate;
     private String registrationLocation;
     private double averageRating;
+    private String brand;
+    private int manufacturingYear;
+
+    private int mileageLimitPerDay;
+    private double extraMileageCharge;
+    private double extraHourlyCharge;
+    private double washingPrice;
+    private double deodorisePrice;
 }
