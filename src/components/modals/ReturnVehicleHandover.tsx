@@ -175,7 +175,7 @@ const ReturnVehicleHandover = ({ form, vehicle_handover_id, setReturnVehicleLoad
                         valuePropName="checked"
                         rules={[{
                             required: true,
-                            message: t("require"),
+                            message: t("auth.required"),
                         }]}
                     >
                         <Checkbox></Checkbox>

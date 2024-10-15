@@ -24,7 +24,7 @@ const SeatsFilter: React.FC<SeatsFilterProps> = ({ seats, onSeatsChange }) => {
 
   return (
     <div className="mb-6">
-      <h3 className="text-lg font-semibold mb-2">{t("seats")}</h3>
+      <h3 className="mb-2 text-lg font-semibold">{t("car.seat")}</h3>
       <div className="flex flex-col gap-2">
         {[2, 5, 7, 9, "10+"].map((num) => (
           <label key={num} className="flex items-center gap-2">
@@ -36,7 +36,7 @@ const SeatsFilter: React.FC<SeatsFilterProps> = ({ seats, onSeatsChange }) => {
               }
               onChange={() => handleSeatsChange(num)}
             />
-            {num} {t("person")}
+            {num} {t("common.person")}
           </label>
         ))}
       </div>

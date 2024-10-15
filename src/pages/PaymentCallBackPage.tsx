@@ -23,7 +23,7 @@ const PaymentCallBackPage = () => {
             confirmPayment();
         }
 
-        navigate('/');
+        navigate('/account');
     }, [navigate]);
 
     return null;

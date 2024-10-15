@@ -9,22 +9,43 @@ const LanguageSelector: React.FC = () => {
   const { t, i18n } = useTranslation();
 
   const handleLanguageChange = (lng: string) => {
-    i18n.changeLanguage(lng);
+    i18n.changeLanguage(lng).then(() => {
+      localStorage.setItem("STORAGE_LANGUAGE", lng);
+      window.location.reload();
+    });
   };
 
   const languageMenu = (
-    <Menu>
-      <Menu.Item key="en" onClick={() => handleLanguageChange("en")}>
+    <Menu
+      style={{
+        padding: 0
+      }}
+    >
+      <Menu.Item
+        key="en"
+        onClick={() => handleLanguageChange("en")}
+        className={`${i18n.language === "en" ? "bg-quaternary" : ""}`}
+        style={{
+          color: i18n.language === "en" ? "#1677ff" : "#000",
+        }}
+      >
         <img src={ukFlag} alt="English" className="inline-block w-6 h-6 mr-2" />
-        {t("english")}
+        {t("common.english")}
       </Menu.Item>
-      <Menu.Item key="vi" onClick={() => handleLanguageChange("vi")}>
+      <Menu.Item
+        key="vi"
+        onClick={() => handleLanguageChange("vi")}
+        className={`${i18n.language === "vi" ? "bg-quaternary" : ""}`}
+        style={{
+          color: i18n.language === "vi" ? "#1677ff" : "#000",
+        }}
+      >
         <img
           src={vnFlag}
           alt="Vietnamese"
           className="inline-block w-6 h-6 mr-2"
         />
-        {t("vietnamese")}
+        {t("common.vietnamese")}
       </Menu.Item>
     </Menu>
   );

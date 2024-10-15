@@ -2,13 +2,14 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../store/store";
 import { IRentalData, IRentalRequestParams } from "../../store/rental/types";
 import { useEffect, useMemo, useState } from "react";
-import { Table, Typography, Tag, Modal } from "antd";
-import { ColumnsType, TablePaginationConfig } from "antd/es/table";
-import { FilterValue, SorterResult } from "antd/es/table/interface";
+import { Table, Typography, Tag, Modal, Flex, Radio } from "antd";
+import { ColumnsType } from "antd/es/table";
 import { GET_LESSOR_REQUESTS } from "../../store/rental/action";
 import LesseeDetailDialog from "../../components/modals/LesseeDetailDialog";
 import { useParams } from "react-router-dom";
 import { getRentRequestById } from "../../store/rental/handlers";
+import { RENT_REQUEST_OPTIONS } from "../../constants";
+import { CheckboxChangeEvent } from "antd/es/checkbox";
 
 const MyLessee = () => {
     const { lessorListRequest, loading } = useSelector((state: RootState) => state.rental);
@@ -31,6 +32,10 @@ const MyLessee = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [id, lessorListRequest]);
 
+    const handleChangeStatus = (e: CheckboxChangeEvent) => {
+        setParams({ ...params, status: e.target.value });
+    }
+
     const fetchRentalRequestById = async (id: string) => {
         const response = await getRentRequestById(id);
         if (response?.success && response.data) {
@@ -43,22 +48,6 @@ const MyLessee = () => {
         dispatch({ type: GET_LESSOR_REQUESTS, payload: params });
     }, [dispatch, params]);
 
-    const handleTableChange = (
-        pagination: TablePaginationConfig,
-        filters: Record<string, FilterValue | null>,
-        sorter: SorterResult<IRentalData> | SorterResult<IRentalData>[]
-    ) => {
-        setParams({
-            ...params,
-            page: String((pagination.current ?? 1) - 1),
-            size: String(pagination.pageSize ?? 10),
-            status: filters.status ? String(filters.status[0]) : "",
-            sortDescending: Array.isArray(sorter)
-                ? sorter[0]?.order === 'descend' ? "true" : "false"
-                : sorter.order === 'descend' ? "true" : "false",
-        });
-    };
-
     const columns: ColumnsType<IRentalData> = [
         {
             title: 'ID',
@@ -69,11 +58,6 @@ const MyLessee = () => {
             title: 'Trạng thái',
             dataIndex: 'status',
             key: 'status',
-            filters: [
-                { text: 'APPROVED', value: 'APPROVED' },
-                { text: 'PENDING', value: 'PENDING' },
-                { text: 'REJECTED', value: 'REJECTED' },
-            ],
             render: (status: string) => {
                 let color = '';
                 switch (status) {
@@ -143,6 +127,9 @@ const MyLessee = () => {
     return (
         <div className="p-4">
             <Typography.Title level={3}>Danh sách chuyến</Typography.Title>
+            <Flex justify="flex-end" className="mb-5">
+                <Radio.Group buttonStyle="solid" options={RENT_REQUEST_OPTIONS} value={params?.status} optionType="button" onChange={handleChangeStatus} />
+            </Flex>
             <Table
                 className="w-full"
                 columns={columns}
@@ -156,7 +143,6 @@ const MyLessee = () => {
                     showSizeChanger: true,
                     showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} items`,
                 }}
-                onChange={handleTableChange}
             />
             <Modal title="Chi tiết yêu cầu" open={isModalOpen} onOk={handleOk} width={860} onCancel={handleCancel}>
                 <LesseeDetailDialog record={modalRecord} setIsModalOpen={setIsModalOpen} setParams={setParams} params={params}></LesseeDetailDialog>

@@ -1,6 +1,11 @@
 import { call, put } from "redux-saga/effects";
-import { CarDetail, ICar, IQuerySearchCar } from "./types";
-import { axiosInstance } from "../../apis/axios";
+import {
+  CarDetail,
+  ICar,
+  IQueryCarOwner,
+  IQuerySearchCar,
+} from "./types";
+import { axiosInstance, axiosPrivate } from "../../apis/axios";
 import { ENDPOINTS } from "./models";
 import {
   getCarDetailFailed,
@@ -10,11 +15,13 @@ import {
   getCarsSuccess,
 } from "./reducers";
 import { AxiosResponse } from "axios";
+import { IMetaData } from "../rental/types";
 
 interface ICarResponse {
   code: number;
   message: string;
   data: ICar[];
+  meta?: IMetaData;
 }
 
 interface ICarDetailResponse {
@@ -56,4 +63,45 @@ function* getCarDetail(action: { type: string; payload: string }) {
   }
 }
 
-export { searchCar, getCarDetail };
+async function getMyCars(params: IQueryCarOwner) {
+  try {
+    const response: AxiosResponse<ICarResponse> =
+      await axiosPrivate.get(ENDPOINTS.MY_CARS, {
+        params,
+      });
+    if (response?.data?.code === 200) {
+      return {
+        success: true,
+        data: response?.data?.data,
+        message: response?.data?.message,
+        meta: response?.data?.meta,
+      };
+    }
+  } catch (error) {
+    const typedError = error as Error;
+    return {
+      success: false,
+      data: [],
+      meta: {} as IMetaData,
+      message: typedError.message,
+    };
+  }
+}
+
+export const deleteCar = async (id: string) => {
+  try {
+    const response = await axiosPrivate.delete(ENDPOINTS.DELETE_CAR(id));
+    return {
+      success: true,
+      message: response.data.message,
+    };
+  } catch (error) {
+    const typedError = error as Error;
+    return {
+      success: false,
+      message: typedError.message,
+    };
+  }
+}
+
+export { searchCar, getCarDetail, getMyCars };

@@ -30,6 +30,7 @@ import MyLessee from "./modules/account/MyLessee.tsx";
 import LesseeContract from "./modules/account/LesseeContract.tsx";
 import LessorContract from "./modules/account/LessorContract.tsx";
 import PaymentCallBackPage from "./pages/PaymentCallBackPage.tsx";
+import MyCarDetails from "./pages/MyCarDetails.tsx";
 const router = createBrowserRouter([
   {
     element: <LayoutMain />,
@@ -61,6 +62,10 @@ const router = createBrowserRouter([
           {
             path: "my-cars",
             element: <MyCars />,
+          },
+          {
+            path: "my-cars/:id",
+            element: <MyCarDetails />,
           },
           {
             path: "my-trips",

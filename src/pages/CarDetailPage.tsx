@@ -72,7 +72,7 @@ const CarDetailPage = () => {
                                     <div className="flex items-center">
                                         <img
                                             src={gasStationIcon}
-                                            alt={t("fuelConsumption")}
+                                            alt={t("car.fuel_consumption")}
                                             className="w-6 h-6 mr-2"
                                         />
                                         <div className='flex flex-col'>
@@ -80,14 +80,14 @@ const CarDetailPage = () => {
                                                 NL tiêu hao
                                             </Typography.Text>
                                             <Typography.Text className="text-filter-range">
-                                                {car?.fuel_consumption} {t("litersPer100km")}
+                                                {car?.fuel_consumption} {t("common.litersPer100km")}
                                             </Typography.Text>
                                         </div>
                                     </div>
                                     <div className="flex items-center">
                                         <img
                                             src={transmissionIcon}
-                                            alt={t("transmission")}
+                                            alt={t("car.transmission")}
                                             className="w-6 h-6 mr-2"
                                         />
                                         <div className='flex flex-col'>
@@ -95,7 +95,7 @@ const CarDetailPage = () => {
                                                 Truyền động
                                             </Typography.Text>
                                             <Typography.Text className="text-filter-range">
-                                                {car?.transmission === "MANUAL" ? t("manual") : t("automatic")}
+                                                {car?.transmission === "MANUAL" ? t("car.manual") : t("car.automatic")}
                                             </Typography.Text>
                                         </div>
                                     </div>
@@ -124,10 +124,10 @@ const CarDetailPage = () => {
                             </div>
                             <div className="flex items-center justify-between mt-5">
                                 <span className="font-bold text-primary-default">
-                                    {car?.daily_rate?.toLocaleString()} {t("currency")} /{" "}
-                                    <span className="text-filter-range">{t("day")}</span>
+                                    {car?.daily_rate?.toLocaleString()} {t("common.currency")} /{" "}
+                                    <span className="text-filter-range">{t("common.day")}</span>
                                 </span>
-                                <Button type="primary" onClick={() => handleRentNow(car?.id ?? id)}>{t("rentNow")}</Button>
+                                <Button type="primary" onClick={() => handleRentNow(car?.id ?? id)}>{t("common.rentNow")}</Button>
                             </div>
                         </div>
                     </Col>

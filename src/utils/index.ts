@@ -1,11 +1,11 @@
 import Cookies from "js-cookie";
-import { ethers } from "ethers";
+import { BrowserProvider, ethers, formatEther, parseEther } from "ethers";
 import { jwtDecode } from "jwt-decode";
 import { IUser } from "../store/auth/types";
 import CryptoJS from "crypto-js";
 import numeral from "numeral";
 import moment from "moment";
-import { message } from "antd";
+import { GetProp, message } from "antd";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { setUploadProgress } from "../store/rental/reducers";
@@ -17,6 +17,8 @@ import {
   LicenseData,
 } from "../store/profile/types";
 import {} from "../constants";
+import { RcFile, UploadFile, UploadProps } from "antd/es/upload";
+import { TFunction } from "i18next";
 
 const accessTokenKey = "VCAR_ACCESS_TOKEN";
 const refreshTokenKey = "VCAR_REFRESH_TOKEN";
@@ -178,6 +180,77 @@ export const handleMetaMaskSignature = async (username: string) => {
     message.error(
       "MetaMask is not installed or user data is missing"
     );
+  }
+};
+
+
+// Kiểm tra xem MetaMask đã được cài đặt chưa
+export const isMetaMaskInstalled = (): boolean => {
+  return typeof window.ethereum !== 'undefined';
+};
+
+// Hàm kết nối MetaMask và lấy địa chỉ ví
+export const connectWallet = async (): Promise<string | null> => {
+  try {
+    if (!isMetaMaskInstalled()) {
+      alert('MetaMask chưa được cài đặt!');
+      return null;
+    }
+
+    // Yêu cầu kết nối ví
+    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+
+    // Lấy địa chỉ ví đầu tiên
+    return accounts[0];
+  } catch (error) {
+    console.error('Lỗi khi kết nối với MetaMask:', error);
+    return null;
+  }
+};
+
+export const getWalletBalance = async (address: string): Promise<string | null> => {
+  try {
+    if (!isMetaMaskInstalled()) {
+      alert('MetaMask chưa được cài đặt!');
+      return null;
+    }
+
+    const provider = new BrowserProvider(window.ethereum);
+
+    const balance = await provider.getBalance(address);
+    return formatEther(balance); 
+  } catch (error) {
+    console.error('Lỗi khi lấy số dư ví:', error);
+    return null;
+  }
+};
+
+export const sendTransaction = async (toAddress: string, amountInEth: string): Promise<void> => {
+  try {
+    if (!isMetaMaskInstalled()) {
+      message.error('MetaMask chưa được cài đặt!');
+      return;
+    }
+
+    // Tạo provider từ MetaMask
+    const provider = new BrowserProvider(window.ethereum);
+
+    const signer = await provider.getSigner();
+
+    const amount = parseEther(amountInEth);
+
+    const tx = await signer.sendTransaction({
+      to: toAddress,
+      value: amount,
+    });
+
+    console.log('Transaction hash:', tx.hash);
+
+    await tx.wait();
+    message.success('Giao dịch đã được gửi thành công!');
+  } catch (error) {
+    console.error('Lỗi khi gửi giao dịch:', error);
+    message.error('Lỗi khi gửi giao dịch:');
   }
 };
 
@@ -399,3 +472,52 @@ export const handleFormatLink = (msg: string, id: string) => {
 //       console.error("Error deleting file:", error);
 //   }
 // };
+
+export function beforeUpload(
+  file: RcFile,
+  fileList: RcFile[],
+  t: TFunction<"translation", undefined>
+) {
+  const allowTypes = ["jpg", "jpeg", "png", "gif"];
+  const isImage = allowTypes.includes(
+    file.name.split(".").pop() || ""
+  );
+  const isLessThan1M = file.size / 1024 / 1024 < 1;
+
+  if (!isImage) {
+    fileList.pop();
+    message.error(t("car.cantUploadImage"));
+  }
+  if (!isLessThan1M) {
+    fileList.pop();
+    message.error(t("product.cantFitSizeUpload"));
+  }
+
+  return isImage && isLessThan1M;
+}
+
+export const isAbleUpload = (file: RcFile) => {
+  const allowTypes = ["jpg", "jpeg", "png", "gif"];
+  const isVideo = allowTypes.includes(file.name.split(".")[1]);
+  const isLessThan1MB = file.size / 1024 / 1024 < 1;
+  return isVideo && isLessThan1MB;
+};
+
+export type FileType = Parameters<
+  GetProp<UploadProps, "beforeUpload">
+>[0];
+
+export const onPreview = async (file: UploadFile) => {
+  let src = file.url as string;
+  if (!src) {
+    src = await new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file.originFileObj as FileType);
+      reader.onload = () => resolve(reader.result as string);
+    });
+  }
+  const image = new Image();
+  image.src = src;
+  const imgWindow = window.open(src);
+  imgWindow?.document.write(image.outerHTML);
+};

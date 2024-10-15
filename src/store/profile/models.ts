@@ -5,4 +5,6 @@ export const ENDPOINTS = {
     UPDATE_PROFILE: '/users/update',
     UPDATE_LICENSE: '/users/update-license',
     UPDATE_CITIZEN_IDENTIFICATION: '/users/update-citizen-identification',
+    UPDATE_METAMASK_ADDRESS: '/users/update-metamask-address',
+    BUY_TOKEN: '/users/buy-token',
 }

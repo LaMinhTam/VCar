@@ -1,6 +1,6 @@
 export interface ICar {
   id: string;
-  owner: Owner;
+  owner?: Owner;
   name: string;
   status: string;
   image_url: string[];
@@ -13,10 +13,14 @@ export interface ICar {
   fuel_consumption: number;
   description: string;
   features: string[];
+  color: string;
   license_plate: string;
   registration_number: string;
   registration_date: Date;
   registration_location: string;
+  mileage_limit_per_day: number;
+  extra_mileage_charge: number;
+  extra_hourly_charge: number;
   average_rating: number;
 }
 
@@ -66,4 +70,38 @@ export interface IQuerySearchCar {
   rentalStartDate: number | string;
   rentalEndDate: number | string;
   rating: string | number;
+}
+
+export interface IQueryCarOwner {
+  page: number | string;
+  size: number | string;
+  sortDescending: string;
+  status: string;
+  searchQuery: string;
+}
+
+export interface ICreateCarData {
+  image_url: string[];
+  province: string;
+  location: string;
+  name: string;
+  seat: number;
+  color: string;
+  brand: string;
+  manufacturing_year: number;
+  transmission: string;
+  fuel: string;
+  fuel_consumption: number;
+  description: string;
+  features: string[];
+  license_plate: string;
+  registration_number: string;
+  registration_date: Date;
+  registration_location: string;
+  daily_rate: number;
+  mileage_limit_per_day: number;
+  extra_mileage_charge: number;
+  extra_hourly_charge: number;
+  washing_price: number;
+  deodorise_price: number;
 }

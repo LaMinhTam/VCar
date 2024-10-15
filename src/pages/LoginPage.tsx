@@ -41,11 +41,11 @@ const LoginPage = () => {
       if (meResponse.data.code === 200) {
         saveUserInfoToCookie(meResponse.data.data, res?.token ?? "");
       }
-      toast.success(t("loginSuccess"));
+      toast.success(t("login.success"));
       setIsLogged(true);
       navigate("/");
     } else {
-      toast.error(t("loginFailed"));
+      toast.error(t("login.failed"));
     }
   };
 
@@ -93,11 +93,11 @@ const LoginPage = () => {
             },
             {
               type: "email",
-              message: t("emailInvalid"),
+              message: t("email.error.invalid"),
             },
           ]}
         >
-          <Input placeholder={t("emailPlaceholder")} />
+          <Input placeholder={t("email.placeholder")} />
         </Form.Item>
         <Form.Item<FieldType>
           label="Password"
@@ -109,11 +109,11 @@ const LoginPage = () => {
             },
             {
               min: 8,
-              message: t("passwordInvalid"),
+              message: t("password.error.invalid"),
             },
           ]}
         >
-          <Input.Password placeholder={t("passwordPlaceholder")} />
+          <Input.Password placeholder={t("password.placeholder")} />
         </Form.Item>
         <Form.Item>
           <Button
@@ -131,7 +131,7 @@ const LoginPage = () => {
             textAlign: "center",
           }}
         >
-          {t("dontHaveAccount")}{" "}
+          {t("auth.dontHaveAccount")}{" "}
           <Button type="link" href="/signup">
             {t("signUp")}
           </Button>

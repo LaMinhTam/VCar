@@ -83,9 +83,9 @@ const FilterSidebar = ({
       />
       <button
         onClick={handleApplyFilters}
-        className="bg-primary-default text-white px-4 py-2 rounded hover:bg-primary-dark"
+        className="px-4 py-2 text-white rounded bg-primary-default hover:bg-primary-dark"
       >
-        {t("applyFilters")}
+        {t("common.applyFilters")}
       </button>
     </div>
   );

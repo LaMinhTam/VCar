@@ -6,6 +6,7 @@ export const ENDPOINTS = {
   AUTOCOMPLETE: (query: string, province: string) =>
     `/cars/autocomplete?query=${query}&province=${province}`,
   SEARCH: `/cars/search`,
+  MY_CARS: `/cars/owned`,
 };
 
 export const QuerySearchCar = {
@@ -20,4 +21,12 @@ export const QuerySearchCar = {
   rentalStartDate: 1729828230000,
   rentalEndDate: 1732506630000,
   rating: "",
+};
+
+export const QueryCarOwner = {
+  page: 1,
+  size: 10,
+  sortDescending: "true",
+  status: "",
+  searchQuery: "",
 };

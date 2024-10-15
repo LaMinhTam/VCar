@@ -47,7 +47,7 @@ const DashboardHeader = () => {
                     ></Avatar>
                 </div> : <div>
                     <Button type="link" href="/signin">{t("login")}</Button>
-                    <Button type="primary" href="/signup">{t("signUp")}</Button>
+                    <Button type="primary" href="/signup">{t("register")}</Button>
                 </div>}
             </div>
         </Header >

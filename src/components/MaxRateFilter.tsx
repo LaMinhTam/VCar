@@ -32,7 +32,7 @@ const MaxRateFilter: React.FC<MaxRateFilterProps> = ({
 
   return (
     <div className="mb-6">
-      <h3 className="text-lg font-semibold mb-2">{t("maxRatePerDay")}</h3>
+      <h3 className="mb-2 text-lg font-semibold">{t("car.maxRatePerDay")}</h3>
       <div className="flex flex-col items-start">
         <input
           type="range"
@@ -48,13 +48,13 @@ const MaxRateFilter: React.FC<MaxRateFilterProps> = ({
             type="number"
             value={maxRate}
             onChange={(e) => handleInputChange(Number(e.target.value))}
-            className="w-32 border border-gray-300 rounded px-2 py-1 mb-2"
+            className="w-32 px-2 py-1 mb-2 border border-gray-300 rounded"
             step={10000}
             max="10000000"
           />
           <span className="text-lg font-semibold">
             {maxRate >= 10000000 ? "10,000,000+" : maxRate.toLocaleString()}{" "}
-            {t("currency")}
+            {t("common.currency")}
           </span>
         </div>
       </div>

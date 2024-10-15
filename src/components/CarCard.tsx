@@ -33,27 +33,27 @@ const CarCard: React.FC<CarCardProps> = ({ car }) => {
           <div className="flex items-center mr-4">
             <img
               src={gasStationIcon}
-              alt={t("fuelConsumption")}
+              alt={t("car.fuel_consumption")}
               className="w-6 h-6 mr-2"
             />
             <span className="text-filter-range">
-              {car.fuel_consumption} {t("litersPer100km")}
+              {car.fuel_consumption} {t("common.litersPer100km")}
             </span>
           </div>
           <div className="flex items-center mr-4">
             <img
               src={transmissionIcon}
-              alt={t("transmission")}
+              alt={t("car.transmission")}
               className="w-6 h-6 mr-2"
             />
             <span className="text-filter-range">
-              {car.transmission === "MANUAL" ? t("manual") : t("automatic")}
+              {car.transmission === "MANUAL" ? t("car.manual") : t("car.automatic")}
             </span>
           </div>
           <div className="flex items-center">
             <img
               src={capacityIcon}
-              alt={t("seats")}
+              alt={t("car.seat")}
               className="w-6 h-6 mr-2"
             />
             <span className="text-filter-range">{car.seat}</span>
@@ -61,11 +61,11 @@ const CarCard: React.FC<CarCardProps> = ({ car }) => {
         </div>
         <div className="flex items-center justify-between mt-5">
           <span className="font-bold text-primary-default">
-            {car?.daily_rate?.toLocaleString()} {t("currency")} /{" "}
-            <span className="text-filter-range">{t("day")}</span>
+            {car?.daily_rate?.toLocaleString()} {t("common.currency")} /{" "}
+            <span className="text-filter-range">{t("common.day")}</span>
           </span>
           <button className="px-4 py-2 text-white rounded bg-primary-default hover:bg-primary-dark" onClick={handleRentNow}>
-            {t("rentNow")}
+            {t("common.rentNow")}
           </button>
         </div>
       </div>

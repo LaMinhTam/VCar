@@ -90,7 +90,7 @@ const NotificationContent = () => {
                             <Avatar src={DEFAULT_AVATAR} alt="avatar" className="w-[56px] h-[56px] object-cover"></Avatar>
                             <div className="flex flex-col">
                                 <Typography.Title level={5} style={{ marginBottom: 4 }}>VCar</Typography.Title>
-                                <Typography.Text>{t(`${item.message}`)}</Typography.Text>
+                                <Typography.Text>{t(`msg.${item.message}`)}</Typography.Text>
                                 <Typography.Text className="font-medium text-custom-blue">{formatDate(item?.created_at)}</Typography.Text>
                             </div>
                         </Flex>
@@ -101,7 +101,7 @@ const NotificationContent = () => {
                         content={
                             <Flex vertical>
                                 <Button loading={makeAsReadLoading} type="text" onClick={() => handleMakeMessageAsRead(item.id)}>{t("markAsRead")}</Button>
-                                <Button type="text" danger>{t("delete")}</Button>
+                                <Button type="text" danger>{t("common.delete")}</Button>
                             </Flex>
                         }
                     >

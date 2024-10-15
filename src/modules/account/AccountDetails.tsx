@@ -1,13 +1,13 @@
-import { Button, Col, Divider, Flex, Form, Input, message, Row, Typography, Upload, UploadFile } from "antd";
+import { Button, Col, Divider, Flex, Form, Input, message, Row, Spin, Typography, Upload, UploadFile } from "antd";
 import ImageUploader from "../../components/common/ImageUploader";
-import { getAccessToken, getUserInfoFromCookie, handleRecognizeCitizenIdentification, handleRecognizeLicensePlate, handleUploadFile, saveUserInfoToCookie } from "../../utils";
-import { EditOutlined, SlidersOutlined, UploadOutlined } from "@ant-design/icons";
+import { connectWallet, getAccessToken, getUserInfoFromCookie, getWalletBalance, handleRecognizeCitizenIdentification, handleRecognizeLicensePlate, handleUploadFile, saveUserInfoToCookie } from "../../utils";
+import { EditOutlined, PlusCircleOutlined, SlidersOutlined, SyncOutlined, UploadOutlined } from "@ant-design/icons";
 import Modal from "antd/es/modal/Modal";
 import UpdateProfileModal from "../../components/modals/UpdateProfileModal";
 import { useState, useEffect, useMemo } from "react";
 import { UploadProps } from "antd/es/upload";
 import { useDispatch } from "react-redux";
-import { getMe, updateCitizenLicense, updateLicense } from "../../store/profile/handlers";
+import { buyToken, getMe, updateCitizenLicense, updateLicense, updateMetamaskAddress } from "../../store/profile/handlers";
 
 const AccountDetails = () => {
     const dispatch = useDispatch();
@@ -19,9 +19,64 @@ const AccountDetails = () => {
     const [identificationImageUrl, setIdentificationImageUrl] = useState<string | null>(userInfo?.citizen_identification?.citizen_identification_image || null);
     const [fileList, setFileList] = useState<UploadFile[]>([]);
     const [fileListIdentification, setFileListIdentification] = useState<UploadFile[]>([]);
-    const [updateLicenseLoading, setUpdateLicenseLoading] = useState(false);
-    const [updateIdentificationLoading, setUpdateIdentificationLoading] = useState(false);
+    const [loading, setLoading] = useState(false);
     const [refetchMe, setRefetchMe] = useState(false);
+    const [metamaskInfo, setMetamaskInfo] = useState<{
+        account: string;
+        balance: string;
+    }>({
+        account: "",
+        balance: "",
+    });
+
+    useEffect(() => {
+        async function fetchMetamaskInfo() {
+            const address = await connectWallet();
+            if (address) {
+                const balance = await getWalletBalance(address);
+                setMetamaskInfo({
+                    account: address,
+                    balance: balance?.toString() || "0",
+                });
+            }
+        }
+        fetchMetamaskInfo();
+    }, [refetchMe])
+
+    const handleDepositToken = async () => {
+        setLoading(true);
+        const response = await buyToken();
+        if (response?.success) {
+            const vnpayUrl = response?.data
+            if (vnpayUrl) {
+                window.location.href = vnpayUrl;
+                setLoading(false);
+            }
+        } else {
+            setLoading(false);
+            message.error('Deposit token failed');
+        }
+    }
+
+    const handleCheckSyncWallet = async () => {
+        setLoading(true);
+        const address = await connectWallet();
+        if (address) {
+            const balance = await getWalletBalance(address);
+            setMetamaskInfo({
+                account: address,
+                balance: balance?.toString() || "0",
+            });
+            const response = await updateMetamaskAddress(address);
+            if (response?.success) {
+                setLoading(false);
+                message.success('Sync wallet success');
+            } else {
+                setLoading(false);
+                message.error('Sync wallet failed');
+            }
+        }
+    }
 
     const handleChange: UploadProps["onChange"] = ({ fileList }) => {
         setFileList(fileList);
@@ -47,7 +102,7 @@ const AccountDetails = () => {
     }
 
     const handleUpdateCitizenIdentification = async () => {
-        setUpdateIdentificationLoading(true);
+        setLoading(true);
         const formData = new FormData();
 
         if (fileListIdentification.length > 0) {
@@ -90,23 +145,23 @@ const AccountDetails = () => {
                     identification_image_url: imageUrl,
                 })
                 if (updateResponse?.success) {
-                    setUpdateIdentificationLoading(false);
+                    setLoading(false);
                     message.success("Update license success");
                     setOnEditIdentification(false);
                     setRefetchMe(!refetchMe);
                 } else {
-                    setUpdateIdentificationLoading(false);
+                    setLoading(false);
                     message.error("Update license failed");
                 }
             } else {
-                setUpdateIdentificationLoading(false);
+                setLoading(false);
                 message.error("Upload failed");
             }
         }
     }
 
     const handleUpdateLicense = async () => {
-        setUpdateLicenseLoading(true);
+        setLoading(true);
         const formData = new FormData();
 
         if (fileList.length > 0) {
@@ -141,16 +196,16 @@ const AccountDetails = () => {
                     license_image_url: imageUrl,
                 })
                 if (updateResponse?.success) {
-                    setUpdateLicenseLoading(false);
+                    setLoading(false);
                     message.success("Update license success");
                     setOnEdit(false);
                     setRefetchMe(!refetchMe);
                 } else {
-                    setUpdateLicenseLoading(false);
+                    setLoading(false);
                     message.error("Update license failed");
                 }
             } else {
-                setUpdateLicenseLoading(false);
+                setLoading(false);
                 message.error("Upload failed");
             }
         }
@@ -195,7 +250,7 @@ const AccountDetails = () => {
     }, [identificationImageUrl, imageUrl]);
 
     return (
-        <>
+        <Spin spinning={loading}>
             <Row gutter={[0, 16]}>
                 <Col span={24} className="px-8 py-6 rounded-lg shadow-md bg-lite">
                     <Row gutter={[0, 16]}>
@@ -246,7 +301,39 @@ const AccountDetails = () => {
                                         <Typography.Text>{userInfo?.phone_number}</Typography.Text>
                                     </Flex>
                                 </Col>
+                                <Col span={24}>
+                                    <Flex align="center" justify="space-between">
+                                        <Typography.Text>Số dư</Typography.Text>
+                                        <Typography.Text>{metamaskInfo?.balance}</Typography.Text>
+                                    </Flex>
+                                </Col>
                             </Row>
+                        </Col>
+                    </Row>
+                </Col>
+                <Col span={24} className="px-8 py-6 rounded-lg shadow-md bg-lite">
+                    <Row gutter={[0, 16]}>
+                        <Col span={24}>
+                            <Flex align="center" justify="space-between">
+                                <Flex gap={4}>
+                                    <Typography.Title level={3}>Ví của tôi</Typography.Title>
+                                </Flex>
+                                <Flex gap={4}>
+                                    <Button type="dashed" icon={<SyncOutlined />} loading={loading} onClick={handleCheckSyncWallet}>Kiểm tra đồng bộ</Button>
+                                    <Button type="primary" icon={<PlusCircleOutlined />} loading={loading} onClick={handleDepositToken}>Nạp token</Button>
+                                </Flex>
+                            </Flex>
+                        </Col>
+                        <Col span={24}>
+                            <Flex align="center" justify="space-between">
+                                <Typography.Text>Địa chỉ</Typography.Text>
+                                <Typography.Text>{metamaskInfo?.account}</Typography.Text>
+                            </Flex>
+                            <Divider></Divider>
+                            <Flex align="center" justify="space-between">
+                                <Typography.Text>Số dư</Typography.Text>
+                                <Typography.Text>{metamaskInfo?.balance}</Typography.Text>
+                            </Flex>
                         </Col>
                     </Row>
                 </Col>
@@ -260,7 +347,7 @@ const AccountDetails = () => {
                                 {!onEdit && (<Button icon={<EditOutlined />} type="dashed" onClick={() => setOnEdit(true)}>Chỉnh sửa</Button>)}
                                 {onEdit && (<Flex gap={4} align="center">
                                     <Button type="default" onClick={() => setOnEdit(false)}>Hủy</Button>
-                                    <Button type="primary" onClick={handleUpdateLicense} loading={updateLicenseLoading}>Cập nhật</Button>
+                                    <Button type="primary" onClick={handleUpdateLicense} loading={loading}>Cập nhật</Button>
                                 </Flex>)}
                             </Flex>
                         </Col>
@@ -315,7 +402,7 @@ const AccountDetails = () => {
                                 {onEditIdentification && (
                                     <Flex gap={4} align="center">
                                         <Button type="default" onClick={() => setOnEditIdentification(false)}>Hủy</Button>
-                                        <Button type="primary" loading={updateIdentificationLoading} onClick={handleUpdateCitizenIdentification}>Cập nhật</Button>
+                                        <Button type="primary" loading={loading} onClick={handleUpdateCitizenIdentification}>Cập nhật</Button>
                                     </Flex>
                                 )}
                             </Flex>
@@ -370,7 +457,7 @@ const AccountDetails = () => {
             <Modal title="Cập nhật thông tin cá nhân" footer={false} open={openUpdateProfileModal} onCancel={() => setOpenUpdateProfileModal(false)}>
                 <UpdateProfileModal refetchMe={refetchMe} setRefetchMe={setRefetchMe} setOpenUpdateProfileModal={setOpenUpdateProfileModal}></UpdateProfileModal>
             </Modal>
-        </>
+        </Spin>
     );
 };
 

@@ -23,21 +23,21 @@ const TransmissionFilter: React.FC<TransmissionFilterProps> = ({
 
   return (
     <div className="mb-6">
-      <h3 className="text-lg font-semibold mb-2">{t("transmission")}</h3>
+      <h3 className="mb-2 text-lg font-semibold">{t("car.transmission")}</h3>
       <div className="flex flex-col gap-2">
         <label className="flex items-center gap-2">
           <CustomCheckbox
             checked={transmission.includes("AUTO")}
             onChange={() => handleTransmissionChange("AUTO")}
           />
-          {t("automatic")}
+          {t("car.automatic")}
         </label>
         <label className="flex items-center gap-2">
           <CustomCheckbox
             checked={transmission.includes("MANUAL")}
             onChange={() => handleTransmissionChange("MANUAL")}
           />
-          {t("manual")}
+          {t("car.manual")}
         </label>
       </div>
     </div>

@@ -1,3 +1,9 @@
+export const RENT_REQUEST_OPTIONS = [
+  { label: "Tất cả", value: "" },
+  { label: "Đã duyệt", value: "APPROVED" },
+  { label: "Chờ duyệt", value: "PENDING" },
+  { label: "Từ chối", value: "REJECTED" },
+];
 export enum RENTAL_SYSTEM_MESSAGE {
   LESSEE_SIGNED_CONTRACT,
   NEW_RENTAL_REQUEST,
@@ -48,3 +54,55 @@ export enum API_SYSTEM_MESSAGE {
   RENTAL_CREATE_SUCCESS,
   REVIEW_CREATE_SUCCESS,
 }
+
+export const FUEL_OPTIONS = [
+  {
+    value: "GASOLINE",
+    label: "Xăng",
+  },
+  {
+    value: "DIESEL_OIL",
+    label: "Dầu",
+  },
+  {
+    value: "ELECTRICITY",
+    label: "Điện",
+  },
+];
+
+export const EN_FUEL_OPTIONS = [
+  {
+    value: "GASOLINE",
+    label: "Gasoline",
+  },
+  {
+    value: "DIESEL_OIL",
+    label: "Diesel",
+  },
+  {
+    value: "ELECTRICITY",
+    label: "Electricity",
+  },
+];
+
+export const TRANSMISSION_OPTIONS = [
+  {
+    value: "MANUAL",
+    label: "Số sàn",
+  },
+  {
+    value: "AUTO",
+    label: "Tự động",
+  },
+];
+
+export const EN_TRANSMISSION_OPTIONS = [
+  {
+    value: "MANUAL",
+    label: "Manual",
+  },
+  {
+    value: "AUTO",
+    label: "Automatic",
+  },
+];
