@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -57,5 +58,16 @@ public class InvoiceController {
             )
             @PathVariable ObjectId id) {
         return new ApiResponseWrapper(200, MessageKeys.SUCCESS.name(), invoiceService.getInvoiceById(userPrincipal, id));
+    }
+
+    @Operation(summary = "Payment callback", description = "Handles the payment callback from the payment gateway")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Payment callback processed successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid payment callback")
+    })
+    @PostMapping("/callback")
+    public ApiResponseWrapper handlePaymentCallback(HttpServletRequest req) {
+        invoiceService.handlePaymentCallbackCommon(req);
+        return new ApiResponseWrapper(200, MessageKeys.SUCCESS.name(), null);
     }
 }

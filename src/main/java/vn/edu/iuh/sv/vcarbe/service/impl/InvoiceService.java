@@ -61,7 +61,7 @@ public class InvoiceService {
         invoice.setAmount((long) (savedRentalContract.getTotalRentalValue() * 30L));
         invoice.setLesseeId(savedRentalContract.getLesseeId());
         invoice.setLessorId(savedRentalContract.getLessorId());
-
+        invoice.setType(InvoiceType.RENT);
         return createPaymentUrl(req, invoice);
     }
 
@@ -71,6 +71,7 @@ public class InvoiceService {
         Invoice invoice = new Invoice();
         invoice.setMetamaskAddress(user.getMetamaskAddress());
         invoice.setAmount(2000000000L);
+        invoice.setType(InvoiceType.TOKEN);
         return createPaymentUrl(req, invoice);
     }
 
@@ -212,5 +213,21 @@ public class InvoiceService {
     public InvoiceDTO getInvoiceById(UserPrincipal userPrincipal, ObjectId invoiceId) {
         Invoice invoice = invoiceRepository.findByIdAndLesseeId(invoiceId, userPrincipal.getId()).orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND.value(), MessageKeys.INVOICE_NOT_FOUND.name()));
         return modelMapper.map(invoice, InvoiceDTO.class);
+    }
+
+    public void handlePaymentCallbackCommon(HttpServletRequest req) {
+        Invoice invoice = handlePaymentCallback(req);
+        if (invoice.getType() == InvoiceType.TOKEN) {
+            blockchainUtils.sendSepoliaETH(invoice.getMetamaskAddress(), BigDecimal.valueOf(0.05));
+        } else {
+            RentalContract rentalContract = rentalContractRepository.findById(invoice.getContractId())
+                    .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND.value(), MessageKeys.CONTRACT_NOT_FOUND.name()));
+            rentalContract.setRentalStatus(RentalStatus.SIGNED);
+
+            rentalContractRepository.save(rentalContract);
+            blockchainUtils.approveRentalContract(rentalContract.getId().toHexString());
+            notificationUtils.createNotification(rentalContract.getLessorId(), NotificationMessage.LESSEE_SIGNED_CONTRACT, NotificationType.RENTAL_CONTRACT, "/rental-contracts/" + rentalContract.getId(), rentalContract.getId());
+
+        }
     }
 }

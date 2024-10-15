@@ -26,4 +26,5 @@ public class Invoice {
     private PaymentStatus paymentStatus;
     private Date createdAt = new Date();
     private String content;
+    private InvoiceType type;
 }
