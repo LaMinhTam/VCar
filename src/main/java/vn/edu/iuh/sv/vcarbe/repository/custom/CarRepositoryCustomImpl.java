@@ -211,33 +211,36 @@ public class CarRepositoryCustomImpl implements CarRepositoryCustom {
 
     private List<ReviewDTO> getReviewsForCar(ObjectId carId) {
         MongoCollection<Document> reviewCollection = getCollection("reviews");
-        Bson reviewFilter = Filters.and(Filters.eq("carId", carId), Filters.eq("reviewType", "LESSEE_REVIEW"));
+        Bson reviewFilter = Filters.and(Filters.eq("carId", carId), Filters.eq("reviewType", "CAR_REVIEW"));
         List<ReviewDTO> reviewDTOs = new ArrayList<>();
+        Set<ObjectId> lesseeIds = new HashSet<>();
         for (Document review : reviewCollection.find(reviewFilter)) {
-            reviewDTOs.add(modelMapper.map(review, ReviewDTO.class));
+            reviewDTOs.add(new ReviewDTO(review));
+            lesseeIds.add(review.getObjectId("lesseeId"));
         }
+        populateLesseeDetails(lesseeIds, reviewDTOs);
         return reviewDTOs;
     }
 
-//    private void populateLesseeDetails(Set<ObjectId> lesseeIds, List<ReviewDTO> reviewDTOs) {
-//        MongoCollection<Document> userCollection = getCollection("users");
-//        Bson userFilter = Filters.in("_id", lesseeIds);
-//        FindIterable<Document> userResults = userCollection.find(userFilter);
-//
-//        Map<String, UserDTO> userMap = new HashMap<>();
-//        for (Document userDocument : userResults) {
-//            UserDTO userDTO = new UserDTO(userDocument);
-//            userMap.put(userDocument.getObjectId("_id").toHexString(), userDTO);
-//        }
-//
-//        for (ReviewDTO reviewDTO : reviewDTOs) {
-//            String lesseeId = reviewDTO.getLessee().getId();
-//            if (lesseeId != null) {
-//                UserDTO lesseeDTO = userMap.get(lesseeId);
-//                reviewDTO.setLessee(lesseeDTO);
-//            }
-//        }
-//    }
+    private void populateLesseeDetails(Set<ObjectId> lesseeIds, List<ReviewDTO> reviewDTOs) {
+        MongoCollection<Document> userCollection = getCollection("users");
+        Bson userFilter = Filters.in("_id", lesseeIds);
+        FindIterable<Document> userResults = userCollection.find(userFilter);
+
+        Map<String, UserDTO> userMap = new HashMap<>();
+        for (Document userDocument : userResults) {
+            UserDTO userDTO = new UserDTO(userDocument);
+            userMap.put(userDocument.getObjectId("_id").toHexString(), userDTO);
+        }
+
+        for (ReviewDTO reviewDTO : reviewDTOs) {
+            String lesseeId = reviewDTO.getLessee().getId();
+            if (lesseeId != null) {
+                UserDTO lesseeDTO = userMap.get(lesseeId);
+                reviewDTO.setLessee(lesseeDTO);
+            }
+        }
+    }
 
     private List<CarDTO> getRelatedCars(ObjectId id, Document carResult) {
         MongoCollection<Document> carCollection = getCollection("cars");
