@@ -5,10 +5,12 @@ import { ICreateCarData } from "../../store/car/types";
 import CarFeatureTab from "../../modules/cars/CarFeatureTab";
 import CarLicenseTab from "../../modules/cars/CarLicenseTab";
 import CarImageTab from "../../modules/cars/CarImageTab";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { UploadFile } from "antd/es/upload";
-import JoditEditor from 'jodit-react'
+import JoditEditor from 'jodit-react';
 import RentFeeTab from "../../modules/cars/RentFeeTab";
+import dayjs from "dayjs";
+import { v4 as uuidv4 } from 'uuid';
 
 const config = {
     uploader: {
@@ -26,11 +28,30 @@ const EditCarModal = ({ carData, setOpen }: {
     setOpen: (open: boolean) => void;
 }) => {
     const [screenShot, setScreenShot] = useState<UploadFile[]>([]);
-    console.log("screenShot:", screenShot)
     const [form] = Form.useForm();
+
+    useEffect(() => {
+        if (carData?.image_url?.length && screenShot.length === 0) {
+            const initialFileList: UploadFile[] = carData.image_url.map((url) => ({
+                uid: `${uuidv4()}`,
+                name: `image-${uuidv4()}.jpg`,
+                status: 'done',
+                url: url,
+            }));
+            setScreenShot(initialFileList);
+        }
+    }, [carData, screenShot]);
+
     const onFinish = (values: ICreateCarData) => {
-        console.log(values);
+        const newValues = {
+            ...values,
+            image_url: screenShot.map((file) => file.url),
+            manufacturing_year: dayjs(values.manufacturing_year).year(),
+            registration_date: dayjs(values.registration_date).format('YYYY-MM-DD'),
+        };
+        console.log("onFinish ~ newValues:", newValues)
     }
+
     const tabs: TabsProps['items'] = [
         {
             key: '1',
@@ -41,7 +62,7 @@ const EditCarModal = ({ carData, setOpen }: {
         {
             key: '2',
             label: 'Chức năng',
-            children: <CarFeatureTab />,
+            children: <CarFeatureTab features={carData?.features} />,
             icon: <DeploymentUnitOutlined />
         },
         {
@@ -53,7 +74,7 @@ const EditCarModal = ({ carData, setOpen }: {
         {
             key: '4',
             label: 'Hình ảnh',
-            children: <CarImageTab setScreenShot={setScreenShot} />,
+            children: <CarImageTab screenShot={screenShot} setScreenShot={setScreenShot} />, // Passing only screenShot and setScreenShot
             icon: <PictureOutlined />
         },
         {
@@ -80,11 +101,16 @@ const EditCarModal = ({ carData, setOpen }: {
             icon: <MoneyCollectOutlined />
         }
     ];
+
     return (
         <Form
             form={form}
             onFinish={onFinish}
-            initialValues={carData}
+            initialValues={{
+                ...carData,
+                manufacturing_year: carData.manufacturing_year ? dayjs().year(carData.manufacturing_year) : null,
+                registration_date: carData.registration_date ? dayjs(carData?.registration_date) : null,
+            }}
         >
             <Tabs
                 items={tabs}

@@ -54,7 +54,7 @@ const CarInformationTab = () => {
                 >
                     <CustomColorPicker></CustomColorPicker>
                 </Form.Item>
-                {/* <Form.Item
+                <Form.Item
                     name="manufacturing_year"
                     label={t("car.manufacturing_year")}
                     rules={[{ required: true, message: t("car.manufacturing_year.required") }]}
@@ -63,8 +63,9 @@ const CarInformationTab = () => {
                         picker="year"
                         allowClear
                         style={{ width: '100%' }}
+                        value={2021}
                     ></DatePicker>
-                </Form.Item> */}
+                </Form.Item>
                 <Form.Item
                     name="fuel"
                     label={t("car.fuel")}

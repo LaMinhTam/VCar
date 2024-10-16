@@ -301,12 +301,6 @@ const AccountDetails = () => {
                                         <Typography.Text>{userInfo?.phone_number}</Typography.Text>
                                     </Flex>
                                 </Col>
-                                <Col span={24}>
-                                    <Flex align="center" justify="space-between">
-                                        <Typography.Text>Số dư</Typography.Text>
-                                        <Typography.Text>{metamaskInfo?.balance}</Typography.Text>
-                                    </Flex>
-                                </Col>
                             </Row>
                         </Col>
                     </Row>

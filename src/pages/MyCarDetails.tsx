@@ -28,37 +28,38 @@ const MyCarDetails = () => {
     }, [dispatch, id])
     useEffect(() => {
         if (car) {
-            setCarData({
-                image_url: car?.image_url ?? [],
-                province: car?.province ?? '',
-                location: car?.location ?? '',
+            // setCarData({
+            //     image_url: car?.image_url ?? [],
+            //     province: car?.province ?? '',
+            //     location: car?.location ?? '',
 
-                //thông tin xe
-                name: car?.name ?? "",
-                seat: car?.seat ?? 0,
-                color: car?.color ?? "",
-                brand: "BMW",
-                manufacturing_year: 2019,
-                transmission: car?.transmission ?? "",
-                fuel: car?.fuel ?? "",
-                fuel_consumption: car?.fuel_consumption ?? 0,
-                description: car?.description ?? "",
-                features: car?.features ?? [],
+            //     //thông tin xe
+            //     name: car?.name ?? "",
+            //     seat: car?.seat ?? 0,
+            //     color: car?.color ?? "",
+            //     brand: "BMW",
+            //     manufacturing_year: 2019,
+            //     transmission: car?.transmission ?? "",
+            //     fuel: car?.fuel ?? "",
+            //     fuel_consumption: car?.fuel_consumption ?? 0,
+            //     description: car?.description ?? "",
+            //     features: car?.features ?? [],
 
-                //thông tin đăng ký xe
-                license_plate: car?.license_plate ?? '', //biển số xe
-                registration_number: car?.registration_number ?? 0, //Giấy đăng ký xe ô tô số
-                registration_date: new Date(), // ngày đăng ký
-                registration_location: car?.registration_location ?? '', // tại
+            //     //thông tin đăng ký xe
+            //     license_plate: car?.license_plate ?? '', //biển số xe
+            //     registration_number: car?.registration_number ?? 0, //Giấy đăng ký xe ô tô số
+            //     registration_date: new Date(), // ngày đăng ký
+            //     registration_location: car?.registration_location ?? '', // tại
 
-                // Thông tin thuê
-                daily_rate: car?.daily_rate ?? 0,
-                mileage_limit_per_day: car?.mileage_limit_per_day ?? 0,
-                extra_mileage_charge: car?.extra_mileage_charge ?? 0,
-                extra_hourly_charge: car?.extra_hourly_charge ?? 0,
-                washing_price: 1,
-                deodorise_price: 1
-            })
+            //     // Thông tin thuê
+            //     daily_rate: car?.daily_rate ?? 0,
+            //     mileage_limit_per_day: car?.mileage_limit_per_day ?? 0,
+            //     extra_mileage_charge: car?.extra_mileage_charge ?? 0,
+            //     extra_hourly_charge: car?.extra_hourly_charge ?? 0,
+            //     washing_price: 1,
+            //     deodorise_price: 1
+            // })
+            setCarData(car);
         }
     }, [car])
     const handleDeleteCar = () => {

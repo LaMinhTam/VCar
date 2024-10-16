@@ -1,17 +1,25 @@
 import { PlusOutlined } from "@ant-design/icons";
 import { Form, Row, Upload } from "antd";
-import { useTranslation } from "react-i18next";
-// import { beforeUpload } from "../../utils";
 import { UploadFile } from "antd/es/upload";
+import { useTranslation } from "react-i18next";
 import { onPreview } from "../../utils";
 
-const CarImageTab = ({ setScreenShot }: {
-    setScreenShot: (screenShot: UploadFile[]) => void
+const CarImageTab = ({ screenShot, setScreenShot }: {
+    screenShot: UploadFile[];
+    setScreenShot: (screenShot: UploadFile[]) => void;
 }) => {
     const { t } = useTranslation();
+
     const handleChange = (info: { fileList: UploadFile[] }) => {
         setScreenShot(info.fileList);
     };
+
+    const handleRemove = (file: UploadFile) => {
+        const newScreenShot = screenShot.filter(item => item.uid !== file.uid);
+        setScreenShot(newScreenShot);
+    };
+
+
     return (
         <Row>
             <Form.Item
@@ -22,16 +30,19 @@ const CarImageTab = ({ setScreenShot }: {
                 <Upload
                     listType="picture-card"
                     className="avatar-uploader"
-                    // beforeUpload={(file, fileList) => beforeUpload(file, fileList, t)}
-                    beforeUpload={() => false}
+                    fileList={screenShot}
                     onChange={handleChange}
-                    multiple={true}
+                    onRemove={handleRemove}
+                    beforeUpload={() => false}
                     onPreview={onPreview}
+                    multiple={true}
                 >
-                    <div>
-                        <PlusOutlined />
-                        <div style={{ marginTop: 8 }}>Upload</div>
-                    </div>
+                    {screenShot?.length >= 8 ? null : (
+                        <div>
+                            <PlusOutlined />
+                            <div style={{ marginTop: 8 }}>Upload</div>
+                        </div>
+                    )}
                 </Upload>
             </Form.Item>
         </Row>

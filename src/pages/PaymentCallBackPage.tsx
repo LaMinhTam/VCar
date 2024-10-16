@@ -13,7 +13,7 @@ const PaymentCallBackPage = () => {
         async function confirmPayment() {
             try {
                 message.success('Thanh toán thành công');
-                await axiosPrivate.post(`/rental-contracts/payment-callback?${queryString}`);
+                await axiosPrivate.post(`/invoices/callback?${queryString}`);
             } catch (error) {
                 message.error('Thanh toán thất bại');
                 console.log(error);

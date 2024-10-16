@@ -21,7 +21,11 @@ export interface ICar {
   mileage_limit_per_day: number;
   extra_mileage_charge: number;
   extra_hourly_charge: number;
+  washing_price: number;
+  deodorise_price: number;
   average_rating: number;
+  brand: string;
+  manufacturing_year: number;
 }
 
 export interface Owner {

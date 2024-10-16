@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Form, Row, Col, Select, Tag } from "antd";
 import { useTranslation } from "react-i18next";
 
@@ -23,14 +23,21 @@ const carFeatures = [
     { label: "car.feature.airbag", value: "AIRBAG" }
 ];
 
-const CarFeatureTab = () => {
+const CarFeatureTab = ({ features }: {
+    features?: string[];
+}) => {
     const { t } = useTranslation();
     const [selectedFeatures, setSelectedFeatures] = useState<string[]>([]);
-    console.log("CarFeatureTab ~ selectedFeatures:", selectedFeatures)
 
     const handleAddFeature = (value: string[]) => {
         setSelectedFeatures(value);
     };
+
+    useEffect(() => {
+        if (features) {
+            setSelectedFeatures(features);
+        }
+    }, [features]);
 
     const handleRemoveFeature = (feature: string, e: React.MouseEvent<HTMLElement>) => {
         e.preventDefault();

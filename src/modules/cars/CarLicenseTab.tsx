@@ -20,13 +20,13 @@ const CarLicenseTab = () => {
                 >
                     <Input />
                 </Form.Item>
-                {/* <Form.Item
+                <Form.Item
                     name="registration_date"
                     label={t('car.registration_date')}
                     rules={[{ required: true, message: t('car.registration_date.required') }]}
                 >
                     <DatePicker />
-                </Form.Item> */}
+                </Form.Item>
                 <Form.Item
                     name="registration_location"
                     label={t('car.registration_location')}
