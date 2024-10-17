@@ -16,7 +16,7 @@ export interface ICar {
   color: string;
   license_plate: string;
   registration_number: string;
-  registration_date: Date;
+  registration_date: string;
   registration_location: string;
   mileage_limit_per_day: number;
   extra_mileage_charge: number;
@@ -100,7 +100,7 @@ export interface ICreateCarData {
   features: string[];
   license_plate: string;
   registration_number: string;
-  registration_date: Date;
+  registration_date: string;
   registration_location: string;
   daily_rate: number;
   mileage_limit_per_day: number;

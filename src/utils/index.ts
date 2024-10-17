@@ -1,5 +1,10 @@
 import Cookies from "js-cookie";
-import { BrowserProvider, ethers, formatEther, parseEther } from "ethers";
+import {
+  BrowserProvider,
+  ethers,
+  formatEther,
+  parseEther,
+} from "ethers";
 import { jwtDecode } from "jwt-decode";
 import { IUser } from "../store/auth/types";
 import CryptoJS from "crypto-js";
@@ -183,52 +188,58 @@ export const handleMetaMaskSignature = async (username: string) => {
   }
 };
 
-
 // Kiểm tra xem MetaMask đã được cài đặt chưa
 export const isMetaMaskInstalled = (): boolean => {
-  return typeof window.ethereum !== 'undefined';
+  return typeof window.ethereum !== "undefined";
 };
 
 // Hàm kết nối MetaMask và lấy địa chỉ ví
 export const connectWallet = async (): Promise<string | null> => {
   try {
     if (!isMetaMaskInstalled()) {
-      alert('MetaMask chưa được cài đặt!');
+      alert("MetaMask chưa được cài đặt!");
       return null;
     }
 
     // Yêu cầu kết nối ví
-    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+    const accounts = await window.ethereum.request({
+      method: "eth_requestAccounts",
+    });
 
     // Lấy địa chỉ ví đầu tiên
     return accounts[0];
   } catch (error) {
-    console.error('Lỗi khi kết nối với MetaMask:', error);
+    console.error("Lỗi khi kết nối với MetaMask:", error);
     return null;
   }
 };
 
-export const getWalletBalance = async (address: string): Promise<string | null> => {
+export const getWalletBalance = async (
+  address: string
+): Promise<string | null> => {
   try {
     if (!isMetaMaskInstalled()) {
-      alert('MetaMask chưa được cài đặt!');
+      alert("MetaMask chưa được cài đặt!");
       return null;
     }
 
     const provider = new BrowserProvider(window.ethereum);
 
     const balance = await provider.getBalance(address);
-    return formatEther(balance); 
+    return formatEther(balance);
   } catch (error) {
-    console.error('Lỗi khi lấy số dư ví:', error);
+    console.error("Lỗi khi lấy số dư ví:", error);
     return null;
   }
 };
 
-export const sendTransaction = async (toAddress: string, amountInEth: string): Promise<void> => {
+export const sendTransaction = async (
+  toAddress: string,
+  amountInEth: string
+): Promise<void> => {
   try {
     if (!isMetaMaskInstalled()) {
-      message.error('MetaMask chưa được cài đặt!');
+      message.error("MetaMask chưa được cài đặt!");
       return;
     }
 
@@ -244,13 +255,13 @@ export const sendTransaction = async (toAddress: string, amountInEth: string): P
       value: amount,
     });
 
-    console.log('Transaction hash:', tx.hash);
+    console.log("Transaction hash:", tx.hash);
 
     await tx.wait();
-    message.success('Giao dịch đã được gửi thành công!');
+    message.success("Giao dịch đã được gửi thành công!");
   } catch (error) {
-    console.error('Lỗi khi gửi giao dịch:', error);
-    message.error('Lỗi khi gửi giao dịch:');
+    console.error("Lỗi khi gửi giao dịch:", error);
+    message.error("Lỗi khi gửi giao dịch:");
   }
 };
 
@@ -496,11 +507,19 @@ export function beforeUpload(
   return isImage && isLessThan1M;
 }
 
-export const isAbleUpload = (file: RcFile) => {
+export const isAbleUpload = (file: UploadFile) => {
   const allowTypes = ["jpg", "jpeg", "png", "gif"];
-  const isVideo = allowTypes.includes(file.name.split(".")[1]);
-  const isLessThan1MB = file.size / 1024 / 1024 < 1;
-  return isVideo && isLessThan1MB;
+  const isImage = allowTypes.includes(
+    file.name.split(".").pop() || ""
+  );
+  if (!isImage) {
+    message.error("Chỉ hỗ trợ định dạng ảnh jpg, jpeg, png, gif");
+  }
+  const isLessThan1M = (file?.size ?? 0) / 1024 / 1024 < 1;
+  if (!isLessThan1M) {
+    message.error("Kích thước ảnh phải nhỏ hơn 1MB");
+  }
+  return isImage && isLessThan1M;
 };
 
 export type FileType = Parameters<

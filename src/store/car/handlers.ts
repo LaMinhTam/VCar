@@ -2,6 +2,7 @@ import { call, put } from "redux-saga/effects";
 import {
   CarDetail,
   ICar,
+  ICreateCarData,
   IQueryCarOwner,
   IQuerySearchCar,
 } from "./types";
@@ -88,9 +89,12 @@ async function getMyCars(params: IQueryCarOwner) {
   }
 }
 
-export const deleteCar = async (id: string) => {
+export const updateCar = async (data: ICreateCarData, id: string) => {
   try {
-    const response = await axiosPrivate.delete(ENDPOINTS.DELETE_CAR(id));
+    const response = await axiosPrivate.put(
+      ENDPOINTS.UPDATE_CAR(id),
+      data
+    );
     return {
       success: true,
       message: response.data.message,
@@ -102,6 +106,24 @@ export const deleteCar = async (id: string) => {
       message: typedError.message,
     };
   }
-}
+};
+
+export const deleteCar = async (id: string) => {
+  try {
+    const response = await axiosPrivate.delete(
+      ENDPOINTS.DELETE_CAR(id)
+    );
+    return {
+      success: true,
+      message: response.data.message,
+    };
+  } catch (error) {
+    const typedError = error as Error;
+    return {
+      success: false,
+      message: typedError.message,
+    };
+  }
+};
 
 export { searchCar, getCarDetail, getMyCars };

@@ -20,12 +20,14 @@ const MyCarDetails = () => {
     const dispatch = useDispatch<AppDispatch>();
     const [deleteLoading, setDeleteLoading] = useState(false);
     const [carData, setCarData] = useState({} as ICreateCarData);
+    const [refetchCarData, setRefetchCarData] = useState(false);
     const [onEditModal, setOpenEditModal] = useState(false);
     const { carDetail, loading } = useSelector((state: RootState) => state.car);
     const { car } = carDetail;
     useMemo(() => {
         dispatch({ type: GET_CAR_BY_ID, payload: id });
-    }, [dispatch, id])
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [dispatch, id, refetchCarData])
     useEffect(() => {
         if (car) {
             // setCarData({
@@ -196,7 +198,7 @@ const MyCarDetails = () => {
                 width={1000}
                 maskClosable={false}
             >
-                <EditCarModal carData={carData} setOpen={setOpenEditModal}></EditCarModal>
+                <EditCarModal id={car?.id} carData={carData} setOpen={setOpenEditModal} refetchCarData={refetchCarData} setRefetchCarData={setRefetchCarData}></EditCarModal>
             </Modal>
         </Spin>
     );

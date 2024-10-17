@@ -1,16 +1,19 @@
 import { CarOutlined, DeploymentUnitOutlined, IdcardOutlined, MoneyCollectOutlined, PictureOutlined, ProfileOutlined } from "@ant-design/icons";
-import { Button, Divider, Flex, Form, Tabs, TabsProps } from "antd";
+import { Button, Divider, Flex, Form, message, Spin, Tabs, TabsProps } from "antd";
 import CarInformationTab from "../../modules/cars/CarInformationTab";
 import { ICreateCarData } from "../../store/car/types";
 import CarFeatureTab from "../../modules/cars/CarFeatureTab";
 import CarLicenseTab from "../../modules/cars/CarLicenseTab";
 import CarImageTab from "../../modules/cars/CarImageTab";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { UploadFile } from "antd/es/upload";
 import JoditEditor from 'jodit-react';
 import RentFeeTab from "../../modules/cars/RentFeeTab";
 import dayjs from "dayjs";
 import { v4 as uuidv4 } from 'uuid';
+import { getUserInfoFromCookie, handleUploadFile } from "../../utils";
+import { useDispatch } from "react-redux";
+import { updateCar } from "../../store/car/handlers";
 
 const config = {
     uploader: {
@@ -23,10 +26,16 @@ const config = {
     width: 952,
 }
 
-const EditCarModal = ({ carData, setOpen }: {
+const EditCarModal = ({ id, carData, setOpen, setRefetchCarData, refetchCarData }: {
+    id: string
     carData: ICreateCarData;
     setOpen: (open: boolean) => void;
+    setRefetchCarData: (refetch: boolean) => void;
+    refetchCarData: boolean;
 }) => {
+    const dispatch = useDispatch();
+    const userInfo = getUserInfoFromCookie();
+    const [loading, setLoading] = useState(false);
     const [screenShot, setScreenShot] = useState<UploadFile[]>([]);
     const [form] = Form.useForm();
 
@@ -42,14 +51,53 @@ const EditCarModal = ({ carData, setOpen }: {
         }
     }, [carData, screenShot]);
 
-    const onFinish = (values: ICreateCarData) => {
+    useMemo(() => {
+        form.setFieldsValue({
+            ...carData,
+            manufacturing_year: carData.manufacturing_year ? dayjs().year(carData.manufacturing_year) : null,
+            registration_date: carData.registration_date ? dayjs(carData?.registration_date) : null,
+        });
+    }, [carData, form])
+
+    const onFinish = async (values: ICreateCarData) => {
+        setLoading(true);
         const newValues = {
             ...values,
-            image_url: screenShot.map((file) => file.url),
             manufacturing_year: dayjs(values.manufacturing_year).year(),
             registration_date: dayjs(values.registration_date).format('YYYY-MM-DD'),
         };
-        console.log("onFinish ~ newValues:", newValues)
+        const images = screenShot?.map((file) => file?.url)?.filter((url) => url);
+        const newImages = screenShot?.filter((file) => !file?.url);
+        if (newImages && newImages?.length > 0) {
+            const files = newImages.map((shot) => shot.originFileObj as File);
+            const uploadPromises = files.map((file) => {
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('upload_preset', import.meta.env.VITE_CLOUDINARY_PRESET_NAME);
+                formData.append('folder', `users/${userInfo?.id}/my_cars/img`);
+                return handleUploadFile(formData, dispatch);
+            });
+
+            const imageUrls = await Promise.all(uploadPromises);
+            if (imageUrls.length === files.length) {
+                newValues.image_url = [...images, ...imageUrls];
+            } else {
+                message.error('Some images failed to upload');
+                setLoading(false);
+            }
+        } else {
+            newValues.image_url = images.filter((url): url is string => !!url);
+        }
+        const response = await updateCar(newValues, id);
+        if (response.success) {
+            message.success('Cập nhật thành công');
+            setLoading(false);
+            setOpen(false);
+            setRefetchCarData(!refetchCarData);
+        } else {
+            setLoading(false);
+            message.error(response.message);
+        }
     }
 
     const tabs: TabsProps['items'] = [
@@ -74,7 +122,7 @@ const EditCarModal = ({ carData, setOpen }: {
         {
             key: '4',
             label: 'Hình ảnh',
-            children: <CarImageTab screenShot={screenShot} setScreenShot={setScreenShot} />, // Passing only screenShot and setScreenShot
+            children: <CarImageTab screenShot={screenShot} setScreenShot={setScreenShot} />,
             icon: <PictureOutlined />
         },
         {
@@ -103,31 +151,33 @@ const EditCarModal = ({ carData, setOpen }: {
     ];
 
     return (
-        <Form
-            form={form}
-            onFinish={onFinish}
-            initialValues={{
-                ...carData,
-                manufacturing_year: carData.manufacturing_year ? dayjs().year(carData.manufacturing_year) : null,
-                registration_date: carData.registration_date ? dayjs(carData?.registration_date) : null,
-            }}
-        >
-            <Tabs
-                items={tabs}
-                defaultActiveKey="1"
-            />
-            <Divider></Divider>
-            <Flex gap={16} align="center" justify="flex-end">
-                <Button onClick={() => setOpen(false)} type="default" style={{
-                    padding: '4px 15px',
-                    width: 120
-                }}>Hủy</Button>
-                <Button type="primary" style={{
-                    padding: '4px 15px',
-                    width: 120
-                }} htmlType="submit">Tạo</Button>
-            </Flex>
-        </Form>
+        <Spin spinning={loading}>
+            <Form
+                form={form}
+                onFinish={onFinish}
+                initialValues={{
+                    ...carData,
+                    manufacturing_year: carData.manufacturing_year ? dayjs().year(carData.manufacturing_year) : null,
+                    registration_date: carData.registration_date ? dayjs(carData?.registration_date) : null,
+                }}
+            >
+                <Tabs
+                    items={tabs}
+                    defaultActiveKey="1"
+                />
+                <Divider></Divider>
+                <Flex gap={16} align="center" justify="flex-end">
+                    <Button onClick={() => setOpen(false)} type="default" style={{
+                        padding: '4px 15px',
+                        width: 120
+                    }}>Hủy</Button>
+                    <Button type="primary" style={{
+                        padding: '4px 15px',
+                        width: 120
+                    }} htmlType="submit">Cập nhật</Button>
+                </Flex>
+            </Form>
+        </Spin>
     );
 };
 
