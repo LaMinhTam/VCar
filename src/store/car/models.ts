@@ -24,8 +24,8 @@ export const QuerySearchCar = {
 };
 
 export const QueryCarOwner = {
-  page: 1,
-  size: 10,
+  page: "1",
+  size: "10",
   sortDescending: "true",
   status: "",
   searchQuery: "",

@@ -236,14 +236,18 @@ export const getWalletBalance = async (
 export const sendTransaction = async (
   toAddress: string,
   amountInEth: string
-): Promise<void> => {
+): Promise<{
+  success: boolean;
+  message: string;
+}> => {
   try {
     if (!isMetaMaskInstalled()) {
-      message.error("MetaMask chưa được cài đặt!");
-      return;
+      return {
+        success: false,
+        message: "MetaMask chưa được cài đặt!",
+      };
     }
 
-    // Tạo provider từ MetaMask
     const provider = new BrowserProvider(window.ethereum);
 
     const signer = await provider.getSigner();
@@ -254,14 +258,27 @@ export const sendTransaction = async (
       to: toAddress,
       value: amount,
     });
-
-    console.log("Transaction hash:", tx.hash);
-
     await tx.wait();
-    message.success("Giao dịch đã được gửi thành công!");
-  } catch (error) {
-    console.error("Lỗi khi gửi giao dịch:", error);
-    message.error("Lỗi khi gửi giao dịch:");
+
+    // Giao dịch thành công
+    return {
+      success: true,
+      message: "Giao dịch đã được gửi thành công!",
+    };
+  } catch (error: any) {
+    if (
+      error.code === "ACTION_REJECTED" ||
+      error?.info?.error?.code === 4001
+    ) {
+      return {
+        success: false,
+        message: "Bạn đã hủy giao dịch!",
+      };
+    }
+    return {
+      success: false,
+      message: "Lỗi khi gửi giao dịch. Vui lòng thử lại sau!",
+    };
   }
 };
 

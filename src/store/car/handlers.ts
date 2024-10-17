@@ -89,6 +89,25 @@ async function getMyCars(params: IQueryCarOwner) {
   }
 }
 
+export const createCar = async (data: ICreateCarData) => {
+  try {
+    const response = await axiosPrivate.post(
+      ENDPOINTS.CREATE_CAR,
+      data
+    );
+    return {
+      success: true,
+      message: response.data.message,
+    };
+  } catch (error) {
+    const typedError = error as Error;
+    return {
+      success: false,
+      message: typedError.message,
+    };
+  }
+};
+
 export const updateCar = async (data: ICreateCarData, id: string) => {
   try {
     const response = await axiosPrivate.put(

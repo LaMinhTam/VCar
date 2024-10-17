@@ -77,8 +77,8 @@ export interface IQuerySearchCar {
 }
 
 export interface IQueryCarOwner {
-  page: number | string;
-  size: number | string;
+  page: string;
+  size: string;
   sortDescending: string;
   status: string;
   searchQuery: string;

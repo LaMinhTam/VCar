@@ -179,7 +179,7 @@ const MyCars = () => {
                     width={1000}
                     maskClosable={false}
                 >
-                    <CreateCarModal setOpen={setOpenCreateModal}></CreateCarModal>
+                    <CreateCarModal params={params} setParams={setParams} setOpen={setOpenCreateModal}></CreateCarModal>
                 </Modal>
             </Spin>
         </div>
