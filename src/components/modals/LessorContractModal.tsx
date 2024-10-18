@@ -15,7 +15,7 @@ import { IUser } from "../../store/auth/types";
 import { axiosPrivate } from "../../apis/axios";
 import CreateVehicleHandover from "./CreateVehicleHandover";
 import SignatureCanvas from 'react-signature-canvas';
-import { getVehicleHandoverByContractId, lessorApproveReturn } from "../../store/rental/handlers";
+import { getVehicleHandoverByContractId, lessorApproveReturn, postHandoverIssue } from "../../store/rental/handlers";
 import ImageModule from 'docxtemplater-image-module-free';
 
 const LessorContractModal = ({ record }: {
@@ -242,6 +242,22 @@ const LessorContractModal = ({ record }: {
 
         setViewLoading(false);
     };
+    const handleReportReturnedIssue = async (isApproved: boolean) => {
+        setLoading(true);
+        const response = await postHandoverIssue(record.id, isApproved);
+        if (response?.success) {
+            if (isApproved) {
+                setLoading(false);
+                message.success("Chúng tôi sẽ liên hệ với bạn trong vòng 24h");
+            } else {
+                setLoading(false);
+                message.success("Đã xác nhận trả xe không có vấn đề");
+            }
+        } else {
+            setLoading(false);
+            message.error("Failed to report issue");
+        }
+    }
     const dispatch = useDispatch();
     useEffect(() => {
         setLoading(true);
@@ -280,7 +296,7 @@ const LessorContractModal = ({ record }: {
     }, [record?.lessee_id])
     if (!record) return null;
     return (
-        <>
+        <Spin spinning={loading}>
             {loading && <div className='flex items-center justify-center'><Spin size="large"></Spin></div>}
             <Row gutter={[12, 12]} justify={"start"}>
                 <Col span={12}>
@@ -348,6 +364,8 @@ const LessorContractModal = ({ record }: {
                             {record?.rental_status === 'SIGNED' && vehicleHandover?.id && <Button type="text" loading={viewHandoverLoading} onClick={handleViewHandoverDocument}>View handover document</Button>}
                             {record?.rental_status === 'SIGNED' && !vehicleHandover?.id && <Button type="primary" onClick={() => setIsModalOpen(true)}>Create Handover</Button>}
                             {record?.rental_status === 'SIGNED' && vehicleHandover?.status === 'RETURNING' && <Button type="primary" onClick={() => setIsSignaturePadVisible(true)}>Approve Return</Button>}
+                            {record?.rental_status === 'SIGNED' && vehicleHandover?.status === 'RETURNED' && <Button type="primary" onClick={() => handleReportReturnedIssue(false)}>Returned Not Issue</Button>}
+                            {record?.rental_status === 'SIGNED' && vehicleHandover?.status === 'RETURNED' && <Button type="primary" onClick={() => handleReportReturnedIssue(true)}>Report Returned Issue</Button>}
                         </div>
                     </Col>
                 </Col>
@@ -373,7 +391,7 @@ const LessorContractModal = ({ record }: {
                     canvasProps={{ width: 500, height: 200, className: 'sigCanvas' }}
                 />
             </Modal>
-        </>
+        </Spin>
     );
 };
 

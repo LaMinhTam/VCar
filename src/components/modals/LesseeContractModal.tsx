@@ -1,7 +1,7 @@
 import { Avatar, Button, Col, Divider, Modal, Row, Spin, Tag, Typography } from "antd";
 import { IContractData, IVehicleHandoverResponseData } from "../../store/rental/types";
 import RentalSummary from "../../modules/checkout/RentalSummary";
-import { calculateDays, fetchImageFromUrl, getUserInfoFromCookie, handleMetaMaskSignature, handleUploadSignature } from "../../utils";
+import { calculateDays, connectWallet, fetchImageFromUrl, getUserInfoFromCookie, getWalletBalance, handleMetaMaskSignature, handleUploadSignature, sendTransaction } from "../../utils";
 import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { GET_CAR_BY_ID } from "../../store/car/action";
@@ -81,22 +81,46 @@ const LesseeContractModal = ({ record }: {
             return;
         }
         const { account, signature, msg } = signatureResult;
+
         if (sigCanvas?.current) {
             const imageUrl = await handleUploadSignature(sigCanvas, dispatch, record?.id, userInfo.id, setLoading);
             if (imageUrl) {
-                const response = await signContract(record?.id, {
-                    signature,
-                    message: msg,
-                    address: account,
-                    signature_url: imageUrl
-                });
-                if (response?.success) {
-                    const vnpayUrl = response?.data;
-                    if (typeof vnpayUrl === 'string' || vnpayUrl instanceof URL) {
-                        window.location.href = vnpayUrl.toString();
+                const address = await connectWallet();
+                if (address) {
+                    const balance = await getWalletBalance(address);
+                    if (balance !== null && parseFloat(balance) < 0.05) {
+                        message.error('Số dư trong ví không đủ để thực hiện giao dịch');
+                        setLoading(false);
+                        return;
+                    } else {
+                        const transactionResult = await sendTransaction(import.meta.env.VITE_VCAR_OWNER_METAMASK_ADDRESS, '0.05');
+                        if (transactionResult.success) {
+                            const response = await signContract(record?.id, {
+                                signature,
+                                message: msg,
+                                address: account,
+                                signature_url: imageUrl
+                            });
+                            if (response?.success) {
+                                const vnpayUrl = response?.data;
+                                if (typeof vnpayUrl === 'string' || vnpayUrl instanceof URL) {
+                                    window.location.href = vnpayUrl.toString();
+                                }
+                            } else {
+                                message.error('Lỗi hệ thống, chúng tôi sẽ chuyển lại phí giao dịch cho bạn trong vòng 24h');
+                                setSignLoading(false);
+                                return;
+                            }
+                            setSignLoading(false);
+                        } else {
+                            setLoading(false);
+                            message.error(transactionResult.message)
+                        }
                     }
+                } else {
+                    setLoading(false);
+                    message.error('Vui lòng kết nối ví để thực hiện giao dịch');
                 }
-                setSignLoading(false);
             } else {
                 message.error("Failed to upload signature");
                 setSignLoading(false);
