@@ -15,7 +15,6 @@ const PersonalScreen = () => {
     const dispatch = useDispatch();
     const { me } = useSelector((state: RootState) => state.profile);
     const { isRecheckToken } = useSelector((state: RootState) => state.auth);
-    console.log("PersonalScreen ~ me:", me)
     const navigation = useNavigation<NativeStackNavigationProp<ParamListBase>>();
 
     const handleLogout = async () => {
@@ -43,15 +42,25 @@ const PersonalScreen = () => {
             </View>
 
             {/* Danh sách chức năng */}
-            <View className="mb-[250px] space-y-4">
+            <View className="space-y-4">
                 <TouchableOpacity className="flex-row items-center py-2 border-b border-gray-200">
                     <Icon name="account-circle" type="material" color="#000" size={24} />
                     <Text className="ml-4 text-base font-medium uppercase text-text8">Account Profile</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity className="flex-row items-center py-2 border-b border-gray-200">
-                    <Icon name="credit-card" type="material" color="#000" size={24} />
-                    <Text className="ml-4 text-base font-medium uppercase text-text8">Billing</Text>
+                    <Icon name="drive-eta" type="material" color="#000" size={24} />
+                    <Text className="ml-4 text-base font-medium uppercase text-text8">My Cars</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity className="flex-row items-center py-2 border-b border-gray-200" onPress={() => navigation.navigate("MY_TRIP")}>
+                    <Icon name="tour" type="material" color="#000" size={24} />
+                    <Text className="ml-4 text-base font-medium uppercase text-text8">My Trip</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity className="flex-row items-center py-2 border-b border-gray-200">
+                    <Icon name="accessibility" type="material" color="#000" size={24} />
+                    <Text className="ml-4 text-base font-medium uppercase text-text8">My Lessee</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity className="flex-row items-center py-2 border-b border-gray-200">

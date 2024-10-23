@@ -1,7 +1,7 @@
 import { View, Text, TextInput } from 'react-native';
-import React, { useMemo, useRef } from 'react';
+import React, { useEffect } from 'react';
 import LayoutMain from '../layouts/LayoutMain';
-import { Button, Icon, SearchBar } from 'react-native-elements';
+import { Button, Icon } from 'react-native-elements';
 import FilterPopup from '../modules/car/FilterPopup';
 import { QuerySearchCar } from '../store/car/models';
 import { useDispatch, useSelector } from 'react-redux';
@@ -12,24 +12,27 @@ import { ICar } from '../store/car/types';
 import CardSkeleton from '../components/common/CardSkeleton';
 import { RootState } from '../store/configureStore';
 
-
 const CarScreen = () => {
     const [search, setSearch] = React.useState('');
     const [filterVisible, setFilterVisible] = React.useState(false);
-    const [searchParams, setSearchParams] = React.useState({ ...QuerySearchCar })
+    const [searchParams, setSearchParams] = React.useState({ ...QuerySearchCar });
     const { cars, loading } = useSelector((state: RootState) => state.car);
     const dispatch = useDispatch();
+
     const searchKeyWordDebounce = debounce(() => {
-        setSearchParams({ ...searchParams, query: search });
+        setSearchParams((prevParams) => ({ ...prevParams, query: search }));
     }, 500);
 
-    useMemo(() => {
-        dispatch({ type: GET_CARS, payload: searchParams })
-    }, [searchParams])
+    useEffect(() => {
+        dispatch({ type: GET_CARS, payload: searchParams });
+    }, [searchParams, dispatch]);
 
-    useMemo(() => {
-        searchKeyWordDebounce()
-    }, [search])
+    useEffect(() => {
+        searchKeyWordDebounce();
+        return () => {
+            searchKeyWordDebounce.cancel();
+        };
+    }, [search]);
 
     return (
         <LayoutMain>

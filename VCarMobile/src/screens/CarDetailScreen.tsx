@@ -17,7 +17,6 @@ export default function CarDetailScreen() {
     const navigation = useNavigation<NativeStackNavigationProp<ParamListBase>>();
     const dispatch = useDispatch();
     const { carDetail } = useSelector((state: RootState) => state.car);
-    console.log("CarDetailScreen ~ carDetail:", carDetail)
     const { car, reviews, related_cars } = carDetail;
 
     useMemo(() => {
@@ -117,7 +116,9 @@ export default function CarDetailScreen() {
             {/* Footer Section */}
             <View className="flex-row items-center justify-between p-4 border-t border-gray-200">
                 <Text className="text-lg font-bold text-semiPrimary">{formatPrice(car.daily_rate)} VNĐ / day</Text>
-                <Button title="Rent car" type='solid' onPress={() => { }} />
+                <Button title="Rent car" type='solid' onPress={() => {
+                    navigation.navigate('RENT_CAR_SCREEN', { carId: car.id })
+                }} />
             </View>
         </SafeAreaView>
     );

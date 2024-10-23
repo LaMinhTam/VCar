@@ -13,15 +13,12 @@ interface IUserResponse {
 
 export function* getMe() {
   try {
-    console.log('getMe ~ getMe');
     const response: AxiosResponse<IUserResponse> = yield call(
       axiosPrivate.get,
       ENDPOINTS.GET_ME,
     );
-    console.log('getMe ~ response:', response);
     yield put(getMeSuccess(response.data.data));
   } catch (error: any) {
-    console.log('getMe ~ error:', error);
     yield put(getMeFailed(error.message));
   }
 }

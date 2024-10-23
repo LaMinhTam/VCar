@@ -40,3 +40,17 @@ export type CarDetail = {
   reviews: IReview[];
   related_cars: ICar[];
 };
+
+export interface IQuerySearchCar {
+  query: string;
+  province: string;
+  page: string;
+  size: string;
+  transmission: string;
+  seats: string;
+  minConsumption: string;
+  maxRate: string;
+  rentalStartDate: string;
+  rentalEndDate: string;
+  rating: string;
+}

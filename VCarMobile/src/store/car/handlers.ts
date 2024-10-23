@@ -1,5 +1,5 @@
 import {call, put} from 'redux-saga/effects';
-import {CarDetail, ICar} from './types';
+import {CarDetail, ICar, IQuerySearchCar} from './types';
 import {axiosInstance} from '../../apis/axios';
 import {ENDPOINTS, QuerySearchCar} from './models';
 import {
@@ -26,7 +26,7 @@ interface ICarDetailResponse {
   };
 }
 
-function* searchCar(action: {type: string; payload: any}) {
+function* searchCar(action: {type: string; payload: IQuerySearchCar}) {
   try {
     yield put(getCars());
     const response: ICarResponse = yield call(

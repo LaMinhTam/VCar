@@ -9,6 +9,8 @@ import { Provider, useSelector } from 'react-redux';
 import store, { RootState } from './store/configureStore';
 import { getTokens } from './utils/auth';
 import TabNavigator from './modules/navigator/TabNavigator';
+import { Provider as AntdProvider } from '@ant-design/react-native';
+import enUS from '@ant-design/react-native/lib/locale-provider/en_US'
 
 const Stack = createNativeStackNavigator();
 
@@ -50,9 +52,11 @@ export default function App() {
     <Provider store={store}>
       <PaperProvider>
         <NavigationContainer>
-          <RootNavigator />
+          <AntdProvider locale={enUS}><RootNavigator /></AntdProvider>
         </NavigationContainer>
       </PaperProvider>
     </Provider>
   );
 }
+
+

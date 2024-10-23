@@ -5,6 +5,7 @@ import rootSaga from './rootSaga';
 import authSlice from './auth/reducers';
 import carSlice from './car/reducers';
 import profileSlice from './profile/reducers';
+import rentalSlice from './rental/reducers';
 
 const sagaMiddleware = createSagaMiddleware();
 
@@ -12,6 +13,7 @@ const reducer = combineReducers({
   auth: authSlice,
   car: carSlice,
   profile: profileSlice,
+  rental: rentalSlice,
 });
 
 const store = configureStore({
