@@ -11,6 +11,9 @@ import { getTokens } from './utils/auth';
 import TabNavigator from './modules/navigator/TabNavigator';
 import { Provider as AntdProvider } from '@ant-design/react-native';
 import enUS from '@ant-design/react-native/lib/locale-provider/en_US'
+import {
+  WalletConnectModal,
+} from '@walletconnect/modal-react-native';
 
 const Stack = createNativeStackNavigator();
 
@@ -47,16 +50,35 @@ const RootNavigator = () => {
   );
 }
 
+const providerMetadata = {
+  name: 'YOUR_PROJECT_NAME',
+  description: 'YOUR_PROJECT_DESCRIPTION',
+  url: 'https://your-project-website.com/',
+  icons: ['https://your-project-logo.com/'],
+  redirect: {
+    native: 'vcarapp://',
+    universal: 'YOUR_APP_UNIVERSAL_LINK.com',
+  },
+};
+
 export default function App() {
   return (
     <Provider store={store}>
       <PaperProvider>
         <NavigationContainer>
-          <AntdProvider locale={enUS}><RootNavigator /></AntdProvider>
+          <AntdProvider locale={enUS}>
+            <WalletConnectModal
+              explorerRecommendedWalletIds={[
+                'c57ca95b47569778a828d19178114f4db188b89b763c899ba0be274e97267d96',
+              ]}
+              explorerExcludedWalletIds={'ALL'}
+              projectId={process.env.VITE_WALLET_CONNECT_PROJECT_ID || ''}
+              providerMetadata={providerMetadata}
+            />
+            <RootNavigator />
+          </AntdProvider>
         </NavigationContainer>
       </PaperProvider>
     </Provider>
   );
 }
-
-

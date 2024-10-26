@@ -109,7 +109,6 @@ export function* getLesseeRentRequests(action: {
         params: action.payload,
       },
     );
-    console.log('response:', response);
     const {code, data, meta} = response.data;
     if (code === 200) {
       yield put(
@@ -327,9 +326,9 @@ export async function createVehicleHandover(bodyData: IVehicleHandover) {
 export async function getVehicleHandoverByContractId(contract_id: string) {
   try {
     const response: AxiosResponse<IVehicleHandoverResponse> =
-      await axiosPrivate.get(
-        ENDPOINTS.GET_VEHICLE_HANDOVER_BY_CONTRACT_ID(contract_id),
-      );
+    await axiosPrivate.get(
+      ENDPOINTS.GET_VEHICLE_HANDOVER_BY_CONTRACT_ID(contract_id),
+    );
     const {code, data} = response.data;
     if (code === 200) {
       return {success: true, data};

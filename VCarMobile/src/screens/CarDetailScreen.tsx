@@ -10,6 +10,8 @@ import { RootState } from '../store/configureStore';
 import Review from '../modules/car/Review';
 import { formatPrice } from '../utils';
 import Gallery from '../components/gallery';
+import { useWindowDimensions } from 'react-native';
+import RenderHtml from 'react-native-render-html';
 
 export default function CarDetailScreen() {
     const route = useRoute();
@@ -18,6 +20,7 @@ export default function CarDetailScreen() {
     const dispatch = useDispatch();
     const { carDetail } = useSelector((state: RootState) => state.car);
     const { car, reviews, related_cars } = carDetail;
+    const { width } = useWindowDimensions();
 
     useMemo(() => {
         if (carId) {
@@ -45,9 +48,10 @@ export default function CarDetailScreen() {
                 {/* Car Title and Description */}
                 <View className="p-4">
                     <Text className="text-lg font-bold text-text8">{car.name}</Text>
-                    <Text className="mt-2 text-sm text-text3">
-                        {carDetail.car.description}
-                    </Text>
+                    <RenderHtml
+                        contentWidth={width}
+                        source={{ html: car.description }}
+                    />
                 </View>
 
                 {/* Car Details */}

@@ -1,17 +1,21 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { View, Text, ScrollView, Image, Modal, StyleSheet, NativeEventEmitter } from 'react-native';
+import { View, Text, ScrollView, Image, StyleSheet, NativeEventEmitter } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ParamListBase, useNavigation, useRoute } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
-import { Avatar, Button, Divider, Icon } from 'react-native-elements';
+import { Avatar, Divider, Icon } from 'react-native-elements';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { GET_CAR_BY_ID } from '../../store/car/action';
-import { getContractByRequestId, getVehicleHandoverByContractId, signContract } from '../../store/rental/handlers';
-import { calculateDays, formatDate, formatPrice, handleUploadSignature } from '../../utils';
+import { getContractByRequestId, getVehicleHandoverByContractId, lesseeApproveHandover, signContract } from '../../store/rental/handlers';
+import { calculateDays, formatDate, formatPrice, getWalletBalance, handleMetaMaskSignature, handleUploadSignature, sendTransaction } from '../../utils';
 import { RootState } from '../../store/configureStore';
-import Signature from "react-native-signature-canvas"; // Import Signature
 import { IContractData, IRentalData, IVehicleHandoverResponseData } from '../../store/rental/types';
-import { Toast } from '@ant-design/react-native';
+import { Flex, Toast, Button, Modal } from '@ant-design/react-native';
+import {
+    useWalletConnectModal,
+} from '@walletconnect/modal-react-native';
+import ReturnVehicleHandover from '../../components/dialog/ReturnVehicleHandover';
+
 
 const RentalDetail = () => {
     const route = useRoute();
@@ -24,10 +28,8 @@ const RentalDetail = () => {
     const navigation = useNavigation<NativeStackNavigationProp<ParamListBase>>();
     const { car } = carDetail;
     const { me } = useSelector((state: RootState) => state.profile);
-
-    const [showSignaturePad, setShowSignaturePad] = useState(false);
-    const [signature, setSignature] = useState<string | null>(null);
-    const signatureRef = useRef<any>(null);
+    const [visibleReturnedModal, setVisibleReturnedModal] = useState(false);
+    const { open, isConnected, address, provider } = useWalletConnectModal();
 
     useEffect(() => {
         fetchRentalContractById(record?.id);
@@ -40,65 +42,116 @@ const RentalDetail = () => {
         }
     };
 
-    useEffect(() => {
-        async function fetchVehicleHandover() {
-            const response = await getVehicleHandoverByContractId(record?.id);
-            if (response?.success) {
-                setVehicleHandover(response?.data as IVehicleHandoverResponseData);
-            }
-        }
-        fetchVehicleHandover();
-    }, [record?.id])
-
-    useEffect(() => {
-        dispatch({ type: GET_CAR_BY_ID, payload: record?.car_id });
-    }, [dispatch, record?.car_id]);
-
-    const handleSignature = (signature: string) => {
-        setSignature(signature);
-        setShowSignaturePad(false);
-    };
-
-    const handleSignContract = async () => {
-        // if (!signature) {
-        //     console.error("Signature is required");
-        //     return;
-        // }
+    const handleApproveVehicleHandover = async () => {
         const key = Toast.loading({
             content: 'Processing...',
             duration: 0,
             mask: true
         });
-        const response = await signContract(contract?.id, {
-            signature: '0x0a0fd8e1e0bb419cf5295261ea0d955bf9330811e872279dee1ca09326c3afd62f1b617259ba3b4510e51817be8e936076cdea41c866933ea707f730d23e99031c',
-            message: "Approve rental request for Thông",
-            address: "0x33632615d410f91f356f4775346952596882a621",
-            "signature_url": "https://picsum.photos/200"
-        });
-        if (response?.success) {
+        if (!isConnected) {
             Toast.remove(key);
-            Toast.success({
-                content: 'Sign contract successfully',
-                duration: 2,
-                onClose: () => {
-                    setShowSignaturePad(false);
-                }
-            });
-            const vnpay_url = response?.data;
-            navigation.navigate('PAYMENT_VNPAY', { url: vnpay_url });
+            return open();
         } else {
-            Toast.remove(key);
-            Toast.fail('Sign contract failed');
+            const result = await handleMetaMaskSignature(me?.id ?? '', provider);
+            const {
+                signature,
+                msg,
+                account
+            } = result;
+            if (signature) {
+                const response = await lesseeApproveHandover({
+                    signature,
+                    message: msg,
+                    address: account,
+                    signature_url: "https://picsum.photos/200"
+                }, vehicleHandover?.id);
+                if (response?.success) {
+                    Toast.remove(key);
+                    Toast.success({
+                        content: 'Approve vehicle handover successfully',
+                        duration: 2,
+                    });
+                    setVehicleHandover(response?.data as IVehicleHandoverResponseData);
+                    return;
+                } else {
+                    Toast.remove(key);
+                    Toast.fail('Approve vehicle handover failed');
+                    return;
+                }
+            } else {
+                Toast.remove(key);
+                Toast.fail('Please sign with MetaMask');
+            }
         }
     }
 
-    const handleClear = () => {
-        if (signatureRef.current) {
-            signatureRef.current.clearSignature();
-        } else {
-            console.error("Signature reference is not set");
+    useEffect(() => {
+        async function fetchVehicleHandover() {
+            const response = await getVehicleHandoverByContractId(contract?.id);
+            if (response?.success) {
+                setVehicleHandover(response?.data as IVehicleHandoverResponseData);
+            }
         }
-    };
+        fetchVehicleHandover();
+    }, [contract?.id])
+
+    useEffect(() => {
+        dispatch({ type: GET_CAR_BY_ID, payload: record?.car_id });
+    }, [dispatch, record?.car_id]);
+
+    const handleSignContract = async () => {
+        const key = Toast.loading({
+            content: 'Processing...',
+            duration: 0,
+            mask: true
+        });
+        if (!isConnected) {
+            Toast.remove(key);
+            return open();
+        } else {
+            const result = await handleMetaMaskSignature(me?.id ?? '', provider);
+            const {
+                signature,
+                msg,
+                account
+            } = result;
+            if (signature) {
+                const balance = await getWalletBalance(account, provider);
+                if (balance !== null && parseFloat(balance) < 0.05) {
+                    Toast.remove(key);
+                    return Toast.fail('Insufficient balance');
+                } else {
+                    const transactionResult = await sendTransaction(provider, process.env.VITE_VCAR_OWNER_METAMASK_ADDRESS ?? '', '0.05', address ?? '');
+                    if (transactionResult?.success) {
+                        const response = await signContract(contract?.id, {
+                            signature: result?.signature,
+                            message: result?.msg,
+                            address: result?.account,
+                            signature_url: "https://picsum.photos/200"
+                        });
+                        if (response?.success) {
+                            Toast.remove(key);
+                            Toast.success({
+                                content: 'Sign contract successfully',
+                                duration: 2,
+                            });
+                            const vnpay_url = response?.data;
+                            navigation.navigate('PAYMENT_VNPAY', { url: vnpay_url });
+                        } else {
+                            Toast.remove(key);
+                            Toast.fail('Sign contract failed');
+                        }
+                    } else {
+                        Toast.remove(key);
+                        Toast.fail(transactionResult?.message);
+                    }
+                }
+            } else {
+                Toast.remove(key);
+                Toast.fail('Please sign with MetaMask');
+            }
+        }
+    }
 
     return (
         <SafeAreaView className="flex-1 bg-white">
@@ -182,97 +235,48 @@ const RentalDetail = () => {
                             <Text className="text-xs text-gray-600">Ho Chi Minh, Viet Nam</Text>
                         </View>
                         <View className="ml-auto">
-                            <Button title="Contact" type="outline" className="text-lite bg-thirdly" onPress={() => { }} />
+                            <Button type='ghost' className="text-lite bg-thirdly" onPress={() => { }} >Contact</Button>
                         </View>
                     </View>
                 </View>
                 <Divider />
-
-                {/* Show signed signature */}
-                {signature && (
-                    <View className="p-4">
-                        <Text className="text-xs font-bold text-gray-900">Signed Contract</Text>
-                        <Image
-                            source={{ uri: signature }}
-                            style={{ width: '100%', height: 200, marginTop: 10 }}
-                            resizeMode="contain"
-                        />
-                    </View>
-                )}
+                {/* Action */}
+                <Flex direction='row' align='center' wrap='wrap' justify='start' style={{
+                    padding: 16,
+                    gap: 10
+                }}>
+                    {contract?.rental_status === 'SIGNED' && vehicleHandover?.id && <Button type="warning">View handover document</Button>}
+                    {contract?.id && <Button type="warning">View Contract</Button>}
+                    {contract?.rental_status === 'SIGNED' && vehicleHandover?.status === 'CREATED' && <Button type="primary" onPress={handleApproveVehicleHandover}>Approve handover</Button>}
+                    {contract?.rental_status === 'SIGNED' && vehicleHandover?.status === 'RENDING' && <Button type="primary" onPress={() => setVisibleReturnedModal(true)}>Return Vehicle</Button>}
+                    {contract.rental_status === 'PENDING' && <Button type="primary" onPress={handleSignContract}>Sign Contract</Button>}
+                    {contract.rental_status === 'SIGNED' && vehicleHandover?.status === 'RETURNED' && <Button type="primary" >Review</Button>}
+                </Flex>
             </ScrollView>
+
+            <Modal
+                title="Create return vehicle handover"
+                visible={visibleReturnedModal}
+                onClose={() => setVisibleReturnedModal(false)}
+                popup
+                animationType="slide-up"
+            >
+                <ReturnVehicleHandover
+                    visible={visibleReturnedModal}
+                    setVisible={setVisibleReturnedModal}
+                    userId={me?.id}
+                    handoverId={vehicleHandover?.id}
+                    setVehicleHandover={setVehicleHandover}
+                />
+            </Modal>
 
             {/* Footer Section */}
             <View className="flex-row items-center justify-between p-4 border-t border-gray-200">
                 <Text className="text-lg font-bold text-semiPrimary">{formatPrice(car?.daily_rate * numberOfDays)} VNĐ</Text>
-                {contract?.id && <Button title="Sign Contract" type="solid" onPress={handleSignContract} />}
+                {/* {contract.rental_status === 'PENDING' && <Button title="Sign Contract" type="solid" onPress={handleSignContract} />} */}
             </View>
-
-            {/* Signature Modal */}
-            <Modal
-                visible={showSignaturePad}
-                animationType="slide"
-                transparent
-                onRequestClose={() => setShowSignaturePad(false)}
-                collapsable={true}
-            >
-                <View style={styles.modalContainer}>
-                    <View style={styles.signatureBox}>
-                        <Icon
-                            name="close"
-                            type="material"
-                            color="#000"
-                            containerStyle={styles.closeIcon}
-                            onPress={() => setShowSignaturePad(false)}
-                        />
-                        <Signature
-                            ref={signatureRef}
-                            onOK={handleSignature}
-                            webStyle={`.m-signature-pad--footer {display: none; margin: 0px;}`}
-                            descriptionText="Sign here"
-                            style={styles.signaturePad}
-                        />
-                        <View style={styles.buttonContainer}>
-                            <Button title="Clear" onPress={handleClear} />
-                            {/* <Button title="Submit" onPress={() => signatureRef.current?.readSignature()} /> */}
-                            <Button title="Submit" onPress={handleSignContract} />
-                        </View>
-                    </View>
-                </View>
-            </Modal>
         </SafeAreaView>
     );
 };
-
-const styles = StyleSheet.create({
-    modalContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    },
-    signatureBox: {
-        width: 300,
-        height: 400,
-        backgroundColor: 'white',
-        padding: 10,
-        borderRadius: 10,
-        position: 'relative',
-    },
-    closeIcon: {
-        position: 'absolute',
-        top: 10,
-        right: 10,
-        zIndex: 1,
-    },
-    signaturePad: {
-        flex: 1,
-    },
-    buttonContainer: {
-        flexDirection: 'row',
-        justifyContent: 'flex-end',
-        gap: 10,
-        marginTop: 10,
-    },
-});
 
 export default RentalDetail;

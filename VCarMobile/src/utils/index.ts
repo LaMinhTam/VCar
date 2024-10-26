@@ -5,6 +5,8 @@ import axios from 'axios';
 import {Toast} from '@ant-design/react-native';
 import {RefObject} from 'react';
 
+import { ethers } from 'ethers';
+
 export const formatPrice = (price: number) => {
   return numeral(price).format('0,0');
 };
@@ -94,3 +96,125 @@ export async function handleUploadSignature(
     return '';
   }
 }
+
+export const handleMetaMaskSignature = async (username: string, provider: any) => {
+  if (username && provider) {
+    try {
+      const message = `Approve rental request for ${username}`;
+
+      // Lấy tài khoản ví
+      const accounts = await provider.request({
+        method: "eth_requestAccounts",
+      });
+
+      const account = accounts[0];
+
+      // Tạo chữ ký với phương thức `personal_sign`
+      const signature = await provider.request({
+        method: "personal_sign",
+        params: [ethers.utils.hexlify(ethers.utils.toUtf8Bytes(message)), account],
+      });
+
+      return {
+        account,
+        signature,
+        msg: message,
+      };
+    } catch (error) {
+      console.error(error);
+      throw new Error("Failed to sign with MetaMask");
+    }
+  } else {
+    throw new Error("MetaMask is not connected or username is missing");
+  }
+};
+
+
+export const connectWallet = async (open: Function, provider: any, isConnected: boolean): Promise<string | null> => {
+  try {
+    if (!isConnected) {
+      await open();
+    }
+    
+    const accounts = await provider.getAccounts();
+    return accounts[0];
+  } catch (error) {
+    console.error("Error connecting to MetaMask via WalletConnect:", error);
+    return null;
+  }
+};
+
+export const getWalletBalance = async (address: string, provider: any): Promise<string | null> => {
+  try {
+    if (!provider) {
+      Toast.fail("WalletConnect is not connected");
+      return null;
+    }
+
+    const balance = await provider.request({
+      method: "eth_getBalance",
+      params: [address, "latest"],
+    });
+    return ethers.utils.formatEther(balance);
+  } catch (error) {
+    console.error("Error getting wallet balance:", error);
+    return null;
+  }
+};
+
+export const sendTransaction = async (
+  provider: any,
+  toAddress: string,
+  amountInEth: string,
+  address: string,
+): Promise<{
+  success: boolean;
+  message: string;
+}> => {
+  try {
+    if (!provider) {
+      return {
+        success: false,
+        message: "WalletConnect chưa được cài đặt!",
+      };
+    }
+
+    // const accounts = await provider.getAccounts();
+    // const account = accounts[0];
+    const amount = ethers.utils.parseEther(amountInEth);
+
+    // Tạo giao dịch
+    const transaction = {
+      from: address,
+      to: toAddress,
+      value: amount.toHexString(),
+    };
+
+    // Gửi giao dịch
+    const txHash = await provider.request({
+      method: "eth_sendTransaction",
+      params: [transaction],
+    });
+
+    return {
+      success: true,
+      message: `Transaction sent successfully! TxHash: ${txHash}`,
+    };
+  } catch (error: any) {
+    console.log("error:", error)
+    if (
+      error.code === "ACTION_REJECTED" ||
+      error?.info?.error?.code === 4001
+    ) {
+      return {
+        success: false,
+        message: "Bạn đã hủy giao dịch!",
+      };
+    }
+    return {
+      success: false,
+      message: "Lỗi khi gửi giao dịch. Vui lòng thử lại sau!",
+    };
+  }
+};
+

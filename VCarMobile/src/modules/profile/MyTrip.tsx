@@ -1,10 +1,6 @@
 import React, { useMemo, useState } from 'react';
-import { View, Text, FlatList, Switch, TouchableOpacity } from 'react-native';
-import { Chip, Divider } from 'react-native-elements';
-import LayoutMain from '../../layouts/LayoutMain';
-import dayjs from 'dayjs';
-import { formatDate } from '../../utils';
-import { Button, Card } from '@ant-design/react-native';
+import { View, Text, FlatList, Switch } from 'react-native';
+import { Chip } from 'react-native-elements';
 import { IRentalData, IRentalRequestParams } from '../../store/rental/types';
 import RentRequestCard from './RentRequestCard';
 import { useDispatch, useSelector } from 'react-redux';
