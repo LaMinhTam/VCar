@@ -3,7 +3,7 @@ import {IUser} from './types';
 import {call, put} from 'redux-saga/effects';
 import {axiosPrivate} from '../../apis/axios';
 import {ENDPOINTS} from './models';
-import {getMeFailed, getMeSuccess} from './reducers';
+import {fetchGetMe, getMeFailed, getMeSuccess} from './reducers';
 
 interface IUserResponse {
   code: number;
@@ -25,6 +25,7 @@ interface IUpdateMetaMaskAddressResponse {
 
 export function* getMe() {
   try {
+    yield put(fetchGetMe());
     const response: AxiosResponse<IUserResponse> = yield call(
       axiosPrivate.get,
       ENDPOINTS.GET_ME,

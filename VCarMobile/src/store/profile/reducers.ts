@@ -17,7 +17,7 @@ const profileSlice = createSlice({
   name: 'profile',
   initialState,
   reducers: {
-    getMe(state) {
+    fetchGetMe(state) {
       state.loading = true;
       state.error = null;
     },
@@ -33,5 +33,5 @@ const profileSlice = createSlice({
   },
 });
 
-export const {getMe, getMeSuccess, getMeFailed} = profileSlice.actions;
+export const {fetchGetMe, getMeSuccess, getMeFailed} = profileSlice.actions;
 export default profileSlice.reducer;

@@ -8,6 +8,7 @@ import { Button } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useWalletConnectModal } from '@walletconnect/modal-react-native';
 import { lesseeReturnVehicle } from '../../store/rental/handlers';
+import { useTranslation } from 'react-i18next';
 
 const ReturnVehicleHandover = ({ visible, setVisible, userId, handoverId, setVehicleHandover }: {
     visible: boolean;
@@ -25,6 +26,7 @@ const ReturnVehicleHandover = ({ visible, setVisible, userId, handoverId, setVeh
     const [returnedItems, setReturnedItems] = useState<string[]>([]);
     const [returnedItemInput, setReturnedItemInput] = useState<string>('');
     const { open, isConnected, address, provider } = useWalletConnectModal();
+    const { t } = useTranslation();
     const onSubmit = () => {
         form.submit();
     }
@@ -53,7 +55,7 @@ const ReturnVehicleHandover = ({ visible, setVisible, userId, handoverId, setVeh
 
     const onFinish = async (values: any) => {
         const key = Toast.loading({
-            content: 'Processing...',
+            content: t('common.processing'),
             duration: 0,
             mask: true
         });

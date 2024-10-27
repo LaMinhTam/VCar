@@ -6,6 +6,7 @@ import {Toast} from '@ant-design/react-native';
 import {RefObject} from 'react';
 
 import { ethers } from 'ethers';
+import { Asset } from 'react-native-image-picker';
 
 export const formatPrice = (price: number) => {
   return numeral(price).format('0,0');
@@ -36,26 +37,17 @@ export const calculateDays = (
 export const handleUploadFile = async (formData: FormData) => {
   try {
     const response = await axios.post(
-      `https://api.cloudinary.com/v1_1/${process.env.VITE_CLOUDINARY_CLOUD_NAME}/upload`,
-      formData,
-      {
-        onUploadProgress: progressEvent => {
-          if (typeof progressEvent.total === 'number') {
-            const percentCompleted = Math.round(
-              (progressEvent.loaded * 100) / progressEvent.total,
-            );
-          } else {
-            Toast.fail('Failed to upload file');
-          }
-        },
-      },
+        `https://api.cloudinary.com/v1_1/${process.env.VITE_CLOUDINARY_CLOUD_NAME}/upload`,
+        formData,
+        {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        }
     );
-    const imageUrl = response.data.secure_url;
-    if (imageUrl) {
-      return imageUrl;
-    }
+    return response.data.secure_url; 
   } catch (error) {
-    console.error('Error uploading file:', error);
+      console.error('Error uploading image:', error);
   }
 };
 

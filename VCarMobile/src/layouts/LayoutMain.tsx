@@ -18,10 +18,8 @@ const LayoutMain = ({ children }: {
                         </View>
                         <Text style={{ fontSize: 18, fontWeight: 'bold' }}>Ho Chi Minh City, VN</Text>
                     </View>
-                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: 100 }}>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                         <Icon name="search-outline" size={28} color="black" />
-                        <Icon name="notifications-outline" size={28} color="black" />
-                        <Icon name="globe-outline" size={28} color="black" />
                     </View>
                 </View>
                 {children}

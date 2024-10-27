@@ -13,8 +13,10 @@ import { DatePicker, Picker, Toast } from '@ant-design/react-native';
 import { provinces } from '../../constants';
 import Gallery from '../../components/gallery';
 import { handleRentRequest } from '../../store/rental/handlers';
+import { useTranslation } from 'react-i18next';
 
 const RentCar = () => {
+    const { t } = useTranslation();
     const route = useRoute();
     const { carId } = route.params as { carId: string };
     const navigation = useNavigation<NativeStackNavigationProp<ParamListBase>>();
@@ -60,8 +62,8 @@ const RentCar = () => {
         }
         if (isValid) {
             const key = Toast.loading({
-                content: 'Processing...',
-                duration: 0, // 0 means it will not auto-dismiss
+                content: t('common.processing'),
+                duration: 0,
                 mask: true
             });
             const response = await handleRentRequest(carId, convertDateToTimestamp(startDate), convertDateToTimestamp(endDate), province);

@@ -15,9 +15,11 @@ import {
     useWalletConnectModal,
 } from '@walletconnect/modal-react-native';
 import ReturnVehicleHandover from '../../components/dialog/ReturnVehicleHandover';
+import { useTranslation } from 'react-i18next';
 
 
 const RentalDetail = () => {
+    const { t } = useTranslation();
     const route = useRoute();
     const { record } = route.params as { record: IRentalData };
     const [contract, setContract] = useState<IContractData>({} as IContractData);
@@ -44,7 +46,7 @@ const RentalDetail = () => {
 
     const handleApproveVehicleHandover = async () => {
         const key = Toast.loading({
-            content: 'Processing...',
+            content: t('common.processing'),
             duration: 0,
             mask: true
         });
@@ -101,7 +103,7 @@ const RentalDetail = () => {
 
     const handleSignContract = async () => {
         const key = Toast.loading({
-            content: 'Processing...',
+            content: t('common.processing'),
             duration: 0,
             mask: true
         });

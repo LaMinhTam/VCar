@@ -7,7 +7,7 @@ import { QuerySearchCar } from '../store/car/models';
 import { useDispatch, useSelector } from 'react-redux';
 import { GET_CARS } from '../store/car/action';
 import { debounce } from 'lodash';
-import CarCard from '../components/common/CarCard';
+import CarCard from '../modules/car/CarCard';
 import { ICar } from '../store/car/types';
 import CardSkeleton from '../components/common/CardSkeleton';
 import { RootState } from '../store/configureStore';

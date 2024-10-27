@@ -6,7 +6,7 @@ import { ICar, IQuerySearchCar } from '../../store/car/types';
 import { formatPrice } from '../../utils';
 import { ParamListBase, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import CarCard from '../../components/common/CarCard';
+import CarCard from '../car/CarCard';
 import CardSkeleton from '../../components/common/CardSkeleton';
 import { QuerySearchCar } from '../../store/car/models';
 import { useDispatch, useSelector } from 'react-redux';
