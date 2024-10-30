@@ -39,6 +39,7 @@ public class User {
     private CitizenIdentification citizenIdentification;
     private Set<String> deviceTokens = new HashSet<>();
     private String metamaskAddress;
+    private Set<Role> roles = new HashSet<>();
 
     public User(ObjectId id) {
         this.id = id;

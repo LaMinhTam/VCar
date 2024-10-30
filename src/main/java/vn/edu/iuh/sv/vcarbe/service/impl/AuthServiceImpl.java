@@ -10,10 +10,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import vn.edu.iuh.sv.vcarbe.dto.*;
 import vn.edu.iuh.sv.vcarbe.entity.AuthProvider;
+import vn.edu.iuh.sv.vcarbe.entity.Role;
 import vn.edu.iuh.sv.vcarbe.entity.User;
 import vn.edu.iuh.sv.vcarbe.exception.AppException;
 import vn.edu.iuh.sv.vcarbe.exception.InternalServerErrorException;
 import vn.edu.iuh.sv.vcarbe.exception.MessageKeys;
+import vn.edu.iuh.sv.vcarbe.repository.RoleRepository;
 import vn.edu.iuh.sv.vcarbe.repository.UserRepository;
 import vn.edu.iuh.sv.vcarbe.security.TokenProvider;
 import vn.edu.iuh.sv.vcarbe.security.UserPrincipal;
@@ -22,6 +24,7 @@ import vn.edu.iuh.sv.vcarbe.util.MailSenderHelper;
 
 import java.io.UnsupportedEncodingException;
 import java.time.Duration;
+import java.util.Set;
 
 @Service
 public class AuthServiceImpl implements Authservice {
@@ -37,6 +40,8 @@ public class AuthServiceImpl implements Authservice {
     private MailSenderHelper mailSenderHelper;
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;
+    @Autowired
+    private RoleRepository roleRepository;
 
     @Override
     public SignInResponse authenticateUser(LoginRequest loginRequest) {
@@ -74,7 +79,7 @@ public class AuthServiceImpl implements Authservice {
         String verificationCode = generateVerificationCode();
         user.setVerificationCode(verificationCode);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-
+        user.setRoles(Set.of(roleRepository.findByName("ROLE_USER")));
         User result = userRepository.save(user);
         try {
             mailSenderHelper.sendVerificationEmail(user.getEmail(), verificationCode);
