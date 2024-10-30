@@ -45,7 +45,7 @@ export function AuthProvider(
           ENDPOINTS.SUBSCRIBE_DEVICE(token)
         );
         if (response?.data?.code === 200) {
-          saveUserInfoToCookie(response.data.data, accessToken || "");
+          // saveUserInfoToCookie(response.data.data, accessToken || "");
         }
       }
     }

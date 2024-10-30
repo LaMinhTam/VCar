@@ -138,7 +138,7 @@ const EditCarModal = ({ id, carData, setOpen, setRefetchCarData, refetchCarData 
                     },
                 ]}
             >
-                <JoditEditor key="description" config={config} />
+                <JoditEditor value="" key="description" config={config} />
             </Form.Item>,
             icon: <ProfileOutlined />
         },

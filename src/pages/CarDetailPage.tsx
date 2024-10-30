@@ -65,7 +65,6 @@ const CarDetailPage = () => {
                                 </div>
                                 <HeartOutlined className='text-2xl cursor-pointer' />
                             </div>
-                            <Typography.Paragraph className='font-normal text-text5'>{car?.description}</Typography.Paragraph>
                             <div>
                                 <Typography.Title level={5}>Đặc điểm</Typography.Title>
                                 <div className="flex items-center justify-start mb-2 gap-x-5">
@@ -132,6 +131,11 @@ const CarDetailPage = () => {
                         </div>
                     </Col>
                 </Row>
+                <div className='mt-10 rounded shadow-sm bg-lite'>
+                    <Typography.Title level={3} style={{ textTransform: 'uppercase', padding: '4px 16px' }}>Thông tin xe</Typography.Title>
+                    <Divider className='m-0'></Divider>
+                    <div dangerouslySetInnerHTML={{ __html: car?.description }} className='p-4'></div>
+                </div>
                 <div className='w-full h-full p-4 mt-8 rounded-lg shadow-md'>
                     <Typography.Title level={4}>Chủ xe</Typography.Title>
                     <Divider></Divider>

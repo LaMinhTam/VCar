@@ -1,17 +1,24 @@
-import { Button, Col, Divider, Flex, Form, Input, message, Row, Spin, Typography, Upload, UploadFile } from "antd";
-import ImageUploader from "../../components/common/ImageUploader";
+import { Col, message, Row, Spin, Tabs, TabsProps, Typography, UploadFile } from "antd";
 import { connectWallet, getAccessToken, getUserInfoFromCookie, getWalletBalance, handleRecognizeCitizenIdentification, handleRecognizeLicensePlate, handleUploadFile, saveUserInfoToCookie } from "../../utils";
-import { EditOutlined, PlusCircleOutlined, SlidersOutlined, SyncOutlined, UploadOutlined } from "@ant-design/icons";
-import Modal from "antd/es/modal/Modal";
-import UpdateProfileModal from "../../components/modals/UpdateProfileModal";
 import { useState, useEffect, useMemo } from "react";
 import { UploadProps } from "antd/es/upload";
 import { useDispatch } from "react-redux";
 import { buyToken, getMe, updateCitizenLicense, updateLicense, updateMetamaskAddress } from "../../store/profile/handlers";
+import ProfileCard from "./account-details/ProfileCard";
+import WalletCard from "./account-details/WalletCard";
+import UserLicenseCard from "./account-details/UserLicenseCard";
+import UserIdentificationCard from "./account-details/UserIdentificationCard";
+import StatisticCard from "./account-details/StatisticCard";
+import { CarStatisticsParamsType, ContractParamsType } from "../../store/stats/types";
+import { CarStatisticsParams, ContractParams } from "../../store/stats/models";
+import { formatDateToDDMMYYYY } from "../../utils/helper";
+import dayjs from "dayjs";
+import { useTranslation } from "react-i18next";
+import CarStatisticCard from "./account-details/CarStatisticCard";
 
 const AccountDetails = () => {
     const dispatch = useDispatch();
-    const [openUpdateProfileModal, setOpenUpdateProfileModal] = useState(false);
+    const { t } = useTranslation();
     const [onEdit, setOnEdit] = useState(false);
     const [onEditIdentification, setOnEditIdentification] = useState(false);
     const userInfo = getUserInfoFromCookie();
@@ -27,6 +34,26 @@ const AccountDetails = () => {
     }>({
         account: "",
         balance: "",
+    });
+
+
+    const [lessorParams, setLessorParams] = useState<ContractParamsType>({
+        ...ContractParams,
+        startDate: formatDateToDDMMYYYY(dayjs().startOf('year').toDate()),
+        endDate: formatDateToDDMMYYYY(dayjs().endOf('year').toDate()),
+        lessor: userInfo?.id || '',
+    });
+    const [lesseeParams, setLesseeParams] = useState<ContractParamsType>({
+        ...ContractParams,
+        startDate: formatDateToDDMMYYYY(dayjs().startOf('year').toDate()),
+        endDate: formatDateToDDMMYYYY(dayjs().endOf('year').toDate()),
+        lessee: userInfo?.id || '',
+    });
+    const [carParams, setCarParams] = useState<CarStatisticsParamsType>({
+        ...CarStatisticsParams,
+        startDate: formatDateToDDMMYYYY(dayjs().startOf('year').toDate()),
+        endDate: formatDateToDDMMYYYY(dayjs().endOf('year').toDate()),
+        owner: userInfo?.id || '',
     });
 
     useEffect(() => {
@@ -249,208 +276,63 @@ const AccountDetails = () => {
         };
     }, [identificationImageUrl, imageUrl]);
 
+    const tabs: TabsProps['items'] = [
+        {
+            key: '1',
+            label: t(`stat.lessor.rental`),
+            children: <StatisticCard params={lessorParams} setParams={setLessorParams} type="LESSOR" />,
+        },
+        {
+            key: '2',
+            label: t(`stat.lessee.rental`),
+            children: <StatisticCard params={lesseeParams} setParams={setLesseeParams} type="LESSEE" />,
+        },
+        {
+            key: '3',
+            label: t(`stat.car`),
+            children: <CarStatisticCard params={carParams} setParams={setCarParams} />,
+        }
+    ];
+
     return (
         <Spin spinning={loading}>
             <Row gutter={[0, 16]}>
+                <ProfileCard
+                    refetchMe={refetchMe}
+                    setRefetchMe={setRefetchMe}
+                />
                 <Col span={24} className="px-8 py-6 rounded-lg shadow-md bg-lite">
-                    <Row gutter={[0, 16]}>
-                        <Col span={24}>
-                            <Flex align="center" justify="space-between">
-                                <Flex gap={4}>
-                                    <Typography.Title level={3}>Thông tin tài khoản</Typography.Title>
-                                    <Button icon={<EditOutlined />} type="text" onClick={() => setOpenUpdateProfileModal(true)}></Button>
-                                </Flex>
-                                <Flex align="center" gap={4} className="inline-flex px-4 py-2 border rounded-lg border-text3">
-                                    <SlidersOutlined className="text-lg" />
-                                    <Typography.Text className="text-3xl font-bold text-primary">0</Typography.Text>
-                                    <Typography.Text className="text-text3">chuyến</Typography.Text>
-                                </Flex>
-                            </Flex>
-                        </Col>
-                        <Col span={6}>
-                            <Flex gap={12} vertical align="center">
-                                <ImageUploader></ImageUploader>
-                                <Typography.Title level={5}>{userInfo?.display_name}</Typography.Title>
-                                <Typography.Text>Tham gia: 05/09/2024</Typography.Text>
-                            </Flex>
-                        </Col>
-                        <Col span={18}>
-                            <Row gutter={[0, 16]}>
-                                <Col span={24}>
-                                    <Flex align="center" justify="space-between">
-                                        <Typography.Text>Ngày sinh</Typography.Text>
-                                        <Typography.Text>{userInfo?.car_license?.dob}</Typography.Text>
-                                    </Flex>
-                                </Col>
-                                <Col span={24}>
-                                    <Flex align="center" justify="space-between">
-                                        <Typography.Text>Giới tính</Typography.Text>
-                                        <Typography.Text>Nam</Typography.Text>
-                                    </Flex>
-                                </Col>
-                                <Divider className="m-0"></Divider>
-                                <Col span={24}>
-                                    <Flex align="center" justify="space-between">
-                                        <Typography.Text>Email</Typography.Text>
-                                        <Typography.Text>{userInfo?.email}</Typography.Text>
-                                    </Flex>
-                                </Col>
-                                <Col span={24}>
-                                    <Flex align="center" justify="space-between">
-                                        <Typography.Text>Số điện thoại</Typography.Text>
-                                        <Typography.Text>{userInfo?.phone_number}</Typography.Text>
-                                    </Flex>
-                                </Col>
-                            </Row>
-                        </Col>
-                    </Row>
+                    <Typography.Title level={3}>{t('stat.title')}</Typography.Title>
+                    <Tabs defaultActiveKey="1" items={tabs}>
+                    </Tabs>
                 </Col>
-                <Col span={24} className="px-8 py-6 rounded-lg shadow-md bg-lite">
-                    <Row gutter={[0, 16]}>
-                        <Col span={24}>
-                            <Flex align="center" justify="space-between">
-                                <Flex gap={4}>
-                                    <Typography.Title level={3}>Ví của tôi</Typography.Title>
-                                </Flex>
-                                <Flex gap={4}>
-                                    <Button type="dashed" icon={<SyncOutlined />} loading={loading} onClick={handleCheckSyncWallet}>Kiểm tra đồng bộ</Button>
-                                    <Button type="primary" icon={<PlusCircleOutlined />} loading={loading} onClick={handleDepositToken}>Nạp token</Button>
-                                </Flex>
-                            </Flex>
-                        </Col>
-                        <Col span={24}>
-                            <Flex align="center" justify="space-between">
-                                <Typography.Text>Địa chỉ</Typography.Text>
-                                <Typography.Text>{metamaskInfo?.account}</Typography.Text>
-                            </Flex>
-                            <Divider></Divider>
-                            <Flex align="center" justify="space-between">
-                                <Typography.Text>Số dư</Typography.Text>
-                                <Typography.Text>{metamaskInfo?.balance}</Typography.Text>
-                            </Flex>
-                        </Col>
-                    </Row>
-                </Col>
-                <Col span={24} className="px-8 py-6 rounded-lg shadow-md bg-lite">
-                    <Row gutter={[0, 16]}>
-                        <Col span={24}>
-                            <Flex align="center" justify="space-between">
-                                <Flex gap={4}>
-                                    <Typography.Title level={3}>Giấy phép lái xe</Typography.Title>
-                                </Flex>
-                                {!onEdit && (<Button icon={<EditOutlined />} type="dashed" onClick={() => setOnEdit(true)}>Chỉnh sửa</Button>)}
-                                {onEdit && (<Flex gap={4} align="center">
-                                    <Button type="default" onClick={() => setOnEdit(false)}>Hủy</Button>
-                                    <Button type="primary" onClick={handleUpdateLicense} loading={loading}>Cập nhật</Button>
-                                </Flex>)}
-                            </Flex>
-                        </Col>
-                        <Col span={12}>
-                            <Flex gap={5} align="center" className="mb-5">
-                                <Typography.Title style={{
-                                    marginBottom: 0
-                                }} level={4}>Hình ảnh</Typography.Title>
-                                <Upload
-                                    fileList={fileList}
-                                    onChange={handleChange}
-                                    beforeUpload={() => false}
-                                    maxCount={1}
-                                    onRemove={handleRemove}
-                                    disabled={!onEdit}
-                                >
-                                    {fileList.length < 1 && (
-                                        <Button icon={<UploadOutlined />}>Select File</Button>
-                                    )}
-                                </Upload>
-                            </Flex>
-                            {imageUrl && (
-                                <img
-                                    src={imageUrl}
-                                    alt="Preview"
-                                    style={{ width: '400px', height: '260px', objectFit: 'cover', borderRadius: '8px' }}
-                                />
-                            )}
-                        </Col>
-                        <Col span={12}>
-                            <Form layout="vertical">
-                                <Typography.Title level={4}>Thông tin chung</Typography.Title>
-                                <Form.Item label="Số GPLX">
-                                    <Input placeholder="Nhập số GPLX đã cấp" disabled value={userInfo?.car_license?.id} />
-                                </Form.Item>
-                                <Form.Item label="Họ và tên">
-                                    <Input placeholder="Nhập đầy đủ họ tên" disabled value={userInfo?.car_license?.full_name} />
-                                </Form.Item>
-                                <Form.Item label="Ngày sinh">
-                                    <Input placeholder="Nhập ngày sinh" disabled value={userInfo?.car_license?.dob} />
-                                </Form.Item>
-                            </Form>
-                        </Col>
-                    </Row>
-                </Col>
-                <Col span={24} className="px-8 py-6 rounded-lg shadow-md bg-lite">
-                    <Row gutter={[0, 16]}>
-                        <Col span={24}>
-                            <Flex align="center" justify="space-between">
-                                <Typography.Title level={3}>Căn cước công dân</Typography.Title>
-                                {!onEditIdentification && (<Button icon={<EditOutlined />} type="dashed" onClick={() => setOnEditIdentification(true)}>Chỉnh sửa</Button>)}
-                                {onEditIdentification && (
-                                    <Flex gap={4} align="center">
-                                        <Button type="default" onClick={() => setOnEditIdentification(false)}>Hủy</Button>
-                                        <Button type="primary" loading={loading} onClick={handleUpdateCitizenIdentification}>Cập nhật</Button>
-                                    </Flex>
-                                )}
-                            </Flex>
-                        </Col>
-                        <Col span={12}>
-                            <Flex gap={5} align="center" className="mb-5">
-                                <Typography.Title style={{ marginBottom: 0 }} level={4}>Hình ảnh</Typography.Title>
-                                <Upload
-                                    fileList={fileListIdentification}
-                                    onChange={handleChangeIdentification}
-                                    beforeUpload={() => false}
-                                    maxCount={1}
-                                    onRemove={handleRemoveIdentification}
-                                    disabled={!onEditIdentification}
-                                >
-                                    {fileList.length < 1 && (
-                                        <Button icon={<UploadOutlined />}>Select File</Button>
-                                    )}
-                                </Upload>
-                            </Flex>
-                            {identificationImageUrl && (
-                                <img
-                                    src={identificationImageUrl}
-                                    alt="Preview"
-                                    style={{ width: '400px', height: '260px', objectFit: 'cover', borderRadius: '8px' }}
-                                />
-                            )}
-                        </Col>
-                        <Col span={12}>
-                            <Form layout="vertical">
-                                <Typography.Title level={4}>Thông tin căn cước</Typography.Title>
-                                <Form.Item label="Số căn cước">
-                                    <Input placeholder="Nhập số căn cước" disabled value={userInfo?.citizen_identification?.citizen_identification_number} />
-                                </Form.Item>
-                                <Form.Item label="Ngày cấp">
-                                    <Input placeholder="Nhập ngày cấp" disabled value={userInfo?.citizen_identification?.issued_date} />
-                                </Form.Item>
-                                <Form.Item label="Nơi cấp">
-                                    <Input placeholder="Nhập nơi cấp" disabled value={userInfo?.citizen_identification?.issued_location} />
-                                </Form.Item>
-                                <Form.Item label="Địa chỉ thường trú">
-                                    <Input placeholder="Nhập địa chỉ thường trú" disabled value={userInfo?.citizen_identification?.permanent_address} />
-                                </Form.Item>
-                                <Form.Item label="Địa chỉ liên hệ">
-                                    <Input placeholder="Nhập địa chỉ liên hệ" disabled value={userInfo?.citizen_identification?.contact_address} />
-                                </Form.Item>
-                            </Form>
-                        </Col>
-                    </Row>
-                </Col>
+                <WalletCard
+                    loading={loading}
+                    handleDepositToken={handleDepositToken}
+                    handleCheckSyncWallet={handleCheckSyncWallet}
+                    metamaskInfo={metamaskInfo}
+                />
+                <UserLicenseCard
+                    onEdit={onEdit}
+                    setOnEdit={setOnEdit}
+                    fileList={fileList}
+                    handleChange={handleChange}
+                    handleRemove={handleRemove}
+                    imageUrl={imageUrl || ""}
+                    handleUpdateLicense={handleUpdateLicense}
+                    loading={loading}
+                />
+                <UserIdentificationCard
+                    onEditIdentification={onEditIdentification}
+                    setOnEditIdentification={setOnEditIdentification}
+                    fileListIdentification={fileListIdentification}
+                    handleChangeIdentification={handleChangeIdentification}
+                    handleRemoveIdentification={handleRemoveIdentification}
+                    identificationImageUrl={identificationImageUrl || ""}
+                    handleUpdateCitizenIdentification={handleUpdateCitizenIdentification}
+                    loading={loading}
+                />
             </Row>
-            <Modal title="Cập nhật thông tin cá nhân" footer={false} open={openUpdateProfileModal} onCancel={() => setOpenUpdateProfileModal(false)}>
-                <UpdateProfileModal refetchMe={refetchMe} setRefetchMe={setRefetchMe} setOpenUpdateProfileModal={setOpenUpdateProfileModal}></UpdateProfileModal>
-            </Modal>
         </Spin>
     );
 };
