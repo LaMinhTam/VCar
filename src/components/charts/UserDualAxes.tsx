@@ -1,16 +1,15 @@
 import { DualAxes } from '@ant-design/plots';
-import { IRentalContractSummary } from '../../store/stats/types';
+import { IUserContractSummary } from '../../store/stats/types';
 import numeral from 'numeral';
 import { useTranslation } from 'react-i18next';
 
-const CustomDualAxes = ({ data, title, type = "LESSOR" }: {
-    data: IRentalContractSummary[]
+const UserDualAxes = ({ data, title }: {
+    data: IUserContractSummary[]
     title: string
-    type?: string
 }) => {
     const { t } = useTranslation();
     const config = {
-        xField: 'day_label',
+        xField: 'name',
         title,
         data,
         legend: {
@@ -22,7 +21,7 @@ const CustomDualAxes = ({ data, title, type = "LESSOR" }: {
                     return 'smooth';
                 },
                 itemLabelText: (v: { color: string, id: string, label: string }) => {
-                    if (v.label === 'total_value') return t(`${type === 'LESSOR' ? 'stat.revenue' : 'stat.fee'}`);
+                    if (v.label === 'total_value') return t('stat.revenue');
                     return t('stat.contract');
                 },
                 layout: {
@@ -31,9 +30,6 @@ const CustomDualAxes = ({ data, title, type = "LESSOR" }: {
                     flexDirection: 'row',
                 },
             }
-        },
-        scrollbar: {
-            x: {}
         },
         axis: {
             y: {
@@ -46,15 +42,17 @@ const CustomDualAxes = ({ data, title, type = "LESSOR" }: {
             items: [
                 {
                     field: 'total_value',
-                    name: t(`${type === 'LESSOR' ? 'stat.revenue' : 'stat.fee'}`),
+                    name: t(`stat.revenue`),
                     channel: { y: 'total_value' },
                     valueFormatter: (v: number) => numeral(v).format('0,0') + ' đ',
+                    color: '#4096ff',
                 },
                 {
                     field: 'total_contracts',
                     name: t('stat.contract'),
                     channel: { y: 'total_contracts' },
                     valueFormatter: (v: number) => v,
+                    color: '#fdae6b',
                 },
             ]
         },
@@ -76,4 +74,4 @@ const CustomDualAxes = ({ data, title, type = "LESSOR" }: {
     return <DualAxes {...config} />;
 };
 
-export default CustomDualAxes;
+export default UserDualAxes;

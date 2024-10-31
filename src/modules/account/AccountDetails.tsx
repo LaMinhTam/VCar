@@ -9,16 +9,21 @@ import WalletCard from "./account-details/WalletCard";
 import UserLicenseCard from "./account-details/UserLicenseCard";
 import UserIdentificationCard from "./account-details/UserIdentificationCard";
 import StatisticCard from "./account-details/StatisticCard";
-import { CarStatisticsParamsType, ContractParamsType } from "../../store/stats/types";
-import { CarStatisticsParams, ContractParams } from "../../store/stats/models";
+import { CarStatisticsParamsType, ContractParamsType, ContractUserParamsType, InvoiceSummaryParamsType } from "../../store/stats/types";
+import { CarStatisticsParams, ContractParams, ContractUserParams, InvoiceSummaryParams } from "../../store/stats/models";
 import { formatDateToDDMMYYYY } from "../../utils/helper";
 import dayjs from "dayjs";
 import { useTranslation } from "react-i18next";
 import CarStatisticCard from "./account-details/CarStatisticCard";
+import { useAuth } from "../../contexts/auth-context";
+import InvoiceStatisticCard from "./account-details/InvoiceStatisticCard";
+import UserStatisticCard from "./account-details/UserStatisticCard";
+import CarProvinceStatisticCard from "./account-details/CarProvinceStatisticCard";
 
 const AccountDetails = () => {
     const dispatch = useDispatch();
     const { t } = useTranslation();
+    const { role } = useAuth();
     const [onEdit, setOnEdit] = useState(false);
     const [onEditIdentification, setOnEditIdentification] = useState(false);
     const userInfo = getUserInfoFromCookie();
@@ -54,6 +59,20 @@ const AccountDetails = () => {
         startDate: formatDateToDDMMYYYY(dayjs().startOf('year').toDate()),
         endDate: formatDateToDDMMYYYY(dayjs().endOf('year').toDate()),
         owner: userInfo?.id || '',
+    });
+    const [invoiceParams, setInvoiceParams] = useState<InvoiceSummaryParamsType>({
+        ...InvoiceSummaryParams,
+        startDate: formatDateToDDMMYYYY(dayjs().startOf('year').toDate()),
+        endDate: formatDateToDDMMYYYY(dayjs().endOf('year').toDate()),
+        type: 'RENT',
+    });
+
+    const [userParams, setUserParams] = useState<ContractUserParamsType>({
+        ...ContractUserParams,
+        startDate: formatDateToDDMMYYYY(dayjs().startOf('year').toDate()),
+        endDate: formatDateToDDMMYYYY(dayjs().endOf('year').toDate()),
+        filterByLessor: "true",
+        sortOrder: "asc",
     });
 
     useEffect(() => {
@@ -276,7 +295,7 @@ const AccountDetails = () => {
         };
     }, [identificationImageUrl, imageUrl]);
 
-    const tabs: TabsProps['items'] = [
+    const userTabs: TabsProps['items'] = [
         {
             key: '1',
             label: t(`stat.lessor.rental`),
@@ -294,6 +313,24 @@ const AccountDetails = () => {
         }
     ];
 
+    const adminTabs = [
+        {
+            key: '1',
+            label: t(`stat.admin.order`),
+            children: <InvoiceStatisticCard params={invoiceParams} setParams={setInvoiceParams} />,
+        },
+        {
+            key: '2',
+            label: t(`stat.admin.users`),
+            children: <UserStatisticCard params={userParams} setParams={setUserParams} />,
+        },
+        {
+            key: '3',
+            label: t(`stat.admin.cars`),
+            children: <CarProvinceStatisticCard />,
+        }
+    ]
+
     return (
         <Spin spinning={loading}>
             <Row gutter={[0, 16]}>
@@ -303,8 +340,7 @@ const AccountDetails = () => {
                 />
                 <Col span={24} className="px-8 py-6 rounded-lg shadow-md bg-lite">
                     <Typography.Title level={3}>{t('stat.title')}</Typography.Title>
-                    <Tabs defaultActiveKey="1" items={tabs}>
-                    </Tabs>
+                    <Tabs defaultActiveKey="1" items={role === "ROLE_USER" ? userTabs : adminTabs} />
                 </Col>
                 <WalletCard
                     loading={loading}

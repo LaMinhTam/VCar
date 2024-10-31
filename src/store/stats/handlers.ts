@@ -78,7 +78,7 @@ export const fetchStatisticCarByProvince = async () => {
         const response: AxiosResponse<ICarStatisticByProvinceResponse> = await axiosPrivate.get(ENDPOINTS.ADMIN_STATISTICS_CARS_BY_PROVINCE);
         if(response?.data?.code === 200) {
             setCarStatisticsByProvince(response?.data?.data);
-            return {success: true, data: response?.data};
+            return {success: true, data: response?.data?.data};
         }
     } catch (error) {
         console.log("fetchStatisticCarByProvince ~ error:", error)

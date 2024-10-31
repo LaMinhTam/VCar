@@ -1,5 +1,7 @@
 import dayjs, { Dayjs } from "dayjs";
+import { jwtDecode } from "jwt-decode";
 import numeral from "numeral";
+import { DecodedToken } from "../types/common";
 
 export function formatDateToDDMMYYYY(date: Date) {
     return dayjs(date).format('DD-MM-YYYY');
@@ -39,4 +41,14 @@ export const getDateRange = (range: 'date' | 'week' | 'month' | 'year'): [Dayjs,
     }
 
     return [startDate, endDate];
+};
+
+export const handleDecodeJWT = (token: string): DecodedToken | null => {
+    try {
+        const decoded: DecodedToken = jwtDecode(token);
+        return decoded;
+    } catch (error) {
+        console.error('Error decoding JWT:', error);
+        return null;
+    }
 };

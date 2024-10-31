@@ -67,6 +67,7 @@ const AccountPage = () => {
         setIsLogged(false);
         navigate("/");
     }
+
     return (
         <div>
             <Row gutter={[24, 0]}>

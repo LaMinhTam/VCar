@@ -1,13 +1,14 @@
 import React, { useEffect } from "react";
 import { JSX } from "react/jsx-runtime";
 import { AuthContextType } from "../types/common";
-import { getAccessToken, isTokenExpire, saveAccessToken, saveRefreshToken, saveUser, saveUserInfoToCookie } from "../utils";
+import { getAccessToken, isTokenExpire, saveAccessToken, saveRefreshToken, saveUser } from "../utils";
 import { generateToken } from "../config/firebaseConfig";
 import { axiosPrivate } from "../apis/axios";
 import { ENDPOINTS, NotificationParams } from "../store/auth/models";
 import { INotification } from "../store/auth/types";
 import { IMetaData } from "../store/rental/types";
 import { getListNotifications } from "../store/auth/handlers";
+import { handleDecodeJWT } from "../utils/helper";
 
 const AuthContext = React.createContext<AuthContextType>(
   {} as AuthContextType
@@ -18,6 +19,8 @@ export function AuthProvider(
     React.ProviderProps<AuthContextType>
 ) {
   const [isLogged, setIsLogged] = React.useState(false);
+  const role = JSON.parse(localStorage.getItem('ROLES') || '');
+
   const [notifications, setNotifications] = React.useState<{
     data: INotification[];
     meta: IMetaData;
@@ -55,6 +58,13 @@ export function AuthProvider(
   }, [accessToken, isLogged])
 
   useEffect(() => {
+    const data = handleDecodeJWT(accessToken || "");
+    if (data && data?.roles.length > 0) {
+      localStorage.setItem('ROLES', JSON.stringify(data?.roles?.[0]?.authority));
+    }
+  }, [isLogged, accessToken])
+
+  useEffect(() => {
     async function fetchNotifications() {
       const response = await getListNotifications(NotificationParams);
       if (response?.success && response.data && response.meta) {
@@ -74,6 +84,7 @@ export function AuthProvider(
     setIsLogged,
     notifications,
     setNotifications,
+    role,
   };
   return <AuthContext.Provider
     {...props}

@@ -5,7 +5,7 @@ import { fetchCarStatistics } from '../../../store/stats/handlers';
 import { CarStatisticsParamsType, ICarStatistics } from '../../../store/stats/types';
 import { Dayjs } from 'dayjs';
 import { formatDateToDDMMYYYY, getDateRange } from '../../../utils/helper';
-import CarDualAxes from '../../../components/common/CarDualAxes';
+import CarDualAxes from '../../../components/charts/CarDualAxes';
 
 const { RangePicker } = DatePicker;
 

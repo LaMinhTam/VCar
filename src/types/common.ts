@@ -12,4 +12,15 @@ export interface AuthContextType {
     data: INotification[];
     meta: IMetaData;
   }) => void;
+  role: string | null;
+}
+
+export interface DecodedToken {
+  roles: { authority: string }[];
+  id: { timestamp: number; date: number };
+  type: string;
+  email: string;
+  sub: string;
+  iat: number;
+  exp: number;
 }

@@ -1,22 +1,26 @@
-import { Button, Col, DatePicker, Divider, Empty, Flex, Row, Spin } from 'antd';
+import { Button, Col, DatePicker, Divider, Empty, Flex, Radio, RadioChangeEvent, Row, Spin } from 'antd';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { fetchRentalContractSummary } from '../../../store/stats/handlers';
-import { ContractParamsType, IRentalContractSummary } from '../../../store/stats/types';
+import { fetchStatisticInvoice } from '../../../store/stats/handlers';
+import { InvoiceSummaryParamsType, IStatisticInvoice } from '../../../store/stats/types';
 import { Dayjs } from 'dayjs';
 import { formatDateToDDMM, formatDateToDDMMYYYY, getDateRange } from '../../../utils/helper';
-import CustomDualAxes from '../../../components/charts/CustomDualAxes';
+import InvoiceDualAxes from '../../../components/charts/InvoiceDualAxes';
 
 const { RangePicker } = DatePicker;
 
-const StatisticCard = ({ params, setParams, type }: {
-    params: ContractParamsType,
-    setParams: (params: ContractParamsType) => void
-    type: string
+
+const InvoiceStatisticCard = ({ params, setParams }: {
+    params: InvoiceSummaryParamsType,
+    setParams: (params: InvoiceSummaryParamsType) => void
 }) => {
     const { t } = useTranslation();
+    const Options = [
+        { label: t('stat.admin.RENT'), value: 'RENT' },
+        { label: t('stat.admin.TOKEN'), value: 'TOKEN' }
+    ]
     const [loading, setLoading] = useState(false);
-    const [rentalContractSummary, setRentalContractSummary] = useState<IRentalContractSummary[]>([] as IRentalContractSummary[]);
+    const [invoiceSummary, setInvoiceSummary] = useState<IStatisticInvoice[]>([] as IStatisticInvoice[]);
     const [rangePickerDates, setRangePickerDates] = useState<[Dayjs, Dayjs]>(getDateRange('year'));
 
     const handleChangeDate = (dates: [Dayjs | null, Dayjs | null] | null) => {
@@ -31,6 +35,13 @@ const StatisticCard = ({ params, setParams, type }: {
         }
     };
 
+    const handleChangeStatus = (e: RadioChangeEvent) => {
+        setParams({
+            ...params,
+            type: e.target.value
+        });
+    };
+
     const handleRangeChange = (range: 'date' | 'week' | 'month' | 'year') => {
         const [startDate, endDate] = getDateRange(range);
         setParams({
@@ -41,17 +52,17 @@ const StatisticCard = ({ params, setParams, type }: {
         setRangePickerDates([startDate, endDate]);
     };
 
-    const fetchUserContractSummary = async () => {
+    const fetchInvoiceSummary = async () => {
         setLoading(true);
-        const response = await fetchRentalContractSummary(params);
+        const response = await fetchStatisticInvoice(params);
         if (response?.success) {
-            const newData = response?.data?.map((item: IRentalContractSummary) => {
+            const newData = response?.data?.map((item: IStatisticInvoice) => {
                 return {
                     ...item,
                     day_label: formatDateToDDMM(item?.day_label),
                 };
             });
-            setRentalContractSummary(newData);
+            setInvoiceSummary(newData);
             setLoading(false);
         } else {
             setLoading(false);
@@ -59,7 +70,7 @@ const StatisticCard = ({ params, setParams, type }: {
     };
 
     useMemo(() => {
-        fetchUserContractSummary();
+        fetchInvoiceSummary();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [params]);
 
@@ -68,6 +79,7 @@ const StatisticCard = ({ params, setParams, type }: {
             <Col span={24}>
                 <Flex align='center' justify='flex-end'>
                     <Flex>
+                        <Radio.Group buttonStyle="solid" options={Options} value={params?.type} optionType="button" onChange={handleChangeStatus} />
                         {["date", "week", "month", "year"].map((item, index) => (
                             <Button key={index} type="link" onClick={() => handleRangeChange(item as 'date' | 'week' | 'month' | 'year')}>{t(`common.${item}`)}</Button>
                         ))}
@@ -78,11 +90,11 @@ const StatisticCard = ({ params, setParams, type }: {
             <Divider className='m-0'></Divider>
             <Col span={24}>
                 <Spin spinning={loading}>
-                    {rentalContractSummary.length > 0 ? <CustomDualAxes data={rentalContractSummary} title={t(`${type === 'LESSOR' ? 'stat.lessor.revenueContractTitle' : 'stat.lessee.feeContractTitle'}`)} type={type} /> : <Empty></Empty>}
+                    {invoiceSummary.length > 0 ? <InvoiceDualAxes data={invoiceSummary} title={t('stat.admin.transactionTitle')} /> : <Empty></Empty>}
                 </Spin>
             </Col>
         </Row>
     );
 };
 
-export default StatisticCard;
+export default InvoiceStatisticCard;

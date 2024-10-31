@@ -1,15 +1,16 @@
 import { DualAxes } from '@ant-design/plots';
-import { ICarStatistics } from '../../store/stats/types';
+import { IRentalContractSummary } from '../../store/stats/types';
 import numeral from 'numeral';
 import { useTranslation } from 'react-i18next';
 
-const CarDualAxes = ({ data, title }: {
-    data: ICarStatistics[]
+const CustomDualAxes = ({ data, title, type = "LESSOR" }: {
+    data: IRentalContractSummary[]
     title: string
+    type?: string
 }) => {
     const { t } = useTranslation();
     const config = {
-        xField: 'car_name',
+        xField: 'day_label',
         title,
         data,
         legend: {
@@ -17,11 +18,11 @@ const CarDualAxes = ({ data, title }: {
                 title: true,
                 position: 'top',
                 itemMarker: (v: string) => {
-                    if (v === 'total_rental_value') return 'rect';
+                    if (v === 'total_value') return 'rect';
                     return 'smooth';
                 },
                 itemLabelText: (v: { color: string, id: string, label: string }) => {
-                    if (v.label === 'total_rental_value') return t('stat.revenue');
+                    if (v.label === 'total_value') return t(`${type === 'LESSOR' ? 'stat.revenue' : 'stat.fee'}`);
                     return t('stat.contract');
                 },
                 layout: {
@@ -30,6 +31,9 @@ const CarDualAxes = ({ data, title }: {
                     flexDirection: 'row',
                 },
             }
+        },
+        scrollbar: {
+            x: {}
         },
         axis: {
             y: {
@@ -41,23 +45,25 @@ const CarDualAxes = ({ data, title }: {
         tooltip: {
             items: [
                 {
-                    field: 'total_rental_value',
-                    name: t(`stat.revenue`),
-                    channel: { y: 'total_rental_value' },
+                    field: 'total_value',
+                    name: t(`${type === 'LESSOR' ? 'stat.revenue' : 'stat.fee'}`),
+                    channel: { y: 'total_value' },
                     valueFormatter: (v: number) => numeral(v).format('0,0') + ' đ',
+                    color: '#4096ff',
                 },
                 {
                     field: 'total_contracts',
                     name: t('stat.contract'),
                     channel: { y: 'total_contracts' },
                     valueFormatter: (v: number) => v,
+                    color: '#fdae6b',
                 },
             ]
         },
         children: [
             {
                 type: 'interval',
-                yField: 'total_rental_value',
+                yField: 'total_value',
             },
             {
                 type: 'line',
@@ -72,4 +78,4 @@ const CarDualAxes = ({ data, title }: {
     return <DualAxes {...config} />;
 };
 
-export default CarDualAxes;
+export default CustomDualAxes;
