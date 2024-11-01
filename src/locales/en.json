@@ -44,6 +44,7 @@
     "common.lessee": "Lessee",
     "common.lessor": "Lessor",
     "common.province": "Province",
+    "common.exportToExcel": "Export to Excel",
 
     "car.name": "Car Name",
     "car.name.required": "Car name is required",
@@ -135,6 +136,13 @@
     "stat.admin.totalContract": "Total contract",
     "stat.admin.totalValue": "Total value",
     "stat.admin.car_count": "Car count",
+
+    "excel.dayLabel": "Date",
+    "excel.totalContracts": "Total Contracts",
+    "excel.totalAmount": "Total Amount",
+    "excel.rentalContractSummary": "Rental Contract Summary",
+    "excel.rentalContractSummaryFile": "Rental_Contract_Summary",
+    "excel.status": "Status",
 
     "msg.LESSEE_SIGNED_CONTRACT": "Lessee signed contract",
     "msg.NEW_RENTAL_REQUEST": "New rental request",

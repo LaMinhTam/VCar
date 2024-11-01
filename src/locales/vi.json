@@ -44,6 +44,7 @@
     "common.lessee": "Người thuê",
     "common.lessor": "Người cho thuê",
     "common.province": "Tỉnh thành",
+    "common.exportToExcel": "Tải về Excel",
 
     "car.name": "Tên xe",
     "car.name.required": "Yêu cầu nhập tên xe",
@@ -140,6 +141,13 @@
     "stat.admin.totalContract": "Tổng số hợp đồng",
     "stat.admin.totalValue": "Tổng giá trị",
     "stat.admin.car_count": "Số lượng xe",
+
+    "excel.dayLabel": "Ngày",
+    "excel.totalContracts": "Tổng số hợp đồng",
+    "excel.totalAmount": "Tổng số tiền",
+    "excel.rentalContractSummary": "Tổng kết hợp đồng thuê xe",
+    "excel.rentalContractSummaryFile": "Tong_ket_hop_dong_thue_xe",
+    "excel.status": "Trạng thái",
 
     "msg.LESSEE_SIGNED_CONTRACT": "Người thuê đã ký hợp đồng",
     "msg.NEW_RENTAL_REQUEST": "Yêu cầu thuê xe mới",

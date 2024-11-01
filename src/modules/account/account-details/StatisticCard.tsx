@@ -6,6 +6,8 @@ import { ContractParamsType, IRentalContractSummary } from '../../../store/stats
 import { Dayjs } from 'dayjs';
 import { formatDateToDDMM, formatDateToDDMMYYYY, getDateRange } from '../../../utils/helper';
 import CustomDualAxes from '../../../components/charts/CustomDualAxes';
+import { DownloadOutlined } from '@ant-design/icons';
+import * as XLSX from 'xlsx-js-style';
 
 const { RangePicker } = DatePicker;
 
@@ -58,6 +60,95 @@ const StatisticCard = ({ params, setParams, type }: {
         }
     };
 
+    const exportToExcel = () => {
+        const headers = {
+            day_label: t('excel.dayLabel'),
+            status: t('excel.status'),
+            total_contracts: t('excel.totalContracts'),
+            total_amount: t('excel.totalAmount'),
+        };
+
+        // Translate sheet title
+        const sheetTitle = t('excel.rentalContractSummary');
+
+        // Create worksheet with data (without headers)
+        const worksheet = XLSX.utils.json_to_sheet(rentalContractSummary);
+
+        // Add title row
+        XLSX.utils.sheet_add_aoa(worksheet, [[sheetTitle]], { origin: "A1" });
+
+        // Add headers row
+        XLSX.utils.sheet_add_aoa(worksheet, [Object.values(headers)], { origin: "A2" });
+
+        // Merge cells for the title
+        worksheet["!merges"] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: Object.keys(headers).length - 1 } }];
+
+        // Set column widths
+        const maxWidth = Math.max(...Object.values(headers).map(h => h.length), 15);
+        const colWidth = Array(Object.keys(headers).length).fill({ wch: maxWidth });
+        worksheet["!cols"] = colWidth;
+
+        // Style for title and header
+        const titleHeaderStyle = {
+            font: { bold: true, color: { rgb: "FFFFFF" } },
+            fill: { fgColor: { rgb: "4472C4" } },
+            alignment: { horizontal: "center", vertical: "center" },
+            border: {
+                top: { style: "thin", color: { rgb: "000000" } },
+                bottom: { style: "thin", color: { rgb: "000000" } },
+                left: { style: "thin", color: { rgb: "000000" } },
+                right: { style: "thin", color: { rgb: "000000" } }
+            }
+        };
+
+        // Apply style to title
+        const titleRange = XLSX.utils.decode_range(`A1:${XLSX.utils.encode_col(Object.keys(headers).length - 1)}1`);
+        for (let C = titleRange.s.c; C <= titleRange.e.c; ++C) {
+            const cellAddress = XLSX.utils.encode_cell({ r: titleRange.s.r, c: C });
+            worksheet[cellAddress] = worksheet[cellAddress] || { v: "", t: "s" };
+            worksheet[cellAddress].s = titleHeaderStyle;
+        }
+
+        // Apply style to header
+        const headerRange = XLSX.utils.decode_range(`A2:${XLSX.utils.encode_col(Object.keys(headers).length - 1)}2`);
+        for (let C = headerRange.s.c; C <= headerRange.e.c; ++C) {
+            const cellAddress = XLSX.utils.encode_cell({ r: headerRange.s.r, c: C });
+            worksheet[cellAddress].s = titleHeaderStyle;
+        }
+
+        // Set row height for title and header
+        worksheet['!rows'] = [{ hpt: 30 }, { hpt: 25 }];
+
+        // Apply borders and center alignment to all data cells
+        const dataStyle = {
+            alignment: { horizontal: "center", vertical: "center" },
+            border: {
+                top: { style: "thin", color: { rgb: "000000" } },
+                bottom: { style: "thin", color: { rgb: "000000" } },
+                left: { style: "thin", color: { rgb: "000000" } },
+                right: { style: "thin", color: { rgb: "000000" } }
+            }
+        };
+
+        const dataRange = XLSX.utils.decode_range(worksheet['!ref']);
+        for (let R = 2; R <= dataRange.e.r; ++R) {
+            for (let C = dataRange.s.c; C <= dataRange.e.c; ++C) {
+                const cellAddress = XLSX.utils.encode_cell({ r: R, c: C });
+                if (worksheet[cellAddress]) {
+                    worksheet[cellAddress].s = dataStyle;
+                }
+            }
+        }
+
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, sheetTitle);
+
+        // Generate Excel file
+        const fileName = `${t('excel.rentalContractSummaryFile')}_${type}_${formatDateToDDMMYYYY(new Date())}.xlsx`;
+        XLSX.writeFile(workbook, fileName);
+    };
+
+
     useMemo(() => {
         fetchUserContractSummary();
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -66,7 +157,14 @@ const StatisticCard = ({ params, setParams, type }: {
     return (
         <Row gutter={[0, 16]}>
             <Col span={24}>
-                <Flex align='center' justify='flex-end'>
+                <Flex align='center' justify='space-between'>
+                    <Button
+                        icon={<DownloadOutlined />}
+                        onClick={exportToExcel}
+                        disabled={rentalContractSummary.length === 0}
+                    >
+                        {t('common.exportToExcel')}
+                    </Button>
                     <Flex>
                         {["date", "week", "month", "year"].map((item, index) => (
                             <Button key={index} type="link" onClick={() => handleRangeChange(item as 'date' | 'week' | 'month' | 'year')}>{t(`common.${item}`)}</Button>

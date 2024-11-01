@@ -242,6 +242,8 @@ const LessorContractModal = ({ record }: {
 
         setViewLoading(false);
     };
+
+
     const handleReportReturnedIssue = async (isApproved: boolean) => {
         setLoading(true);
         const response = await postHandoverIssue(record.id, isApproved);
