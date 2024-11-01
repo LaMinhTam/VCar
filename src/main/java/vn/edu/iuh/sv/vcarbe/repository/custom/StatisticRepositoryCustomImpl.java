@@ -54,7 +54,8 @@ public class StatisticRepositoryCustomImpl implements StatisticRepositoryCustom 
                         .append("totalContracts", 1)
                         .append("totalRentalValue", 1)
                         .append("income", calculateIncome ? "$income" : null)  // Show income only if no lessor or lessee
-                        .append("_id", 0))
+                        .append("_id", 0)),
+                new Document("$sort", new Document("dayLabel", 1))
         );
 
         return getRentalContractCollection("rental_contracts").aggregate(pipeline).into(new ArrayList<>());
