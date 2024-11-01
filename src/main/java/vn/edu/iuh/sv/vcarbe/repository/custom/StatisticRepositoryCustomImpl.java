@@ -121,7 +121,8 @@ public class StatisticRepositoryCustomImpl implements StatisticRepositoryCustom 
                         .append("totalRentalValue", 1)
                         .append("_id", 0)
                 ),
-                new Document("$sort", new Document(sortBy, sortDirection))
+                new Document("$sort", new Document(sortBy, sortDirection)),
+                new Document("$limit", 10)
         );
 
         return getRentalContractCollection("rental_contracts").aggregate(pipeline).into(new ArrayList<>());
