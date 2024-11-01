@@ -79,7 +79,8 @@ public class StatisticRepositoryCustomImpl implements StatisticRepositoryCustom 
                         .append("type", "$_id.type")
                         .append("totalInvoices", 1)
                         .append("totalAmount", 1)
-                        .append("_id", 0))
+                        .append("_id", 0)),
+                new Document("$sort", new Document("dayLabel", 1))
         );
 
 
