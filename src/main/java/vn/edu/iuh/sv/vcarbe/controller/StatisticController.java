@@ -67,5 +67,12 @@ public class StatisticController {
         return ResponseEntity.ok(new ApiResponseWrapper(200, null, carStatistics));
     }
 
-
+    @GetMapping("/monthly-rental-volume")
+    public ResponseEntity<ApiResponseWrapper> getMonthlyRentalVolume(
+            @RequestParam @DateTimeFormat(pattern = "dd-MM-yyyy") Date startDate,
+            @RequestParam @DateTimeFormat(pattern = "dd-MM-yyyy") Date endDate,
+            TimeInterval timeInterval) {
+        List<MonthlyRentalVolumeDto> monthlyRentalVolume = statisticService.getMonthlyRentalVolume(startDate, endDate, timeInterval);
+        return ResponseEntity.ok(new ApiResponseWrapper(200, null, monthlyRentalVolume));
+    }
 }

@@ -5,10 +5,7 @@ import org.bson.types.ObjectId;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import vn.edu.iuh.sv.vcarbe.dto.CarStatisticDto;
-import vn.edu.iuh.sv.vcarbe.dto.InvoiceSummaryDto;
-import vn.edu.iuh.sv.vcarbe.dto.ProvinceCarCountDto;
-import vn.edu.iuh.sv.vcarbe.dto.RentalContractSummaryDto;
+import vn.edu.iuh.sv.vcarbe.dto.*;
 import vn.edu.iuh.sv.vcarbe.entity.Province;
 import vn.edu.iuh.sv.vcarbe.repository.custom.StatisticRepositoryCustom;
 import vn.edu.iuh.sv.vcarbe.service.StatisticService;
@@ -76,4 +73,16 @@ public class StatisticServiceImpl implements StatisticService {
                 .toList();
     }
 
+    public List<MonthlyRentalVolumeDto> getMonthlyRentalVolume(Date startDate, Date endDate, TimeInterval interval) {
+        List<Document> documents = statisticRepository.getRentalVolumeByInterval(startDate, endDate, interval);
+        return documents.stream()
+                .map(document -> new MonthlyRentalVolumeDto(
+                        document.getString("intervalLabel"),
+                        document.getInteger("totalContracts"),
+                        document.getInteger("totalFreeCars"),
+                        document.getInteger("totalRentedCars"),
+                        document.getDouble("totalIncome")
+                ))
+                .toList();
+    }
 }

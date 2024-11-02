@@ -2,6 +2,7 @@ package vn.edu.iuh.sv.vcarbe.repository.custom;
 
 import org.bson.Document;
 import org.bson.types.ObjectId;
+import vn.edu.iuh.sv.vcarbe.dto.TimeInterval;
 
 import java.util.Date;
 import java.util.List;
@@ -16,4 +17,6 @@ public interface StatisticRepositoryCustom {
     List<Document> getContractStatisticsByLessorOrLessee(Date startDate, Date endDate, boolean filterByLessor, String sortBy, String sortOrder);
 
     List<Document> getCarStatistics(Date startDate, Date endDate, ObjectId ownerId, String sortBy, String sortOrder);
+
+    List<Document> getRentalVolumeByInterval(Date startDate, Date endDate, TimeInterval interval);
 }

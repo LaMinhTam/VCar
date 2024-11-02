@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import com.mongodb.client.MongoClient;
+import vn.edu.iuh.sv.vcarbe.dto.TimeInterval;
 
 @Repository
 public class StatisticRepositoryCustomImpl implements StatisticRepositoryCustom {
@@ -140,7 +141,7 @@ public class StatisticRepositoryCustomImpl implements StatisticRepositoryCustom 
         List<Document> pipeline = Arrays.asList(
                 new Document("$match", matchCriteria),
                 new Document("$group", new Document("_id", new Document("carId", "$carId")
-                        .append("carName", "$vehicleName")) // Include car name
+                        .append("carName", "$vehicleName"))
                         .append("totalContracts", new Document("$sum", 1))
                         .append("totalRentalValue", new Document("$sum", "$totalRentalValue"))
                 ),
@@ -150,10 +151,75 @@ public class StatisticRepositoryCustomImpl implements StatisticRepositoryCustom 
                         .append("totalRentalValue", 1)
                         .append("_id", 0)
                 ),
-                new Document("$sort", new Document(sortBy, sortDirection)) // Sort dynamically
+                new Document("$sort", new Document(sortBy, sortDirection))
         );
 
         return getRentalContractCollection("rental_contracts").aggregate(pipeline).into(new ArrayList<>());
     }
+
+    public List<Document> getRentalVolumeByInterval(Date startDate, Date endDate, TimeInterval interval) {
+        Document groupByFields = new Document();
+        switch (interval) {
+            case YEAR:
+                groupByFields.append("intervalLabel", new Document("$dateToString", new Document("format", "%Y").append("date", "$createdAt")));
+                break;
+            case QUARTER:
+                groupByFields.append("year", new Document("$year", "$createdAt"));
+                groupByFields.append("quarter", new Document("$switch", new Document("branches", Arrays.asList(
+                        new Document("case", new Document("$lte", Arrays.asList(new Document("$month", "$createdAt"), 3))).append("then", "Q1"),
+                        new Document("case", new Document("$lte", Arrays.asList(new Document("$month", "$createdAt"), 6))).append("then", "Q2"),
+                        new Document("case", new Document("$lte", Arrays.asList(new Document("$month", "$createdAt"), 9))).append("then", "Q3"),
+                        new Document("case", new Document("$lte", Arrays.asList(new Document("$month", "$createdAt"), 12))).append("then", "Q4")
+                ))));
+                break;
+            case MONTH:
+                groupByFields.append("intervalLabel", new Document("$dateToString", new Document("format", "%Y-%m").append("date", "$createdAt")));
+                break;
+            case WEEK:
+                groupByFields.append("intervalLabel", new Document("$dateToString", new Document("format", "%Y-W%U").append("date", "$createdAt")));
+                break;
+            case DAY:
+                groupByFields.append("intervalLabel", new Document("$dateToString", new Document("format", "%Y-%m-%d").append("date", "$createdAt")));
+                break;
+            default:
+                throw new IllegalArgumentException("Unsupported interval: " + interval);
+        }
+        List<Document> pipeline = new ArrayList<>();
+        pipeline.add(new Document("$match", new Document("createdAt", new Document("$gte", startDate).append("$lte", endDate))));
+        Document groupFields = new Document("_id", groupByFields)
+                .append("totalContracts", new Document("$sum", 1))
+                .append("totalIncome", new Document("$sum", new Document("$multiply", Arrays.asList("$totalRentalValue", 0.3))))
+                .append("carIds", new Document("$addToSet", "$carId"));
+        pipeline.add(new Document("$group", groupFields));
+        if (interval == TimeInterval.QUARTER) {
+            pipeline.add(new Document("$project", new Document("intervalLabel",
+                    new Document("$concat", Arrays.asList(
+                            new Document("$toString", "$_id.year"), "-", "$_id.quarter"
+                    )))
+                    .append("totalContracts", 1)
+                    .append("totalIncome", 1)
+                    .append("carIds", 1)
+            ));
+        }
+        pipeline.add(new Document("$lookup", new Document("from", "cars")
+                .append("let", new Document("rentedCarIds", "$carIds"))
+                .append("pipeline", Arrays.asList(
+                        new Document("$match", new Document("$expr", new Document("$not", new Document("$in", Arrays.asList("$_id", "$$rentedCarIds"))))),
+                        new Document("$count", "totalFreeCars")
+                ))
+                .append("as", "freeCars")
+        ));
+        Document projectFields = new Document("intervalLabel", interval == TimeInterval.QUARTER ? "$intervalLabel" : "$_id.intervalLabel")
+                .append("totalContracts", "$totalContracts")
+                .append("totalRentedCars", new Document("$size", "$carIds"))
+                .append("totalFreeCars", new Document("$arrayElemAt", Arrays.asList("$freeCars.totalFreeCars", 0)))
+                .append("totalIncome", "$totalIncome")
+                .append("_id", 0);
+        pipeline.add(new Document("$project", projectFields));
+        pipeline.add(new Document("$sort", new Document("intervalLabel", 1)));
+
+        return getRentalContractCollection("rental_contracts").aggregate(pipeline).into(new ArrayList<>());
+    }
+
 
 }
