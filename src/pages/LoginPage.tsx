@@ -3,13 +3,11 @@ import { Button, Form, FormProps, Input, Typography } from "antd";
 import LayoutAuthentication from "../layouts/LayoutAuthentication";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { getAccessToken, saveUserInfoToCookie } from "../utils";
 import { login } from "../store/auth/handlers";
 import { AxiosResponse } from "axios";
 import { IUser } from "../store/auth/types";
-import { useSelector } from "react-redux";
-import { RootState } from "../store/store";
 import { axiosPrivate } from "../apis/axios";
 import { useAuth } from "../contexts/auth-context";
 import { ENDPOINTS } from "../store/profile/models";
@@ -29,11 +27,12 @@ const LoginPage = () => {
   const { t } = useTranslation();
   const [form] = Form.useForm();
   const navigate = useNavigate();
-  const { loading } = useSelector((state: RootState) => state.auth);
   const { setIsLogged } = useAuth();
   const accessToken = getAccessToken();
+  const [loading, setLoading] = useState(false);
 
   const onFinish = async (values: FieldType) => {
+    setLoading(true);
     const res = await login(values.email, values.password);
     if (res?.success) {
       const meResponse: AxiosResponse<IMeResponse> =
@@ -41,10 +40,12 @@ const LoginPage = () => {
       if (meResponse.data.code === 200) {
         saveUserInfoToCookie(meResponse.data.data, res?.token ?? "");
       }
+      setLoading(false);
       toast.success(t("login.success"));
       setIsLogged(true);
       navigate("/");
     } else {
+      setLoading(false);
       toast.error(t("login.failed"));
     }
   };
@@ -133,7 +134,7 @@ const LoginPage = () => {
         >
           {t("auth.dontHaveAccount")}{" "}
           <Button type="link" href="/signup">
-            {t("signUp")}
+            {t("register")}
           </Button>
         </Typography.Paragraph>
       </Form>

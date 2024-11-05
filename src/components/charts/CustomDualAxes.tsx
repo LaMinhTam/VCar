@@ -38,7 +38,7 @@ const CustomDualAxes = ({ data, title, type = "LESSOR" }: {
         axis: {
             y: {
                 labelFormatter: (v: number) => {
-                    return v <= 1000 ? numeral(v).format('0') : numeral(v).format('0,0') + ' đ';
+                    return v <= 1000 ? v : numeral(v).format('0,0') + ' đ';
                 },
             }
         },

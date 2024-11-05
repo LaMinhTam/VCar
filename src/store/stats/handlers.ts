@@ -1,7 +1,7 @@
 import { AxiosResponse } from "axios";
 import { axiosPrivate } from "../../apis/axios";
 import { ENDPOINTS } from "./models";
-import { CarStatisticsParamsType, ContractParamsType, ContractUserParamsType, ICarStatistics, ICarStatisticsByProvince, InvoiceSummaryParamsType, IRentalContractSummary, IStatisticInvoice, IUserContractSummary } from "./types";
+import { CarStatisticsParamsType, ContractParamsType, ContractUserParamsType, ICarStatistics, ICarStatisticsByProvince, InvoiceSummaryParamsType, IRentalContractSummary, IRentalVolume, IStatisticInvoice, IUserContractSummary, RentalVolumeParamsType } from "./types";
 import { setCarStatistics, setCarStatisticsByProvince, setStatisticInvoice, setUserContractSummary } from "./reducers";
 
 interface IStatisticInvoiceResponse {
@@ -20,6 +20,11 @@ interface ICarStatisticResponse {
 interface ICarStatisticByProvinceResponse {
     code: number;
     data: ICarStatisticsByProvince[];
+}
+
+interface IRentalVolumeResponse {
+    code: number;
+    data: IRentalVolume[]
 }
 
 export const fetchStatisticInvoice = async (params: InvoiceSummaryParamsType) => {
@@ -82,6 +87,18 @@ export const fetchStatisticCarByProvince = async () => {
         }
     } catch (error) {
         console.log("fetchStatisticCarByProvince ~ error:", error)
+        return {success: false, data: []};
+    }
+}
+
+export const fetchRentalVolume = async (params: RentalVolumeParamsType) => {
+    try {
+        const response: AxiosResponse<IRentalVolumeResponse> = await axiosPrivate.get(ENDPOINTS.ADMIN_STATISTICS_RENTAL_VOLUME, { params });
+        if(response?.data?.code === 200) {
+            return {success: true, data: response?.data?.data};
+        }
+    } catch (error) {
+        console.log("fetchRentalVolume ~ error:", error)
         return {success: false, data: []};
     }
 }

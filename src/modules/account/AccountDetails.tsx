@@ -18,7 +18,8 @@ import CarStatisticCard from "./account-details/CarStatisticCard";
 import { useAuth } from "../../contexts/auth-context";
 import InvoiceStatisticCard from "./account-details/InvoiceStatisticCard";
 import UserStatisticCard from "./account-details/UserStatisticCard";
-import CarProvinceStatisticCard from "./account-details/CarProvinceStatisticCard";
+// import CarProvinceStatisticCard from "./account-details/CarProvinceStatisticCard";
+import RentalVolumeStatisticCard from "./account-details/RentalVolumeStatisticCard";
 
 const AccountDetails = () => {
     const dispatch = useDispatch();
@@ -324,10 +325,15 @@ const AccountDetails = () => {
             label: t(`stat.admin.users`),
             children: <UserStatisticCard params={userParams} setParams={setUserParams} />,
         },
+        // {
+        //     key: '3',
+        //     label: t(`stat.admin.cars`),
+        //     children: <CarProvinceStatisticCard />,
+        // }
         {
             key: '3',
-            label: t(`stat.admin.cars`),
-            children: <CarProvinceStatisticCard />,
+            label: t(`stat.admin.rentalVolume`),
+            children: <RentalVolumeStatisticCard />,
         }
     ]
 

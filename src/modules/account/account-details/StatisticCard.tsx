@@ -69,7 +69,7 @@ const StatisticCard = ({ params, setParams, type }: {
         };
 
         // Translate sheet title
-        const sheetTitle = t('excel.rentalContractSummary');
+        const sheetTitle = t(`excel.${type === 'LESSOR' ? 'lessorRentalContractSummary' : 'lesseeRentalContractSummary'}`);
 
         // Create worksheet with data (without headers)
         const worksheet = XLSX.utils.json_to_sheet(rentalContractSummary);
@@ -131,6 +131,7 @@ const StatisticCard = ({ params, setParams, type }: {
         };
 
         const dataRange = XLSX.utils.decode_range(worksheet['!ref']);
+
         for (let R = 2; R <= dataRange.e.r; ++R) {
             for (let C = dataRange.s.c; C <= dataRange.e.c; ++C) {
                 const cellAddress = XLSX.utils.encode_cell({ r: R, c: C });

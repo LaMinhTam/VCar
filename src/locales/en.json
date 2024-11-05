@@ -136,6 +136,12 @@
     "stat.admin.totalContract": "Total contract",
     "stat.admin.totalValue": "Total value",
     "stat.admin.car_count": "Car count",
+    "stat.admin.totalContracts": "Total contracts",
+    "stat.admin.totalIncome": "Total income",
+    "stat.admin.totalFreeCars": "Total free cars",
+    "stat.admin.totalRentedCars": "Total rented cars",
+    "stat.admin.rentalVolume": "Rental Volume",
+    "stat.admin.titleRentalVolume": "Rental volume chart",
 
     "excel.dayLabel": "Date",
     "excel.totalContracts": "Total Contracts",

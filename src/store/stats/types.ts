@@ -30,6 +30,14 @@ export interface ICarStatisticsByProvince {
     car_count: number;
 }
 
+export interface IRentalVolume {
+    year_month: string;
+    total_contracts: number;
+    total_free_cars: number;
+    total_rented_cars: number;
+    total_income: number;
+}
+
 export interface StatisticState {
     userContractSummary: IUserContractSummary[];
     statisticInvoice: IStatisticInvoice[];
@@ -67,4 +75,10 @@ export interface InvoiceSummaryParamsType  {
     startDate: string;
     endDate: string;
     type: string; // [RENT, TOKEN]
+}
+
+export interface RentalVolumeParamsType {
+    startDate: string;
+    endDate: string;
+    timeInterval: string; // [DAY, WEEK, MONTH, QUARTER, YEAR];
 }
