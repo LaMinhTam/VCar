@@ -130,7 +130,7 @@ const StatisticCard = ({ params, setParams, type }: {
             }
         };
 
-        const dataRange = XLSX.utils.decode_range(worksheet['!ref']);
+        const dataRange = XLSX.utils.decode_range(worksheet['!ref']!);
 
         for (let R = 2; R <= dataRange.e.r; ++R) {
             for (let C = dataRange.s.c; C <= dataRange.e.c; ++C) {

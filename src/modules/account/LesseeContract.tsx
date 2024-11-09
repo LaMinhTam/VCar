@@ -21,6 +21,7 @@ const LesseeContract = () => {
         sortDescending: "true",
         page: "0",
         size: "10",
+        status: "",
     });
 
     useEffect(() => {
