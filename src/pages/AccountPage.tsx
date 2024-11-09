@@ -102,7 +102,7 @@ const AccountPage = () => {
                         </Affix>
                     </Row>
                 </Col>
-                <Col span={18}>
+                <Col span={18} style={{ padding: 0 }}>
                     <Outlet />
                 </Col>
             </Row>
