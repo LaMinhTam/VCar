@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { fetchUserStatisticContract } from '../../../store/stats/handlers';
 import { ContractUserParamsType, IUserContractSummary } from '../../../store/stats/types';
 import { Dayjs } from 'dayjs';
-import { formatDateToDDMMYYYY, getDateRange } from '../../../utils/helper';
+import { formatDateToDDMMYYYY, formatDateToDDMMYYYYHHMMSS, getDateRange } from '../../../utils/helper';
 import UserDualAxes from '../../../components/charts/UserDualAxes';
 import { DownloadOutlined } from '@ant-design/icons';
 import * as XLSX from 'xlsx-js-style';
@@ -149,7 +149,7 @@ const UserStatisticCard = ({ params, setParams }: {
         XLSX.utils.book_append_sheet(workbook, worksheet, sheetTitle);
 
         // Generate Excel file
-        const fileName = `${t('excel.userSummaryFile')}_${formatDateToDDMMYYYY(new Date())}.xlsx`;
+        const fileName = `${t('excel.userSummaryFile')}_admin_${formatDateToDDMMYYYYHHMMSS(new Date())}.xlsx`;
         XLSX.writeFile(workbook, fileName);
     };
 

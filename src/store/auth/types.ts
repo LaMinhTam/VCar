@@ -56,3 +56,11 @@ export interface INotification {
   link: string;
   read: boolean;
 }
+
+export interface IRegisterResponseData {
+  email: string;
+  image_url: string;
+  display_name: string;
+  email_verified: boolean;
+  verification_code: string;
+}

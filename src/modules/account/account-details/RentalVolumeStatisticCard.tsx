@@ -3,7 +3,7 @@ import { IRentalVolume } from "../../../store/stats/types";
 import { useTranslation } from "react-i18next";
 import { fetchRentalVolume } from "../../../store/stats/handlers";
 import dayjs, { Dayjs } from "dayjs";
-import { formatDateToDDMMYYYY, getDateRange } from "../../../utils/helper";
+import { formatDateToDDMMYYYY, formatDateToDDMMYYYYHHMMSS, getDateRange } from "../../../utils/helper";
 import { RentalVolumeParams } from "../../../store/stats/models";
 import { Button, Col, DatePicker, Divider, Empty, Flex, Row, Spin } from "antd";
 import DoubleBarDualAxes from "../../../components/charts/DoubleBarDualAxes";
@@ -120,7 +120,7 @@ const RentalVolumeStatisticCard = () => {
         XLSX.utils.book_append_sheet(workbook, worksheet, sheetTitle);
 
         // Generate Excel file
-        const fileName = `${t('excel.rentalVolumeFile')}_${formatDateToDDMMYYYY(new Date())}.xlsx`;
+        const fileName = `${t('excel.rentalVolumeFile')}_admin_${formatDateToDDMMYYYYHHMMSS(new Date())}.xlsx`;
         XLSX.writeFile(workbook, fileName);
     };
     useMemo(() => {

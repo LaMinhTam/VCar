@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { fetchStatisticInvoice } from '../../../store/stats/handlers';
 import { InvoiceSummaryParamsType, IStatisticInvoice } from '../../../store/stats/types';
 import { Dayjs } from 'dayjs';
-import { formatDateToDDMM, formatDateToDDMMYYYY, getDateRange } from '../../../utils/helper';
+import { formatDateToDDMM, formatDateToDDMMYYYY, formatDateToDDMMYYYYHHMMSS, getDateRange } from '../../../utils/helper';
 import InvoiceDualAxes from '../../../components/charts/InvoiceDualAxes';
 import { DownloadOutlined } from '@ant-design/icons';
 import * as XLSX from 'xlsx-js-style';
@@ -16,6 +16,7 @@ const InvoiceStatisticCard = ({ params, setParams }: {
     params: InvoiceSummaryParamsType,
     setParams: (params: InvoiceSummaryParamsType) => void
 }) => {
+
     const { t } = useTranslation();
     const Options = [
         { label: t('stat.admin.RENT'), value: 'RENT' },
@@ -156,7 +157,7 @@ const InvoiceStatisticCard = ({ params, setParams }: {
         XLSX.utils.book_append_sheet(workbook, worksheet, sheetTitle);
 
         // Generate Excel file
-        const fileName = `${t('excel.invoiceSummaryFile')}_${formatDateToDDMMYYYY(new Date())}.xlsx`;
+        const fileName = `${t('excel.invoiceSummaryFile')}_admin_${formatDateToDDMMYYYYHHMMSS(new Date())}.xlsx`;
         XLSX.writeFile(workbook, fileName);
     };
 

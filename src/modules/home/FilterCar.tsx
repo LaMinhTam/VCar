@@ -7,7 +7,7 @@ import { CalendarOutlined } from "@ant-design/icons";
 const { RangePicker } = DatePicker;
 
 const FilterCar = () => {
-    const { i18n } = useTranslation();
+    const { i18n, t } = useTranslation();
     const currentLanguage = i18n.language;
     const provinceOptions = provinces.map(province => ({
         value: province.id.toString(),
@@ -19,7 +19,7 @@ const FilterCar = () => {
                 <div className="pr-4 border-r border-r-text4">
                     <div className="flex items-center justify-start gap-x-2">
                         <LocationIcon />
-                        <Typography.Text className="text-lg">Location</Typography.Text>
+                        <Typography.Text className="text-lg">{t("common.location")}</Typography.Text>
                     </div>
                     {/* render select option with provinces */}
                     <Select
@@ -37,11 +37,11 @@ const FilterCar = () => {
                     <div>
                         <div className="flex items-center justify-start mb-2 gap-x-2">
                             <CalendarOutlined className="text-2xl" />
-                            <Typography.Text className="text-lg">Rent time</Typography.Text>
+                            <Typography.Text className="text-lg">{t("common.rentTime")}</Typography.Text>
                         </div>
                         <RangePicker showTime />
                     </div>
-                    <Button type="primary">Find Car</Button>
+                    <Button type="primary">{t("common.find")}</Button>
                 </div>
             </div>
         </div>

@@ -4,6 +4,7 @@ import {
   ILoginResponse,
   INotification,
   INotificationParams,
+  IRegisterResponseData,
 } from "./types";
 import { loginFailure, loginRequest, loginSuccess } from "./reducers";
 import { AxiosResponse } from "axios";
@@ -11,44 +12,11 @@ import { saveAccessToken, saveRefreshToken } from "../../utils";
 import { generateToken } from "../../config/firebaseConfig";
 import { IMetaData } from "../rental/types";
 
-// function* login(action: {
-//   type: string;
-//   payload: { email: string; password: string };
-// }) {
-//   try {
-//     const { email, password } = action.payload;
-//     yield put(loginRequest());
-//     const response: AxiosResponse<ILoginResponse> = yield call(
-//       axiosInstance.post,
-//       ENDPOINTS.LOGIN,
-//       { email, password }
-//     );
-//     if (response.data.code === 200) {
-//       const {
-//         access_token,
-//         refresh_token,
-//         id,
-//         display_name,
-//         email,
-//         image_url,
-//       } = response.data.data;
-//       const user = {
-//         id,
-//         display_name,
-//         email,
-//         image_url,
-//       };
-//       saveAccessToken(access_token);
-//       saveRefreshToken(refresh_token);
-//       saveUserInfoToCookie(user, access_token);
-//       yield put(loginSuccess(user));
-//     }
-//   } catch (error) {
-//     const typedError = error as Error;
-//     console.log("error:", typedError.message);
-//     yield put(loginFailure(typedError.message));
-//   }
-// }
+interface IRegisterResponse {
+  code: number;
+  message: string;
+  data: IRegisterResponseData
+}
 
 interface INotificationResponse {
   code: number;
@@ -83,12 +51,55 @@ async function login(email: string, password: string) {
       return {
         success: response.data.code === 200,
         token: access_token,
+        message: response?.data?.message ?? null,
       };
+    }else {
+      return { success: false, token: null, message: response?.data?.message?? null };
     }
   } catch (error) {
     const typedError = error as Error;
     loginFailure(typedError.message);
-    return { success: false, token: null };
+    return { success: false, token: null, message: null, };
+  }
+}
+
+async function register(name: string, email: string, password: string) {
+  try {
+    const response: AxiosResponse<IRegisterResponse> = await axiosInstance.post(ENDPOINTS.SIGN_UP, {
+      name,
+      email,
+      password,
+    });
+    if(response.data.code === 200) {
+      return { success: true, data: response.data.data, message: response?.data?.message ?? null };
+    }else {
+      return { success: false, data: null, message: response?.data?.message?? null };
+    }
+  } catch (error) {
+    const typedError = error as Error;
+    console.error(typedError.message);
+    return { success: false, data: null };
+  }
+}
+
+async function verifyEmail(email: string, code: string) {
+  try {
+    const response = await axiosInstance.post(ENDPOINTS.VERIFY_EMAIL, { email, verification_code: code });
+    if(response.data.code === 200) {
+      const {
+        access_token,
+        refresh_token,
+      } = response.data.data;
+      saveAccessToken(access_token);
+      saveRefreshToken(refresh_token);
+      return { success: true, data: access_token, message: response?.data?.message ?? null };
+    }else {
+      return { success: false, data: null, message: response?.data?.message?? null };
+    }
+  } catch (error) {
+    const typedError = error as Error;
+    console.error(typedError.message);
+    return { success: false, data: null };
   }
 }
 
@@ -141,4 +152,6 @@ export {
   subscribeDevice,
   getListNotifications,
   handleMakeNotificationAsRead,
+  register,
+  verifyEmail
 };

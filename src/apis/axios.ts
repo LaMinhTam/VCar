@@ -7,6 +7,9 @@ const RETRIES = 5;
 
 export const axiosInstance = axios.create({
   baseURL: API_BASE_URL,
+  validateStatus: (status) => {
+    return status >= 200 && status < 500;
+  },
 });
 
 axiosRetry(axiosInstance, {
@@ -21,6 +24,9 @@ export const axiosPrivate = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     "Content-Type": "application/json",
+  },
+  validateStatus: (status) => {
+    return status >= 200 && status < 500;
   },
 });
 

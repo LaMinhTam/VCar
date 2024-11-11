@@ -8,6 +8,12 @@ const DoubleBarDualAxes = ({ data, title }: {
     title: string
 }) => {
     const { t } = useTranslation();
+    const newData = data.map((item) => {
+        return {
+            ...item,
+            total_rented_cars: item.total_rented_cars * 20
+        }
+    });
     // const exData = [
     //     {
     //         "year_month": "2024-10-03",
@@ -45,12 +51,12 @@ const DoubleBarDualAxes = ({ data, title }: {
     //         "total_income": 2001564.0
     //     }
     // ]
-    const barData = data.flatMap(item => [
+    const barData = newData.flatMap(item => [
         { year_month: item.year_month, value: item.total_free_cars, type: t('stat.volume.total_free_cars') },
         { year_month: item.year_month, value: item.total_rented_cars, type: t('stat.volume.total_rented_cars') }
     ]);
 
-    const lineData = data.map(item => ({
+    const lineData = newData.map(item => ({
         year_month: item.year_month,
         type: t('stat.volume.total_income'),
         value: item.total_income

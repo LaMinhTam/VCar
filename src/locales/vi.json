@@ -5,9 +5,12 @@
     "login.failed": "Đăng nhập thất bại",
     "register": "Đăng Ký",
     "email": "Email",
+    "name": "Tên",
+    "name.placeholder": "Nhập tên của bạn",
     "email.error.invalid": "Email không hợp lệ",
     "email.placeholder": "Nhập email của bạn",
     "password": "Mật Khẩu",
+    "password.forgot": "Quên mật khẩu?",
     "password.error.invalid": "Mật khẩu phải có ít nhất 8 ký tự",
     "password.placeholder": "Nhập mật khẩu của bạn",
     "password.confirmPassword": "Xác Nhận Mật Khẩu",
@@ -16,6 +19,12 @@
     "auth.signIn": "Đăng Nhập",
     "auth.dontHaveAccount": "Chưa có tài khoản?",
     "auth.passwordsDoNotMatch": "Mật khẩu không khớp!",
+    "verify_code.title": "Xác thực mã",
+    "verify_code.desc": "Chúng tôi đã gửi mã xác thực đến email của bạn.",
+    "verify_code.input": "Nhập mã xác thực",
+    "verify_code.submit": "Xác thực",
+    "verify_code.failed": "Xác thực thất bại!",
+    "verify_code.success": "Xác thực thành công!",
 
     "common.loading": "Đang tải...",
     "common.error": "Lỗi",
@@ -47,6 +56,14 @@
     "common.province": "Tỉnh thành",
     "common.exportToExcel": "Tải về Excel",
     "common.name": "Tên",
+    "common.location": "Địa điểm",
+    "common.rentTime": "Thời gian thuê",
+    "common.startDate": "Ngày bắt đầu",
+    "common.endDate": "Ngày kết thúc",
+    "common.find": "Tìm kiếm",
+    "common.popular": "Phổ biến",
+    "common.recommendation": "Dành cho bạn",
+    "common.viewAll": "Xem tất cả",
 
     "car.name": "Tên xe",
     "car.name.required": "Yêu cầu nhập tên xe",
@@ -183,6 +200,10 @@
     "msg.LESSEE_SIGNED_CONTRACT": "Người thuê đã ký hợp đồng",
     "msg.NEW_RENTAL_REQUEST": "Yêu cầu thuê xe mới",
     "msg.RENTAL_REQUEST_APPROVED": "Yêu cầu thuê xe đã được chấp nhận",
-    "msg.RENTAL_REQUEST_REJECTED": "Yêu cầu thuê xe đã bị từ chối"
+    "msg.RENTAL_REQUEST_REJECTED": "Yêu cầu thuê xe đã bị từ chối",
+    "msg.USER_REGISTER_SUCCESS": "Đăng ký tài khoản thành công",
+    "msg.USER_VERIFY_SUCCESS": "Xác nhận tài khoản thành công",
+    "msg.EMAIL_IN_USE": "Email đã tồn tại",
+    "msg.SYSTEM_MAINTENANCE": "Hệ thống đang bảo trì, vui lòng thử lại sau"
   }
 }

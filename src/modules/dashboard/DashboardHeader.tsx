@@ -1,4 +1,4 @@
-import { Avatar, Badge, Button, GetProps, Input, Popover, Typography } from "antd";
+import { Avatar, Badge, Button, Popover, Typography } from "antd";
 import { Header } from "antd/es/layout/layout";
 import { useAuth } from "../../contexts/auth-context";
 import LanguageSelector from "../../components/LanguageSelector";
@@ -7,14 +7,10 @@ import { DEFAULT_AVATAR } from "../../config/apiConfig";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate } from "react-router-dom";
 import NotificationContent from "../../components/common/NotificationContent";
-type SearchProps = GetProps<typeof Input.Search>;
-
-const { Search } = Input;
 
 const DashboardHeader = () => {
     const navigate = useNavigate();
     const { t } = useTranslation();
-    const onSearch: SearchProps['onSearch'] = (value, _e, info) => console.log(info?.source, value);
     const { isLogged } = useAuth();
     return (
         <Header className="fixed left-0 right-0 z-50 flex items-center justify-between shadow-md bg-lite">
@@ -24,11 +20,6 @@ const DashboardHeader = () => {
                         VCAR
                     </Typography.Text>
                 </Link>
-                <Search
-                    placeholder="Search car..."
-                    onSearch={onSearch}
-                    className="flex-1 w-full min-w-[300px]"
-                />
             </div>
             <div className="flex items-center justify-center gap-x-2">
                 <LanguageSelector></LanguageSelector>

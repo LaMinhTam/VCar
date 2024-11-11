@@ -142,7 +142,7 @@ const CarStatisticCard = ({ params, setParams }: {
         XLSX.utils.book_append_sheet(workbook, worksheet, sheetTitle);
 
         // Generate Excel file
-        const fileName = `${t('excel.rentalContractSummaryFile')}_${formatDateToDDMMYYYY(new Date())}.xlsx`;
+        const fileName = `${t('excel.carRentalSummaryFile')}_${formatDateToDDMMYYYY(new Date())}.xlsx`;
         XLSX.writeFile(workbook, fileName);
     };
 

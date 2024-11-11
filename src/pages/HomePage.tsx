@@ -10,7 +10,6 @@ const HomePage = () => {
       <FilterCar></FilterCar>
       <CarSession title="Popular" type="popular"></CarSession>
       <CarSession title="Recommendation" type="recommend"></CarSession>
-      <CarSession title="Near you" type="near"></CarSession>
     </div>
   );
 };

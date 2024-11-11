@@ -7,12 +7,14 @@ import { AppDispatch, RootState } from "../../store/store";
 import { memo, useEffect, useMemo, useState } from "react";
 import { QuerySearchCar } from "../../store/car/models";
 import CarCardSkeleton from "../../components/common/CarCardSkeleton";
+import { useTranslation } from "react-i18next";
 
 
 const CarSession = ({ title, type }: {
     title: string;
     type: string
 }) => {
+    const { t } = useTranslation();
     const [params, setParams] = useState<IQuerySearchCar>(QuerySearchCar);
     const { cars, loading } = useSelector((state: RootState) => state.car);
     const dispatch = useDispatch<AppDispatch>();
@@ -25,10 +27,7 @@ const CarSession = ({ title, type }: {
                 setParams({ ...params, size: 4, maxRate: 1000000, rating: 5 });
                 break;
             case "recommend":
-                setParams({ ...params, size: 4, rating: 5 });
-                break;
-            case "near":
-                setParams({ ...params, size: 4, province: "Ho_Chi_Minh" });
+                setParams({ ...params, size: 4, rating: 5, province: "Ho_Chi_Minh" });
                 break;
             default:
                 break;
@@ -38,8 +37,8 @@ const CarSession = ({ title, type }: {
     return (
         <div className="mt-10">
             <div className="flex items-center justify-between mb-5">
-                <Typography.Text className="text-text7">{title}</Typography.Text>
-                <Button type="link" href="#">View All</Button>
+                <Typography.Text className="text-text7">{t(`common.${title.toLowerCase()}`)}</Typography.Text>
+                <Button type="link" href="#">{t("common.viewAll")}</Button>
             </div>
             <Row gutter={[32, 32]}>
                 {cars.length > 0 && cars.map((car) => (

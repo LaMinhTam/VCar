@@ -5,9 +5,12 @@
     "login.failed": "Login failed",
     "register": "Sign Up",
     "email": "Email",
+    "name": "Name",
+    "name.placeholder": "Enter your name",
     "email.error.invalid": "Invalid email",
     "email.placeholder": "Enter your email",
     "password": "Password",
+    "password.forgot": "Forgot password?",
     "password.error.invalid": "Password must be at least 8 characters",
     "password.placeholder": "Enter your password",
     "password.confirmPassword": "Confirm Password",
@@ -16,6 +19,12 @@
     "auth.signIn": "Sign in",
     "auth.dontHaveAccount": "Don't have an account?",
     "auth.passwordsDoNotMatch": "Passwords do not match!",
+    "verify_code.title": "Verify code",
+    "verify_code.desc": "We have sent a verification code to your email.",
+    "verify_code.input": "Enter verification code",
+    "verify_code.submit": "Verify",
+    "verify_code.failed": "Verify failed!",
+    "verify_code.success": "Verify successfully!",
 
     "common.loading": "Loading...",
     "common.error": "Error",
@@ -47,6 +56,14 @@
     "common.province": "Province",
     "common.exportToExcel": "Export to Excel",
     "common.name": "Name",
+    "common.location": "Location",
+    "common.rentTime": "Rent time",
+    "common.startDate": "Start date",
+    "common.endDate": "End date",
+    "common.find": "Find",
+    "common.popular": "Popular",
+    "common.recommendation": "Recommendation",
+    "common.viewAll": "View All",
 
     "car.name": "Car Name",
     "car.name.required": "Car name is required",
@@ -177,6 +194,10 @@
     "msg.LESSEE_SIGNED_CONTRACT": "Lessee signed contract",
     "msg.NEW_RENTAL_REQUEST": "New rental request",
     "msg.RENTAL_REQUEST_APPROVED": "Rental request approved",
-    "msg.RENTAL_REQUEST_REJECTED": "Rental request rejected"
+    "msg.RENTAL_REQUEST_REJECTED": "Rental request rejected",
+    "msg.USER_REGISTER_SUCCESS": "Register success",
+    "msg.USER_VERIFY_SUCCESS": "Verify account success",
+    "msg.EMAIL_IN_USE": "Email already in use",
+    "msg.SYSTEM_MAINTENANCE": "System maintenance, please try again later"
   }
 }
