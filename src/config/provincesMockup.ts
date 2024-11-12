@@ -1,11 +1,11 @@
 const provinces = [
   { id: 1, enName: "Ho Chi Minh", vnName: "Hồ Chí Minh" },
-  { id: 2, enName: "Hanoi", vnName: "Hà Nội" },
+  { id: 2, enName: "Ha Noi", vnName: "Hà Nội" },
   { id: 3, enName: "Da Nang", vnName: "Đà Nẵng" },
   { id: 4, enName: "Hai Phong", vnName: "Hải Phòng" },
   { id: 5, enName: "Can Tho", vnName: "Cần Thơ" },
   { id: 6, enName: "An Giang", vnName: "An Giang" },
-  { id: 7, enName: "Ba Ria-Vung Tau", vnName: "Bà Rịa-Vũng Tàu" },
+  { id: 7, enName: "Ba Ria Vung Tau", vnName: "Bà Rịa Vũng Tàu" },
   { id: 8, enName: "Bac Giang", vnName: "Bắc Giang" },
   { id: 9, enName: "Bac Kan", vnName: "Bắc Kạn" },
   { id: 10, enName: "Bac Lieu", vnName: "Bạc Liêu" },

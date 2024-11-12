@@ -63,17 +63,18 @@ export type CarDetail = {
 };
 
 export interface IQuerySearchCar {
-  query: string;
-  province: string;
-  page: number | string;
-  size: number | string;
-  transmission: string;
-  seats: string;
-  minConsumption: number | string;
-  maxRate: string | number;
-  rentalStartDate: number | string;
-  rentalEndDate: number | string;
-  rating: string | number;
+  query?: string;
+  province?: string;
+  page?: number | string;
+  size?: number | string;
+  transmission?: string;
+  seats?: string;
+  minConsumption?: number | string;
+  maxConsumption?: number | string,
+  maxRate?: string | number;
+  rentalStartDate?: number | string;
+  rentalEndDate?: number | string;
+  rating?: string | number;
 }
 
 export interface IQueryCarOwner {

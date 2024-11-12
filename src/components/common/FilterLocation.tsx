@@ -7,16 +7,20 @@ import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import dayjs, { Dayjs } from "dayjs";
 import { convertDateToTimestamp } from "../../utils";
-import { replaceSpacesWithUnderscores } from "../../utils/helper";
+import { convertTimestampToDayjs, replaceSpacesWithUnderscores } from "../../utils/helper";
 
 const { RangePicker } = DatePicker;
 
-const FilterCar = () => {
+const FilterLocation = ({ initStartDate, initEndDate, initProvinceId }: {
+    initStartDate: number,
+    initEndDate: number,
+    initProvinceId: number
+}) => {
     const { i18n, t } = useTranslation();
     const navigate = useNavigate();
-    const [startDate, setStartDate] = useState<Dayjs | null>(dayjs());
-    const [endDate, setEndDate] = useState<Dayjs | null>(dayjs().add(2, 'day'));
-    const [provinceId, setProvinceId] = useState(1);
+    const [startDate, setStartDate] = useState<Dayjs | null>(convertTimestampToDayjs(initStartDate));
+    const [endDate, setEndDate] = useState<Dayjs | null>(convertTimestampToDayjs(initEndDate));
+    const [provinceId, setProvinceId] = useState(initProvinceId ?? 1);
     const currentLanguage = i18n.language;
     const provinceOptions = provinces.map(province => ({
         value: province.id,
@@ -82,4 +86,4 @@ const FilterCar = () => {
     );
 };
 
-export default FilterCar;
+export default FilterLocation;

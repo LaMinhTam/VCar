@@ -6,7 +6,7 @@ const LocationSelect = ({ className, setProvince }: {
     className?: string;
     setProvince?: (value: string) => void;
 }) => {
-    const { i18n } = useTranslation();
+    const { i18n, t } = useTranslation();
     const currentLanguage = i18n.language;
     const provinceOptions = provinces.map(province => ({
         value: province.id.toString(),
@@ -23,7 +23,7 @@ const LocationSelect = ({ className, setProvince }: {
     return (
         <Select
             showSearch
-            placeholder="Select a province"
+            placeholder={t("common.provinceSelect")}
             filterOption={(input, option) =>
                 (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
             }

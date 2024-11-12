@@ -8,6 +8,9 @@ import { memo, useEffect, useMemo, useState } from "react";
 import { QuerySearchCar } from "../../store/car/models";
 import CarCardSkeleton from "../../components/common/CarCardSkeleton";
 import { useTranslation } from "react-i18next";
+import { convertDateToTimestamp } from "../../utils";
+import { useNavigate } from "react-router-dom";
+import dayjs from "dayjs";
 
 
 const CarSession = ({ title, type }: {
@@ -15,9 +18,19 @@ const CarSession = ({ title, type }: {
     type: string
 }) => {
     const { t } = useTranslation();
-    const [params, setParams] = useState<IQuerySearchCar>(QuerySearchCar);
+    const [params, setParams] = useState<IQuerySearchCar>({
+        ...QuerySearchCar,
+        rentalStartDate: convertDateToTimestamp(new Date().toDateString()),
+        rentalEndDate: convertDateToTimestamp(new Date(new Date().setDate(new Date().getDate() + 2)).toDateString()),
+    });
     const { cars, loading } = useSelector((state: RootState) => state.car);
+    const navigate = useNavigate();
     const dispatch = useDispatch<AppDispatch>();
+    const handleViewAll = () => {
+        const startDateTimestamp = convertDateToTimestamp(dayjs().toDate()?.toDateString());
+        const endDateTimestamp = convertDateToTimestamp(dayjs().add(2, 'day').toDate()?.toDateString());
+        navigate(`/cars/filter?startDate=${startDateTimestamp}&endDate=${endDateTimestamp}&province=Ho_Chi_Minh`);
+    }
     useMemo(() => {
         dispatch({ type: GET_CARS, payload: params });
     }, [dispatch, params]);
@@ -38,7 +51,7 @@ const CarSession = ({ title, type }: {
         <div className="mt-10">
             <div className="flex items-center justify-between mb-5">
                 <Typography.Text className="text-text7">{t(`common.${title.toLowerCase()}`)}</Typography.Text>
-                <Button type="link" href="#">{t("common.viewAll")}</Button>
+                <Button type="link" onClick={handleViewAll}>{t("common.viewAll")}</Button>
             </div>
             <Row gutter={[32, 32]}>
                 {cars.length > 0 && cars.map((car) => (

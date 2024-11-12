@@ -56,3 +56,15 @@ export const handleDecodeJWT = (token: string): DecodedToken | null => {
         return null;
     }
 };
+
+export const replaceSpacesWithUnderscores = (str: string): string => {
+    return str.replace(/\s+/g, '_');
+};
+
+export const convertTimestampToDayjs = (timestamp: number | null): dayjs.Dayjs | null => {
+    if (timestamp === null) {
+      return null;
+    }
+    const seconds = timestamp.toString().length === 13 ? Math.floor(timestamp / 1000) : timestamp;
+    return dayjs.unix(seconds);
+};

@@ -64,6 +64,9 @@
     "common.popular": "Popular",
     "common.recommendation": "Recommendation",
     "common.viewAll": "View All",
+    "common.provinceSelect": "Select a province",
+    "common.from": "From",
+    "common.to": "To",
 
     "car.name": "Car Name",
     "car.name.required": "Car name is required",
@@ -130,6 +133,8 @@
     "car.washing_price.required": "Washing price is required",
     "car.deodorise_price": "Deodorise Price",
     "car.deodorise_price.required": "Deodorise price is required",
+    "car.maxPrice": "Max rate",
+    "car.rating": "Rating",
 
     "stat.title": "Statistics",
     "stat.lessee.rental": "Lessee rental",

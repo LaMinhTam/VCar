@@ -3,7 +3,7 @@ import axiosRetry from "axios-retry";
 import { getAccessToken } from "../utils";
 import { API_BASE_URL } from "../config/apiConfig";
 
-const RETRIES = 5;
+const RETRIES = 1;
 
 export const axiosInstance = axios.create({
   baseURL: API_BASE_URL,

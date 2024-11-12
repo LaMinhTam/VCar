@@ -1,129 +1,138 @@
-import { Suspense } from "react";
+/* eslint-disable react-refresh/only-export-components */
+import { lazy, Suspense } from "react";
 import { createRoot } from "react-dom/client";
 import { Provider } from "react-redux";
 import "./index.scss";
 import "react-toastify/dist/ReactToastify.css";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import LayoutMain from "./layouts/LayoutMain.tsx";
-import LoginPage from "./pages/LoginPage.tsx";
-import SignUpPage from "./pages/SignUpPage.tsx";
-import NotFoundPage from "./pages/NotFoundPage.tsx";
 import store from "./store/store.ts";
 import App from "./App.tsx";
 import { ToastContainer } from "react-toastify";
 import Loading from "./components/common/Loading.tsx";
 
 import "./locales";
-import HomePage from "./pages/HomePage.tsx";
+
 import { AuthProvider } from "./contexts/auth-context.tsx";
 import { AuthContextType } from "./types/common.ts";
-import CarDetailPage from "./pages/CarDetailPage.tsx";
-import CheckoutPage from "./pages/CheckoutPage.tsx";
-import AccountPage from "./pages/AccountPage.tsx";
-import AccountDetails from "./modules/account/AccountDetails.tsx";
-import FavoriteCars from "./modules/account/FavoriteCars.tsx";
-import MyCars from "./modules/account/MyCars.tsx";
-import MyTrips from "./modules/account/MyTrips.tsx";
-import MyAddress from "./modules/account/MyAddress.tsx";
-import ChangePassword from "./modules/account/ChangePassword.tsx";
-import MyLessee from "./modules/account/MyLessee.tsx";
-import LesseeContract from "./modules/account/LesseeContract.tsx";
-import LessorContract from "./modules/account/LessorContract.tsx";
-import PaymentCallBackPage from "./pages/PaymentCallBackPage.tsx";
-import MyCarDetails from "./pages/MyCarDetails.tsx";
+
+const HomePage = lazy(() => import("./pages/HomePage.tsx"));
+const LoginPage = lazy(() => import("./pages/LoginPage.tsx"));
+const SignUpPage = lazy(() => import("./pages/SignUpPage.tsx"));
+const NotFoundPage = lazy(() => import("./pages/NotFoundPage.tsx"));
+const CarDetailPage = lazy(() => import("./pages/CarDetailPage.tsx"));
+const CheckoutPage = lazy(() => import("./pages/CheckoutPage.tsx"));
+const AccountPage = lazy(() => import("./pages/AccountPage.tsx"));
+const AccountDetails = lazy(() => import("./modules/account/AccountDetails.tsx"));
+const FavoriteCars = lazy(() => import("./modules/account/FavoriteCars.tsx"));
+const MyCars = lazy(() => import("./modules/account/MyCars.tsx"));
+const MyTrips = lazy(() => import("./modules/account/MyTrips.tsx"));
+const MyAddress = lazy(() => import("./modules/account/MyAddress.tsx"));
+const ChangePassword = lazy(() => import("./modules/account/ChangePassword.tsx"));
+const MyLessee = lazy(() => import("./modules/account/MyLessee.tsx"));
+const LesseeContract = lazy(() => import("./modules/account/LesseeContract.tsx"));
+const LessorContract = lazy(() => import("./modules/account/LessorContract.tsx"));
+const PaymentCallBackPage = lazy(() => import("./pages/PaymentCallBackPage.tsx"));
+const MyCarDetails = lazy(() => import("./pages/MyCarDetails.tsx"));
+const ListCarPage = lazy(() => import("./pages/ListCarPage.tsx"));
+
 const router = createBrowserRouter([
   {
     element: <LayoutMain />,
     children: [
       {
         path: "/",
-        element: <HomePage />,
+        element: <Suspense fallback={<Loading />}><HomePage /></Suspense>,
       },
       {
         path: "/car/:id",
-        element: <CarDetailPage />,
+        element: <Suspense fallback={<Loading />}><CarDetailPage /></Suspense>,
       },
       {
         path: "/checkout",
-        element: <CheckoutPage />
+        element: <Suspense fallback={<Loading />}><CheckoutPage /></Suspense>
       },
       {
         path: "/account",
-        element: <AccountPage />,
+        element: <Suspense fallback={<Loading />}><AccountPage /></Suspense>,
         children: [
           {
             path: "",
-            element: <AccountDetails />,
+            element: <Suspense fallback={<Loading />}><AccountDetails /></Suspense>,
           },
           {
             path: "favorite",
-            element: <FavoriteCars />,
+            element: <Suspense fallback={<Loading />}><FavoriteCars /></Suspense>,
           },
           {
             path: "my-cars",
-            element: <MyCars />,
+            element: <Suspense fallback={<Loading />}><MyCars /></Suspense>,
           },
           {
             path: "my-cars/:id",
-            element: <MyCarDetails />,
+            element: <Suspense fallback={<Loading />}><MyCarDetails /></Suspense>,
           },
           {
             path: "my-trips",
-            element: <MyTrips />,
+            element: <Suspense fallback={<Loading />}><MyTrips /></Suspense>,
           },
           {
             path: "my-trips/:id",
-            element: <MyTrips />,
+            element: <Suspense fallback={<Loading />}><MyTrips /></Suspense>,
           },
           {
             path: "my-car-lessee",
-            element: <MyLessee />,
+            element: <Suspense fallback={<Loading />}><MyLessee /></Suspense>,
           },
           {
             path: "my-car-lessee/:id",
-            element: <MyLessee />,
+            element: <Suspense fallback={<Loading />}><MyLessee /></Suspense>,
           },
           {
             path: 'lessee-contract',
-            element: <LesseeContract />
+            element: <Suspense fallback={<Loading />}><LesseeContract /></Suspense>
           },
           {
             path: 'lessee-contract/:id',
-            element: <LesseeContract />
+            element: <Suspense fallback={<Loading />}><LesseeContract /></Suspense>
           },
           {
             path: 'lessor-contract',
-            element: <LessorContract />
+            element: <Suspense fallback={<Loading />}><LessorContract /></Suspense>
           },
           {
             path: 'lessor-contract/:id',
-            element: <LessorContract />
+            element: <Suspense fallback={<Loading />}><LessorContract /></Suspense>
           },
           {
             path: "my-address",
-            element: <MyAddress />,
+            element: <Suspense fallback={<Loading />}><MyAddress /></Suspense>,
           },
           {
             path: "change-password",
-            element: <ChangePassword />,
+            element: <Suspense fallback={<Loading />}><ChangePassword /></Suspense>,
           },
         ],
       },
       {
+        path: "/cars/filter",
+        element: <Suspense fallback={<Loading />}><ListCarPage /></Suspense>,
+      },
+      {
         path: 'payment_callback',
-        element: <PaymentCallBackPage />
+        element: <Suspense fallback={<Loading />}><PaymentCallBackPage /></Suspense>
       }
     ],
   },
   {
-    element: <LoginPage />,
+    element: <Suspense fallback={<Loading />}><LoginPage /></Suspense>,
     path: "/signin",
   },
   {
-    element: <SignUpPage />,
+    element: <Suspense fallback={<Loading />}><SignUpPage /></Suspense>,
     path: "/signup",
   },
-  { path: "*", element: <NotFoundPage /> },
+  { path: "*", element: <Suspense fallback={<Loading />}><NotFoundPage /></Suspense> },
 ]);
 
 createRoot(document.getElementById("root")!).render(

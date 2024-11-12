@@ -64,6 +64,9 @@
     "common.popular": "Phổ biến",
     "common.recommendation": "Dành cho bạn",
     "common.viewAll": "Xem tất cả",
+    "common.provinceSelect": "Chọn tỉnh thành",
+    "common.from": "Từ",
+    "common.to": "Đến",
 
     "car.name": "Tên xe",
     "car.name.required": "Yêu cầu nhập tên xe",
@@ -132,6 +135,8 @@
     "car.washing_price.required": "Yêu cầu nhập giá rửa xe",
     "car.deodorise_price": "Giá khử mùi",
     "car.deodorise_price.required": "Yêu cầu nhập giá khử mùi",
+    "car.maxRate": "Giá tối đa",
+    "car.rating": "Đánh giá",
 
     "stat.title": "Thống kê",
     "stat.lessee.rental": "Đơn thuê xe",
