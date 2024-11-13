@@ -6,6 +6,8 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { DEFAULT_AVATAR } from "../config/apiConfig";
 import { ICar } from "../store/car/types";
+import { useAuth } from "../contexts/auth-context";
+import { toast } from "react-toastify";
 
 interface CarCardProps {
   car: ICar;
@@ -14,9 +16,14 @@ interface CarCardProps {
 const CarCard: React.FC<CarCardProps> = ({ car }) => {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const { isLogged } = useAuth();
   const handleRentNow = () => {
-    localStorage.setItem("STORAGE_RENT_CAR_ID", car.id);
-    navigate("/checkout");
+    if (isLogged) {
+      localStorage.setItem("STORAGE_RENT_CAR_ID", car.id);
+      navigate("/checkout");
+    } else {
+      toast.warning(t("msg.REQUIRE_AUTHENTICATION_FEATURE"))
+    }
   }
 
   return (

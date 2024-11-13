@@ -10,7 +10,7 @@ import store from "./store/store.ts";
 import App from "./App.tsx";
 import { ToastContainer } from "react-toastify";
 import Loading from "./components/common/Loading.tsx";
-
+import { Analytics } from "@vercel/analytics/react"
 import "./locales";
 
 import { AuthProvider } from "./contexts/auth-context.tsx";
@@ -35,7 +35,6 @@ const LessorContract = lazy(() => import("./modules/account/LessorContract.tsx")
 const PaymentCallBackPage = lazy(() => import("./pages/PaymentCallBackPage.tsx"));
 const MyCarDetails = lazy(() => import("./pages/MyCarDetails.tsx"));
 const ListCarPage = lazy(() => import("./pages/ListCarPage.tsx"));
-
 const router = createBrowserRouter([
   {
     element: <LayoutMain />,
@@ -150,6 +149,7 @@ createRoot(document.getElementById("root")!).render(
         </Suspense>
       </App>
       <ToastContainer bodyClassName="font-primary text-sm"></ToastContainer>
+      <Analytics />
     </AuthProvider>
   </Provider>
 );

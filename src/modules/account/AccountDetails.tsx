@@ -101,7 +101,7 @@ const AccountDetails = () => {
             }
         } else {
             setLoading(false);
-            message.error('Deposit token failed');
+            message.error(t("msg.DEPOSIT_TOKEN_FAILED"));
         }
     }
 
@@ -117,10 +117,10 @@ const AccountDetails = () => {
             const response = await updateMetamaskAddress(address);
             if (response?.success) {
                 setLoading(false);
-                message.success('Sync wallet success');
+                message.success(t("msg.SYNC_WALLET_SUCCESS"));
             } else {
                 setLoading(false);
-                message.error('Sync wallet failed');
+                message.error(t("msg.SYNC_WALLET_FAILED"));
             }
         }
     }
@@ -193,16 +193,16 @@ const AccountDetails = () => {
                 })
                 if (updateResponse?.success) {
                     setLoading(false);
-                    message.success("Update license success");
+                    message.success(t("msg.UPDATE_CITIZEN_IDENTIFICATION_SUCCESS"));
                     setOnEditIdentification(false);
                     setRefetchMe(!refetchMe);
                 } else {
                     setLoading(false);
-                    message.error("Update license failed");
+                    message.error(t("msg.UPDATE_CITIZEN_IDENTIFICATION_FAILED"));
                 }
             } else {
                 setLoading(false);
-                message.error("Upload failed");
+                message.error(t("msg.UPLOAD_FAILURE"));
             }
         }
     }
@@ -244,16 +244,16 @@ const AccountDetails = () => {
                 })
                 if (updateResponse?.success) {
                     setLoading(false);
-                    message.success("Update license success");
+                    message.success(t("msg.UPDATE_LICENSE_SUCCESS"));
                     setOnEdit(false);
                     setRefetchMe(!refetchMe);
                 } else {
                     setLoading(false);
-                    message.error("Update license failed");
+                    message.error(t("msg.UPDATE_LICENSE_FAILED"));
                 }
             } else {
                 setLoading(false);
-                message.error("Upload failed");
+                message.error(t("msg.UPLOAD_FAILURE"));
             }
         }
     };

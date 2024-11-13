@@ -1,6 +1,7 @@
 import { EditOutlined, UploadOutlined } from "@ant-design/icons";
 import { Button, Col, Flex, Form, Input, Row, Typography, Upload, UploadFile, UploadProps } from "antd";
 import { getUserInfoFromCookie } from "../../../utils";
+import { useTranslation } from "react-i18next";
 
 const UserLicenseCard = ({
     onEdit,
@@ -21,6 +22,7 @@ const UserLicenseCard = ({
     handleUpdateLicense: () => Promise<void>;
     loading: boolean;
 }) => {
+    const { t } = useTranslation();
     const userInfo = getUserInfoFromCookie();
     return (
         <Col span={24} className="px-8 py-6 rounded-lg shadow-md bg-lite">
@@ -28,12 +30,12 @@ const UserLicenseCard = ({
                 <Col span={24}>
                     <Flex align="center" justify="space-between">
                         <Flex gap={4}>
-                            <Typography.Title level={3}>Giấy phép lái xe</Typography.Title>
+                            <Typography.Title level={3}>{t("account.my_account.driver_license")}</Typography.Title>
                         </Flex>
                         {!onEdit && (<Button icon={<EditOutlined />} type="dashed" onClick={() => setOnEdit(true)}>Chỉnh sửa</Button>)}
                         {onEdit && (<Flex gap={4} align="center">
-                            <Button type="default" onClick={() => setOnEdit(false)}>Hủy</Button>
-                            <Button type="primary" onClick={handleUpdateLicense} loading={loading}>Cập nhật</Button>
+                            <Button type="default" onClick={() => setOnEdit(false)}>{t("common.cancel")}</Button>
+                            <Button type="primary" onClick={handleUpdateLicense} loading={loading}>{t("common.update")}</Button>
                         </Flex>)}
                     </Flex>
                 </Col>
@@ -41,7 +43,7 @@ const UserLicenseCard = ({
                     <Flex gap={5} align="center" className="mb-5">
                         <Typography.Title style={{
                             marginBottom: 0
-                        }} level={4}>Hình ảnh</Typography.Title>
+                        }} level={4}>{t("common.image")}</Typography.Title>
                         <Upload
                             fileList={fileList}
                             onChange={handleChange}
@@ -51,7 +53,7 @@ const UserLicenseCard = ({
                             disabled={!onEdit}
                         >
                             {fileList.length < 1 && (
-                                <Button icon={<UploadOutlined />}>Select File</Button>
+                                <Button icon={<UploadOutlined />}>{t("common.selectFile")}</Button>
                             )}
                         </Upload>
                     </Flex>
@@ -65,15 +67,15 @@ const UserLicenseCard = ({
                 </Col>
                 <Col span={12}>
                     <Form layout="vertical">
-                        <Typography.Title level={4}>Thông tin chung</Typography.Title>
-                        <Form.Item label="Số GPLX">
-                            <Input placeholder="Nhập số GPLX đã cấp" disabled value={userInfo?.car_license?.id} />
+                        <Typography.Title level={4}>{t("account.my_account.driver_license.general")}</Typography.Title>
+                        <Form.Item label={t("account.my_account.driver_license.id")}>
+                            <Input disabled value={userInfo?.car_license?.id} />
                         </Form.Item>
-                        <Form.Item label="Họ và tên">
-                            <Input placeholder="Nhập đầy đủ họ tên" disabled value={userInfo?.car_license?.full_name} />
+                        <Form.Item label={t("account.my_account.driver_license.fullName")}>
+                            <Input disabled value={userInfo?.car_license?.full_name} />
                         </Form.Item>
-                        <Form.Item label="Ngày sinh">
-                            <Input placeholder="Nhập ngày sinh" disabled value={userInfo?.car_license?.dob} />
+                        <Form.Item label={t("account.my_account.driver_license.dob")}>
+                            <Input disabled value={userInfo?.car_license?.dob} />
                         </Form.Item>
                     </Form>
                 </Col>

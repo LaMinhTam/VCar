@@ -2,6 +2,7 @@ import dayjs, { Dayjs } from "dayjs";
 import { jwtDecode } from "jwt-decode";
 import numeral from "numeral";
 import { DecodedToken } from "../types/common";
+import { convertDateToTimestamp } from ".";
 
 export function formatDateToDDMMYYYY(date: Date) {
     return dayjs(date).format('DD-MM-YYYY');
@@ -68,3 +69,9 @@ export const convertTimestampToDayjs = (timestamp: number | null): dayjs.Dayjs |
     const seconds = timestamp.toString().length === 13 ? Math.floor(timestamp / 1000) : timestamp;
     return dayjs.unix(seconds);
 };
+
+export const handleGenerateViewAllCarsLink = () => {
+    const startDateTimestamp = convertDateToTimestamp(dayjs().toDate()?.toDateString());
+    const endDateTimestamp = convertDateToTimestamp(dayjs().add(2, 'day').toDate()?.toDateString());
+    return `/cars/filter?startDate=${startDateTimestamp}&endDate=${endDateTimestamp}&province=Ho_Chi_Minh`
+}

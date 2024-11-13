@@ -4,6 +4,7 @@ import ImageUploader from '../../../components/common/ImageUploader';
 import { getUserInfoFromCookie } from '../../../utils';
 import UpdateProfileModal from '../../../components/modals/UpdateProfileModal';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const ProfileCard = ({
     refetchMe,
@@ -12,6 +13,7 @@ const ProfileCard = ({
     refetchMe: boolean;
     setRefetchMe: (value: boolean) => void;
 }) => {
+    const { t } = useTranslation()
     const userInfo = getUserInfoFromCookie();
     const [openUpdateProfileModal, setOpenUpdateProfileModal] = useState(false);
     return (
@@ -21,13 +23,13 @@ const ProfileCard = ({
                     <Col span={24}>
                         <Flex align="center" justify="space-between">
                             <Flex gap={4}>
-                                <Typography.Title level={3}>Thông tin tài khoản</Typography.Title>
+                                <Typography.Title level={3}>{t("account.my_account.information")}</Typography.Title>
                                 <Button icon={<EditOutlined />} type="text" onClick={() => setOpenUpdateProfileModal(true)}></Button>
                             </Flex>
                             <Flex align="center" gap={4} className="inline-flex px-4 py-2 border rounded-lg border-text3">
                                 <SlidersOutlined className="text-lg" />
                                 <Typography.Text className="text-3xl font-bold text-primary">0</Typography.Text>
-                                <Typography.Text className="text-text3">chuyến</Typography.Text>
+                                <Typography.Text className="text-text3">{t("account.my_account.trip")}</Typography.Text>
                             </Flex>
                         </Flex>
                     </Col>
@@ -35,33 +37,33 @@ const ProfileCard = ({
                         <Flex gap={12} vertical align="center">
                             <ImageUploader></ImageUploader>
                             <Typography.Title level={5}>{userInfo?.display_name}</Typography.Title>
-                            <Typography.Text>Tham gia: 05/09/2024</Typography.Text>
+                            <Typography.Text>{t("account.my_account.join")}: 05/09/2024</Typography.Text>
                         </Flex>
                     </Col>
                     <Col span={18}>
                         <Row gutter={[0, 16]}>
                             <Col span={24}>
                                 <Flex align="center" justify="space-between">
-                                    <Typography.Text>Ngày sinh</Typography.Text>
+                                    <Typography.Text>{t("account.my_account.birthday")}</Typography.Text>
                                     <Typography.Text>{userInfo?.car_license?.dob}</Typography.Text>
                                 </Flex>
                             </Col>
                             <Col span={24}>
                                 <Flex align="center" justify="space-between">
-                                    <Typography.Text>Giới tính</Typography.Text>
-                                    <Typography.Text>Nam</Typography.Text>
+                                    <Typography.Text>{t("account.my_account.sex")}</Typography.Text>
+                                    <Typography.Text>{"Nam"}</Typography.Text>
                                 </Flex>
                             </Col>
                             <Divider className="m-0"></Divider>
                             <Col span={24}>
                                 <Flex align="center" justify="space-between">
-                                    <Typography.Text>Email</Typography.Text>
+                                    <Typography.Text>{t("account.my_account.email")}</Typography.Text>
                                     <Typography.Text>{userInfo?.email}</Typography.Text>
                                 </Flex>
                             </Col>
                             <Col span={24}>
                                 <Flex align="center" justify="space-between">
-                                    <Typography.Text>Số điện thoại</Typography.Text>
+                                    <Typography.Text>{t("account.my_account.phoneNumber")}</Typography.Text>
                                     <Typography.Text>{userInfo?.phone_number}</Typography.Text>
                                 </Flex>
                             </Col>
@@ -70,7 +72,7 @@ const ProfileCard = ({
                 </Row>
             </Col>
 
-            <Modal title="Cập nhật thông tin cá nhân" footer={false} open={openUpdateProfileModal} onCancel={() => setOpenUpdateProfileModal(false)}>
+            <Modal title={t("account.my_account.update_profile")} footer={false} open={openUpdateProfileModal} onCancel={() => setOpenUpdateProfileModal(false)}>
                 <UpdateProfileModal refetchMe={refetchMe} setRefetchMe={setRefetchMe} setOpenUpdateProfileModal={setOpenUpdateProfileModal}></UpdateProfileModal>
             </Modal>
         </>

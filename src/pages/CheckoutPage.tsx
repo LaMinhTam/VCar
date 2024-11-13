@@ -14,9 +14,11 @@ import { CheckboxChangeEvent } from "antd/es/checkbox";
 import { toast } from "react-toastify";
 import { handleRentRequest } from "../store/rental/handlers";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 const CheckoutPage = () => {
     const navigate = useNavigate();
+    const { t } = useTranslation();
     const carId = localStorage.getItem('STORAGE_RENT_CAR_ID');
     const [isTermsAgreed, setIsTermsAgreed] = useState(false);
     const [startTimestamp, setStartTimestamp] = useState<number | null>(null);
@@ -50,24 +52,35 @@ const CheckoutPage = () => {
 
     const onRent = async () => {
         if (!isTermsAgreed) {
-            toast.error('Vui lòng đồng ý với các điều khoản và điều kiện và chính sách bảo mật.');
+            toast.error(t('msg.AGREE_TERMS_CONDITIONS'));
             return;
         } else if (!province) {
-            toast.error('Vui lòng chọn tỉnh thành.');
+            toast.error(t('msg.SELECT_PROVINCE'));
             return;
         } else if (numberOfDays <= 0) {
-            toast.error('Vui lòng chọn thời gian thuê xe.');
+            toast.error(t('msg.SELECT_RENTAL_PERIOD'));
             return;
         } else if (!paymentMethod) {
-            toast.error('Vui lòng chọn phương thức thanh toán.');
+            toast.error(t('msg.SELECT_PAYMENT_METHOD'));
             return;
         } else {
-            const response = await handleRentRequest(carId ?? '', startTimestamp!, endTimestamp!, province);
-            if (response?.success) {
-                navigate('/account/my-trips')
-                toast.success('Đã gửi yêu cầu thuê xe. Vui lòng chờ xác nhận từ chủ xe!');
+            if (!userInfo.phone_number) {
+                toast.error(t('msg.PHONE_NUMBER_REQUIRED'));
+                return;
+            } else if (!userInfo?.citizen_identification?.citizen_identification_number) {
+                toast.error(t('msg.CITIZEN_IDENTIFICATION_REQUIRED'));
+                return;
+            } else if (!userInfo?.car_license?.id) {
+                toast.error(t('msg.CAR_LICENSE_REQUIRED'));
+                return;
             } else {
-                toast.error('Gửi yêu cầu thuê xe thất bại. Vui lòng thử lại sau!');
+                const response = await handleRentRequest(carId ?? '', startTimestamp!, endTimestamp!, province);
+                if (response?.success) {
+                    navigate('/account/my-trips')
+                    toast.success(t('msg.RENT_REQUEST_SENT'));
+                } else {
+                    toast.error(t('msg.RENT_REQUEST_FAILED'));
+                }
             }
         }
     }

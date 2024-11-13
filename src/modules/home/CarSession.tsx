@@ -10,7 +10,7 @@ import CarCardSkeleton from "../../components/common/CarCardSkeleton";
 import { useTranslation } from "react-i18next";
 import { convertDateToTimestamp } from "../../utils";
 import { useNavigate } from "react-router-dom";
-import dayjs from "dayjs";
+import { handleGenerateViewAllCarsLink } from "../../utils/helper";
 
 
 const CarSession = ({ title, type }: {
@@ -27,9 +27,8 @@ const CarSession = ({ title, type }: {
     const navigate = useNavigate();
     const dispatch = useDispatch<AppDispatch>();
     const handleViewAll = () => {
-        const startDateTimestamp = convertDateToTimestamp(dayjs().toDate()?.toDateString());
-        const endDateTimestamp = convertDateToTimestamp(dayjs().add(2, 'day').toDate()?.toDateString());
-        navigate(`/cars/filter?startDate=${startDateTimestamp}&endDate=${endDateTimestamp}&province=Ho_Chi_Minh`);
+        const url = handleGenerateViewAllCarsLink()
+        navigate(url);
     }
     useMemo(() => {
         dispatch({ type: GET_CARS, payload: params });

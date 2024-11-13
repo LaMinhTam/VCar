@@ -19,7 +19,14 @@ export function AuthProvider(
     React.ProviderProps<AuthContextType>
 ) {
   const [isLogged, setIsLogged] = React.useState(false);
-  const role = JSON.parse(localStorage.getItem('ROLES') || '');
+  const role = (() => {
+    try {
+      return JSON.parse(localStorage.getItem('ROLES') || 'null');
+    } catch (error) {
+      console.error('Error parsing roles from localStorage:', error);
+      return null;
+    }
+  })();
 
   const [notifications, setNotifications] = React.useState<{
     data: INotification[];

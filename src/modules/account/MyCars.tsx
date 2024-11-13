@@ -11,8 +11,10 @@ import { formatPrice } from "../../utils";
 import CreateCarModal from "../../components/modals/CreateCarModal";
 import { debounce } from "lodash";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 const MyCars = () => {
+    const { t } = useTranslation()
     const [cars, setCars] = useState<ICar[]>([]);
     const [meta, setMeta] = useState({} as IMetaData);
     const [openCreateModal, setOpenCreateModal] = useState(false);
@@ -34,9 +36,9 @@ const MyCars = () => {
         setParams({ ...params, searchQuery: e.target.value });
     }
     const options = [
-        { label: 'Tất cả', value: '' },
-        { label: 'Chờ duyệt', value: 'PENDING' },
-        { label: 'Đã duyệt', value: 'APPROVED' },
+        { label: t("common.all"), value: '' },
+        { label: t("common.waitAccept"), value: 'PENDING' },
+        { label: t("common.Accepted"), value: 'APPROVED' },
     ]
 
     useMemo(() => {
@@ -58,12 +60,12 @@ const MyCars = () => {
             render: (_text, _record, index) => index + 1,
         },
         {
-            title: 'Tên xe',
+            title: t("car.name"),
             dataIndex: 'name',
             key: 'name',
         },
         {
-            title: 'Trạng thái',
+            title: t("car.status"),
             dataIndex: 'status',
             key: 'status',
             render: (status: string) => {
@@ -72,13 +74,13 @@ const MyCars = () => {
             }
         },
         {
-            title: 'Màu sắc',
+            title: t("car.color"),
             dataIndex: 'color',
             key: 'color',
             render: (color: string) => <ColorPicker value={color} disabled />
         },
         {
-            title: 'Hộp số',
+            title: t("car.transmission"),
             dataIndex: 'transmission',
             key: 'transmission',
             render: (transmission: string) => transmission === 'MANUAL' ? 'Số sàn' : 'Tự động'
@@ -101,22 +103,22 @@ const MyCars = () => {
         //     render: (fuel_consumption: number) => `${fuel_consumption} lít / 100km`
         // },
         {
-            title: 'Biển số',
+            title: t("car.license_plate"),
             dataIndex: 'license_plate',
             key: 'license_plate',
         },
         {
-            title: 'Giá cho thuê',
+            title: t("car.daily_rate"),
             dataIndex: 'daily_rate',
             key: 'daily_rate',
-            render: (daily_rate: number) => `${formatPrice(daily_rate)} VNĐ / ngày`
+            render: (daily_rate: number) => `${formatPrice(daily_rate)} VNĐ / ${t("common.day")}`
         },
         {
-            title: 'Thao tác',
+            title: t("common.action"),
             key: 'action',
             render: (value) => (
                 <Space>
-                    <Link to={`/account/my-cars/${value?.id}`}>Chi tiết</Link>
+                    <Link to={`/account/my-cars/${value?.id}`}>{t("common.viewDetail")}</Link>
                 </Space>
             ),
         },
@@ -126,7 +128,7 @@ const MyCars = () => {
     return (
         <div className="p-4 bg-lite">
             <Spin spinning={loading}>
-                <Typography.Title level={3}>Danh sách xe trên hệ thống</Typography.Title>
+                <Typography.Title level={3}>{t("account.my_cars.list")}</Typography.Title>
                 <Row>
                     <Col span={24}>
                         <Flex align="center" justify="space-between">
@@ -137,17 +139,17 @@ const MyCars = () => {
                                     className="w-[120px]"
                                     onChange={handleChangeSort}
                                     options={[
-                                        { value: 'ASC', label: 'Tăng dần' },
-                                        { value: 'DESC', label: 'Giảm dần' },
+                                        { value: 'ASC', label: t("common.ASC") },
+                                        { value: 'DESC', label: t("common.DESC") },
                                     ]}
                                 />
-                                <Search placeholder="Tìm theo tên xe" onChange={debounceSearch} className="w-[300px]" allowClear />
+                                <Search placeholder={t("account.my_cars.find_by_name")} onChange={debounceSearch} className="w-[300px]" allowClear />
                             </Space>
                         </Flex>
                     </Col>
                     <Divider></Divider>
                     <Col span={24}>
-                        <Button type="dashed" icon={<PlusCircleOutlined />} className="w-full" onClick={() => setOpenCreateModal(true)}>Thêm mới xe</Button>
+                        <Button type="dashed" icon={<PlusCircleOutlined />} className="w-full" onClick={() => setOpenCreateModal(true)}>{t("account.my_cars.add_new")}</Button>
                         <Table
                             className="w-full"
                             columns={columns}
@@ -172,7 +174,7 @@ const MyCars = () => {
                     </Col>
                 </Row>
                 <Modal
-                    title="Thêm mới xe"
+                    title={t("account.my_cars.add_new")}
                     open={openCreateModal}
                     footer={false}
                     onCancel={() => setOpenCreateModal(false)}

@@ -25,7 +25,7 @@ const DashboardHeader = () => {
                 <LanguageSelector></LanguageSelector>
                 {isLogged ? <div className="flex items-center justify-center gap-x-5">
 
-                    <Popover title={<Typography.Title level={4}>Thông báo</Typography.Title>} content={<NotificationContent />} trigger="click" placement="bottomRight">
+                    <Popover title={<Typography.Title level={4}>{t("common.notification")}</Typography.Title>} content={<NotificationContent />} trigger="click" placement="bottomRight">
                         <Badge showZero count={0} size="default" className="cursor-pointer">
                             <BellOutlined className="text-xl" />
                         </Badge>
