@@ -39,8 +39,12 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDTO updateUser(ObjectId userId, UpdateUserDTO updateUserDTO) {
         User user = getUserByIdFromRepository(userId);
-        user.setDisplayName(updateUserDTO.displayName());
-        user.setPhoneNumber(updateUserDTO.phoneNumber());
+        if(updateUserDTO.imageUrl() != null)
+            user.setImageUrl(updateUserDTO.imageUrl());
+        if(updateUserDTO.displayName() != null)
+            user.setDisplayName(updateUserDTO.displayName());
+        if(updateUserDTO.phoneNumber() != null)
+            user.setPhoneNumber(updateUserDTO.phoneNumber());
         user = userRepository.save(user);
         return modelMapper.map(user, UserDTO.class);
     }

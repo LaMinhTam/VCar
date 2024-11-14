@@ -1,4 +1,4 @@
 package vn.edu.iuh.sv.vcarbe.dto;
 
-public record UpdateUserDTO(String displayName, String phoneNumber) {
+public record UpdateUserDTO(String displayName, String phoneNumber, String imageUrl) {
 }
