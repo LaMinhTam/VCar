@@ -27,6 +27,8 @@ import vn.edu.iuh.sv.vcarbe.util.MailSenderHelper;
 
 import java.io.UnsupportedEncodingException;
 import java.time.Duration;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Set;
 
 @Service
@@ -150,7 +152,63 @@ public class AuthServiceImpl implements Authservice {
         return userRepository.save(user);
     }
 
+    @Override
+    public void changePassword(UserPrincipal userPrincipal, ChangePasswordRequest request) {
+        User user = userRepository.findById(userPrincipal.getId())
+                .orElseThrow(() -> new AppException(404, MessageKeys.USER_NOT_FOUND.name()));
+
+        if (!passwordEncoder.matches(request.getOldPassword(), user.getPassword())) {
+            throw new AppException(400, MessageKeys.INVALID_OLD_PASSWORD.name());
+        }
+
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
+    }
+
+    @Override
+    public void sendPasswordResetOtp(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new AppException(404, MessageKeys.USER_NOT_FOUND.name()));
+
+        String otp = generateVerificationCode();
+        user.setPasswordResetCode(otp);
+        user.setPasswordResetCodeExpiry(calculateExpiryTime(10));
+        userRepository.save(user);
+        try {
+            mailSenderHelper.sendVerificationEmail(email, otp);
+        } catch (MessagingException | UnsupportedEncodingException e) {
+            throw new AppException(500, MessageKeys.OTP_SEND_FAILED.name());
+        }
+    }
+
+    @Override
+    public void resetPassword(ResetPasswordRequest request) {
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new AppException(404, MessageKeys.USER_NOT_FOUND.name()));
+        try{
+            if (user.getPasswordResetCode().equals(request.getOtp()) && user.getPasswordResetCodeExpiry().after(new Date())) {
+                user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+                user.setPasswordResetCodeExpiry(null);
+                user.setPasswordResetCode(null);
+                userRepository.save(user);
+            }else{
+                throw new AppException(400, MessageKeys.INVALID_OTP.name());
+            }
+        }catch (Exception e){
+            throw new AppException(400, MessageKeys.INVALID_OTP.name());
+        }
+    }
+
     private String generateVerificationCode() {
         return String.valueOf((int) ((Math.random() * 90000) + 10000));
     }
+
+    public static Date calculateExpiryTime(int minutesToAdd) {
+        Date currentTime = new Date();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(currentTime);
+        calendar.add(Calendar.MINUTE, minutesToAdd);
+        return calendar.getTime();
+    }
+
 }

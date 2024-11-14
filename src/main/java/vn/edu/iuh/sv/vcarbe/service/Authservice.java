@@ -15,4 +15,10 @@ public interface Authservice {
     SignInResponse verifyUser(VerificationRequest verificationRequest);
 
     User updatePhoneNumber(UserPrincipal userPrincipal, UpdatePhoneRequest updatePhoneRequest);
+
+    void changePassword(UserPrincipal userPrincipal, ChangePasswordRequest changePasswordRequest);
+
+    void sendPasswordResetOtp(String email);
+
+    void resetPassword(ResetPasswordRequest resetPasswordRequest);
 }

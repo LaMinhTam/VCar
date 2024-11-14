@@ -82,4 +82,29 @@ public class AuthController {
             @RequestBody @Valid UpdatePhoneRequest updatePhoneRequest) {
         return ResponseEntity.ok(new ApiResponseWrapper(200, MessageKeys.USER_PHONE_UPDATE_SUCCESS.name(), authService.updatePhoneNumber(userPrincipal, updatePhoneRequest)));
     }
+
+    @Operation(summary = "Change password", description = "Changes the password for the authenticated user")
+    @PostMapping("/change-password")
+    public ResponseEntity<ApiResponseWrapper> changePassword(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @RequestBody @Valid ChangePasswordRequest changePasswordRequest) {
+        authService.changePassword(userPrincipal, changePasswordRequest);
+        return ResponseEntity.ok(new ApiResponseWrapper(200, MessageKeys.PASSWORD_CHANGE_SUCCESS.name(), null));
+    }
+
+    @Operation(summary = "Forgot password", description = "Initiates the forgot password process by sending an OTP to the user's email")
+    @PostMapping("/forgot-password")
+    public ResponseEntity<ApiResponseWrapper> forgotPassword(
+            @RequestBody @Valid ForgotPasswordRequest forgotPasswordRequest) {
+        authService.sendPasswordResetOtp(forgotPasswordRequest.getEmail());
+        return ResponseEntity.ok(new ApiResponseWrapper(200, MessageKeys.OTP_SENT.name(), null));
+    }
+
+    @Operation(summary = "Reset password", description = "Resets the password using an OTP sent to the user's email")
+    @PostMapping("/reset-password")
+    public ResponseEntity<ApiResponseWrapper> resetPassword(
+            @RequestBody @Valid ResetPasswordRequest resetPasswordRequest) {
+        authService.resetPassword(resetPasswordRequest);
+        return ResponseEntity.ok(new ApiResponseWrapper(200, MessageKeys.PASSWORD_RESET_SUCCESS.name(), null));
+    }
 }

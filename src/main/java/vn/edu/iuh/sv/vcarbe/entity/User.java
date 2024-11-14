@@ -30,6 +30,9 @@ public class User {
     @NotNull
     private Boolean emailVerified = false;
     private String verificationCode;
+    private Date verificationCodeExpiry;
+    private String passwordResetCode;
+    private Date passwordResetCodeExpiry;
     @JsonIgnore
     private String password;
     @NotNull
