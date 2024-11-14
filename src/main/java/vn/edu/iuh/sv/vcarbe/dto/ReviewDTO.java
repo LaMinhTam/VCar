@@ -6,6 +6,8 @@ import lombok.NoArgsConstructor;
 import org.bson.Document;
 import vn.edu.iuh.sv.vcarbe.entity.Review;
 
+import java.util.Date;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -13,6 +15,7 @@ public class ReviewDTO {
     private String id;
     private String comment;
     private int rating;
+    private Date createAt;
     private UserDTO lessee;
     private UserDTO lessor;
 
@@ -21,6 +24,7 @@ public class ReviewDTO {
         this.comment = document.getString("comment");
         this.rating = document.getInteger("rating");
         this.lessee = new UserDTO(document.getObjectId("lesseeId").toHexString());
+        this.createAt = document.getDate("createAt");
     }
 
     public static ReviewDTO fromDocument(Document document, boolean isLessee) {
@@ -28,6 +32,7 @@ public class ReviewDTO {
         reviewDTO.setId(document.getObjectId("_id").toString());
         reviewDTO.setComment(document.getString("comment"));
         reviewDTO.setRating(document.getInteger("rating"));
+        reviewDTO.setCreateAt(document.getDate("createAt"));
         if (isLessee) {
             reviewDTO.setLessee(new UserDTO((Document) document.get("lesseeInfo")));
         } else {

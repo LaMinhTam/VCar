@@ -5,6 +5,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import vn.edu.iuh.sv.vcarbe.entity.ReviewType;
 
+import java.util.Date;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -18,5 +20,6 @@ public class CarReviewDTO {
     private String lesseeEmail;
     private String lesseeImageUrl;
     private String lesseePhoneNumber;
+    private Date createAt;
     private ReviewType reviewType;
 }
