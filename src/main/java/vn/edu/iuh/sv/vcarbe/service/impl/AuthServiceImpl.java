@@ -4,6 +4,8 @@ import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -14,6 +16,7 @@ import vn.edu.iuh.sv.vcarbe.entity.Role;
 import vn.edu.iuh.sv.vcarbe.entity.User;
 import vn.edu.iuh.sv.vcarbe.exception.AppException;
 import vn.edu.iuh.sv.vcarbe.exception.InternalServerErrorException;
+import vn.edu.iuh.sv.vcarbe.exception.InvalidCredentialsException;
 import vn.edu.iuh.sv.vcarbe.exception.MessageKeys;
 import vn.edu.iuh.sv.vcarbe.repository.RoleRepository;
 import vn.edu.iuh.sv.vcarbe.repository.UserRepository;
@@ -45,25 +48,34 @@ public class AuthServiceImpl implements Authservice {
 
     @Override
     public SignInResponse authenticateUser(LoginRequest loginRequest) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        loginRequest.getEmail(),
-                        loginRequest.getPassword()
-                )
-        );
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            loginRequest.getEmail(),
+                            loginRequest.getPassword()
+                    )
+            );
 
-        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-        String accessToken = tokenProvider.accessToken(userPrincipal);
-        String refreshToken = tokenProvider.refreshToken(userPrincipal);
-        return new SignInResponse(
-                userPrincipal.getId().toHexString(),
-                userPrincipal.getDisplayName(),
-                userPrincipal.getUsername(),
-                userPrincipal.getImageUrl(),
-                userPrincipal.getPhoneNumber(),
-                accessToken,
-                refreshToken);
+            UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+            String accessToken = tokenProvider.accessToken(userPrincipal);
+            String refreshToken = tokenProvider.refreshToken(userPrincipal);
+
+            return new SignInResponse(
+                    userPrincipal.getId().toHexString(),
+                    userPrincipal.getDisplayName(),
+                    userPrincipal.getUsername(),
+                    userPrincipal.getImageUrl(),
+                    userPrincipal.getPhoneNumber(),
+                    accessToken,
+                    refreshToken
+            );
+        } catch (BadCredentialsException ex) {
+            throw new InvalidCredentialsException("BAD_CREDENTIALS");
+        } catch (DisabledException ex) {
+            throw new InvalidCredentialsException("USER_DISABLED");
+        }
     }
+
 
     public User registerUser(SignUpRequest signUpRequest) {
         if (userRepository.existsByEmail(signUpRequest.getEmail())) {
