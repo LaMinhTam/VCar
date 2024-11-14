@@ -72,6 +72,8 @@ public class SecurityConfig {
                         .permitAll()
                         .requestMatchers("/actuator/**","/auth/signup", "/auth/login", "/auth/signin", "/auth/verify", "/oauth2/**", "/socket.io/")
                         .permitAll()
+                        .requestMatchers("/auth/forgot-password", "/auth/reset-password")
+                        .permitAll()
                         .requestMatchers(HttpMethod.GET, "/cars/**", "/reviews/**")
                         .permitAll()
                         .requestMatchers(HttpMethod.GET, "/cars/owned")
