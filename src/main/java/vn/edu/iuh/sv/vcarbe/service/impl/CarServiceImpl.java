@@ -80,7 +80,7 @@ public class CarServiceImpl implements CarService {
     }
 
     @Override
-    public List<CarDTO> search(SearchCriteria criteria) {
+    public Page<CarDTO> search(SearchCriteria criteria) {
         Pageable pageable = PageRequest.of(criteria.getPage(), criteria.getSize());
         return carRepository.search(criteria, pageable);
     }

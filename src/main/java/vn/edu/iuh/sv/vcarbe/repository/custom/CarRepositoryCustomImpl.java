@@ -269,10 +269,11 @@ public class CarRepositoryCustomImpl implements CarRepositoryCustom {
 
 
     @Override
-    public List<CarDTO> search(SearchCriteria criteria, Pageable pageable) {
+    public Page<CarDTO> search(SearchCriteria criteria, Pageable pageable) {
         MongoCollection<Document> collection = getCollection("cars");
 
         Bson finalQuery = buildSearchQuery(criteria);
+        long totalItems = collection.countDocuments(finalQuery);
         List<Bson> pipeline = buildPipeline(finalQuery, pageable, new Date(criteria.getRentalStartDate()), new Date(criteria.getRentalEndDate()), criteria.getRating());
 
         List<CarDTO> carDTOs = new ArrayList<>();
@@ -283,7 +284,7 @@ public class CarRepositoryCustomImpl implements CarRepositoryCustom {
             carDTOs.add(carDTO);
         }
 
-        return carDTOs;
+        return new PageImpl<>(carDTOs, pageable, totalItems);
     }
 
     @Override

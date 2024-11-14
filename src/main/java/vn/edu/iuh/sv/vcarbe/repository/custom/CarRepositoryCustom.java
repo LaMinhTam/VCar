@@ -15,7 +15,7 @@ public interface CarRepositoryCustom {
 
     CarDetailDTO findByIdCustom(ObjectId id);
 
-    List<CarDTO> search(SearchCriteria criteria, Pageable pageable);
+    Page<CarDTO> search(SearchCriteria criteria, Pageable pageable);
 
     Page<CarDTO> findByOwner(ObjectId id, String searchQuery, Pageable pageable);
 }

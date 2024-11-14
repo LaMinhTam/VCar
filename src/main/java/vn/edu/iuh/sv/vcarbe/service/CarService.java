@@ -22,7 +22,7 @@ public interface CarService {
 
     List<String> autocomplete(String query, Province province);
 
-    List<CarDTO> search(SearchCriteria criteria);
+    Page<CarDTO> search(SearchCriteria criteria);
 
     Page<CarDTO> getCarsByOwner(UserPrincipal userPrincipal, int page, int size, String sortField, boolean sortDescending, String searchQuery);
 }

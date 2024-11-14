@@ -19,8 +19,6 @@ import vn.edu.iuh.sv.vcarbe.exception.MessageKeys;
 import vn.edu.iuh.sv.vcarbe.security.UserPrincipal;
 import vn.edu.iuh.sv.vcarbe.service.CarService;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/cars")
 @Tag(name = "Car Controller", description = "APIs related to car management")
@@ -129,8 +127,9 @@ public class CarController {
             @ApiResponse(responseCode = "200", description = "Cars found successfully")
     })
     @GetMapping("/search")
-    public ResponseEntity<ApiResponseWrapper> search(SearchCriteria criteria) {
-        List<CarDTO> cars = carService.search(criteria);
-        return ResponseEntity.ok(new ApiResponseWrapper(200, MessageKeys.SUCCESS.name(), cars));
+    public ResponseEntity<ApiResponseWrapperWithMeta> search(SearchCriteria criteria) {
+        Page<CarDTO> carPage = carService.search(criteria);
+        return ResponseEntity.ok(new ApiResponseWrapperWithMeta(200, MessageKeys.SUCCESS.name(), carPage.getContent(), new PaginationMetadata(carPage)));
+
     }
 }
