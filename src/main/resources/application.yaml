@@ -53,3 +53,15 @@ springdoc:
     path: /swagger-ui-custom.html
 vcar:
   icon: ${VCAR_ICON}
+
+logging:
+  level:
+    root: INFO
+    org.springframework.boot: INFO
+    org.springframework.web: INFO
+    org.springframework.data: INFO
+    org.springframework.context: INFO
+    org.mongodb.driver: WARN
+    org.springframework.data.redis: WARN
+    org.springframework.data.repository: WARN
+    org.springframework.security.authentication: WARN
