@@ -63,7 +63,7 @@ const ListCarPage = () => {
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [startDate, endDate, province]);
-    const { cars, loading } = useSelector((state: RootState) => state.car);
+    const { cars, loading, meta } = useSelector((state: RootState) => state.car);
     const initProvinceId = useMemo(() => {
         const province = provinces.find(p => p.enName === searchParams.get("province")?.replace("_", " "));
         return province?.id;
@@ -200,11 +200,14 @@ const ListCarPage = () => {
                                     </Row>
                                     <Row justify="end" className="mt-4">
                                         <Pagination
-                                            total={100}
-                                            current={Number(params.page)}
-                                            pageSize={Number(params.size)}
+                                            current={meta.page}
+                                            pageSize={meta.page_size}
+                                            total={meta.item_count}
                                             onChange={handlePageChange}
                                             showSizeChanger
+                                            onShowSizeChange={() => {
+                                                handlePageChange(1, Number(searchParams.get("size") ?? 10));
+                                            }}
                                             showTotal={(total, range) => `${range[0]}-${range[1]} of ${total} items`}
                                         />
                                     </Row>

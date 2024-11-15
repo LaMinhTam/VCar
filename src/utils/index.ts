@@ -197,7 +197,6 @@ export const isMetaMaskInstalled = (): boolean => {
 export const connectWallet = async (): Promise<string | null> => {
   try {
     if (!isMetaMaskInstalled()) {
-      alert("MetaMask chưa được cài đặt!");
       return null;
     }
 
@@ -215,11 +214,12 @@ export const connectWallet = async (): Promise<string | null> => {
 };
 
 export const getWalletBalance = async (
-  address: string
+  address: string,
+  t: TFunction<"translation", undefined>
 ): Promise<string | null> => {
   try {
     if (!isMetaMaskInstalled()) {
-      alert("MetaMask chưa được cài đặt!");
+      message.error(t("msg.METAMASK_NOT_INSTALLED"));
       return null;
     }
 
@@ -229,6 +229,7 @@ export const getWalletBalance = async (
     return formatEther(balance);
   } catch (error) {
     console.error("Lỗi khi lấy số dư ví:", error);
+    message.error(t("msg.METAMASK_UNDEFINED_ERROR"))
     return null;
   }
 };
@@ -244,7 +245,7 @@ export const sendTransaction = async (
     if (!isMetaMaskInstalled()) {
       return {
         success: false,
-        message: "MetaMask chưa được cài đặt!",
+        message: "msg.METAMASK_NOT_INSTALLED",
       };
     }
 
@@ -263,7 +264,7 @@ export const sendTransaction = async (
     // Giao dịch thành công
     return {
       success: true,
-      message: "Giao dịch đã được gửi thành công!",
+      message: "msg.TRANSACTION_SUCCESS",
     };
   } catch (error: any) {
     if (
@@ -272,12 +273,12 @@ export const sendTransaction = async (
     ) {
       return {
         success: false,
-        message: "Bạn đã hủy giao dịch!",
+        message: "msg.TRANSACTION_CANCEL",
       };
     }
     return {
       success: false,
-      message: "Lỗi khi gửi giao dịch. Vui lòng thử lại sau!",
+      message: "msg.TRANSACTION_FAILED",
     };
   }
 };
@@ -350,15 +351,6 @@ export const handleRecognizeLicensePlate = async (
           "Content-Type": "multipart/form-data",
         },
       }
-    );
-
-    console.log(
-      "handleRecognizeLicensePlate ~ response:",
-      response.data
-    );
-    console.log(
-      "handleRecognizeLicensePlate ~ response:",
-      response.data.data.at(0)
     );
 
     if (response?.data?.data) {

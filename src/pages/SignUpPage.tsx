@@ -182,6 +182,7 @@ const SignUpPage = () => {
           onCancel={() => setVisibleVerifyCodeModal(false)}
           footer={false}
           title={t("verify_code.title")}
+          maskClosable={false}
         >
           <VerifyCodeModal loading={loadingVerifyCode} handleVerifyCode={handleVerifyCode} />
         </Modal>

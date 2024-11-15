@@ -147,11 +147,51 @@ async function handleMakeNotificationAsRead(id: string) {
   }
 }
 
+async function handleForgotPassword(email: string) {
+  try {
+    const response = await axiosInstance.post(ENDPOINTS.FORGOT_PASSWORD, { email });
+    if (response.data.code === 200) {
+      return { success: true, message: response.data.message };
+    }else {
+      return { success: false, message: response.data.message };
+    }
+  } catch (error) {
+    const typedError = error as Error;
+    console.error("handleForgotPassword ~ error:", typedError.message);
+    return { success: false, message: null };
+  }
+}
+
+async function handleResetPassword(
+  email: string,
+  otp: string,
+  new_password: string
+) {
+  try {
+    const response = await axiosInstance.post(ENDPOINTS.RESET_PASSWORD, {
+      email,
+      otp,
+      new_password,
+    });
+    if (response.data.code === 200) {
+      return { success: true, message: response.data.message };
+    }else {
+      return { success: false, message: response.data.message };
+    }
+  } catch (error) {
+    const typedError = error as Error;
+    console.error("handleResetPassword ~ error:", typedError.message);
+    return { success: false, message: null };
+  }
+}
+
 export {
   login,
   subscribeDevice,
   getListNotifications,
   handleMakeNotificationAsRead,
   register,
-  verifyEmail
+  verifyEmail,
+  handleForgotPassword,
+  handleResetPassword
 };

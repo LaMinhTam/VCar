@@ -99,3 +99,19 @@ export const buyToken = async () => {
         return {success: false, data: null};
     }
 }
+
+export const changePassword = async (old_password: string, new_password: string) => {
+    try {
+        const response = await axiosPrivate.post(ENDPOINTS.CHANGE_PASSWORD, {old_password, new_password});
+        const { message, code } = response.data;
+        if(code === 200) {
+            return {success: true, message};
+        }else {
+            return {success: false, message};
+        }
+    } catch (error) {
+        const typedError = error as AxiosError;
+        console.log(typedError.response?.data);
+        return {success: false, message: null};
+    }
+}

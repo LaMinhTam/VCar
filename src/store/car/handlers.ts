@@ -14,6 +14,7 @@ import {
   getCars,
   getCarsFailed,
   getCarsSuccess,
+  setMetaData,
 } from "./reducers";
 import { AxiosResponse } from "axios";
 import { IMetaData } from "../rental/types";
@@ -44,6 +45,7 @@ function* searchCar(action: {
         params: action.payload,
       }
     );
+    yield put(setMetaData(response?.data?.meta as IMetaData));
     yield put(getCarsSuccess(response.data.data));
   } catch (error) {
     const typedError = error as Error;

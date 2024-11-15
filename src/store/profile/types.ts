@@ -3,6 +3,7 @@ import { IUser } from "../auth/types";
 export interface UpdateProfilePayload {
     display_name: string;
     phone_number: string;
+    image_url: string;
 }
 
 export interface UpdateLicensePayload {

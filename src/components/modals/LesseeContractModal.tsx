@@ -18,10 +18,12 @@ import ReturnVehicleHandover from "./ReturnVehicleHandover";
 import { useForm } from "antd/es/form/Form";
 import ImageModule from 'docxtemplater-image-module-free';
 import CreateReviewModal from "./CreateReviewModal";
+import { useTranslation } from "react-i18next";
 
 const LesseeContractModal = ({ record }: {
     record: IContractData;
 }) => {
+    const { t } = useTranslation()
     const [loading, setLoading] = useState(false);
     const [vehicleHandover, setVehicleHandover] = useState<IVehicleHandoverResponseData>({} as IVehicleHandoverResponseData);
     const userInfo = getUserInfoFromCookie();
@@ -87,7 +89,7 @@ const LesseeContractModal = ({ record }: {
             if (imageUrl) {
                 const address = await connectWallet();
                 if (address) {
-                    const balance = await getWalletBalance(address);
+                    const balance = await getWalletBalance(address, t);
                     if (balance !== null && parseFloat(balance) < 0.05) {
                         message.error('Số dư trong ví không đủ để thực hiện giao dịch');
                         setLoading(false);

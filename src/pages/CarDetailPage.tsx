@@ -1,20 +1,17 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
 import { AppDispatch, RootState } from '../store/store';
 import { GET_CAR_BY_ID } from '../store/car/action';
 import { v4 as uuidv4 } from 'uuid';
 import { Avatar, Button, Carousel, Col, Divider, Flex, Rate, Row, Spin, Tag, Typography } from 'antd';
-import { CarOutlined, HeartOutlined, MailOutlined, PhoneOutlined } from '@ant-design/icons';
+import { CarOutlined, HeartOutlined, MailOutlined, PhoneOutlined, UserOutlined } from '@ant-design/icons';
 import gasStationIcon from "../assets/gas-station.png";
 import transmissionIcon from "../assets/transmission.png";
 import { useTranslation } from 'react-i18next';
-import { DEFAULT_AVATAR } from '../config/apiConfig';
 import CarCard from '../components/CarCard';
 import CarCardSkeleton from '../components/common/CarCardSkeleton';
-import { getReviewByCarId } from '../store/rental/handlers';
-import { IReviewItem } from '../store/car/types';
-import { handleGenerateViewAllCarsLink } from '../utils/helper';
+import { convertTimestampToDayjs, handleGenerateViewAllCarsLink } from '../utils/helper';
 
 const CarDetailPage = () => {
     const navigate = useNavigate();
@@ -22,21 +19,10 @@ const CarDetailPage = () => {
     const { id } = useParams();
     const dispatch = useDispatch<AppDispatch>();
     const { carDetail, loading } = useSelector((state: RootState) => state.car);
-    const { car, related_cars } = carDetail;
-    const [listReviews, setListReviews] = useState<IReviewItem[]>([]);
+    const { car, related_cars, reviews } = carDetail;
     useMemo(() => {
         dispatch({ type: GET_CAR_BY_ID, payload: id });
     }, [dispatch, id])
-
-    useEffect(() => {
-        async function fetchReviews() {
-            const response = await getReviewByCarId(id ?? "");
-            if (response?.success) {
-                setListReviews(response.data);
-            }
-        }
-        fetchReviews();
-    }, [id])
     const handleRentNow = (id: string) => {
         localStorage.setItem("STORAGE_RENT_CAR_ID", id);
         navigate("/checkout");
@@ -61,7 +47,7 @@ const CarDetailPage = () => {
                                     <Typography.Title level={3}>{car?.name}</Typography.Title>
                                     <div className='flex items-center justify-start gap-x-2'>
                                         <Rate allowHalf disabled defaultValue={car?.average_rating} />
-                                        <Typography.Text>{listReviews?.length ?? 0}+ {t("common.reviewer")}</Typography.Text>
+                                        <Typography.Text>{reviews?.length ?? 0}+ {t("common.reviewer")}</Typography.Text>
                                     </div>
                                 </div>
                                 <HeartOutlined className='text-2xl cursor-pointer' />
@@ -141,7 +127,7 @@ const CarDetailPage = () => {
                     <Typography.Title level={4}>{t("common.carOwner")}</Typography.Title>
                     <Divider></Divider>
                     <div className='flex items-start gap-x-2'>
-                        <Avatar size={"large"} src={DEFAULT_AVATAR} className='cursor-pointer' alt='Avatar'></Avatar>
+                        <Avatar size={"large"} src={car?.owner?.image_url} icon={<UserOutlined style={{ color: '#4754a4' }} />} className='cursor-pointer' alt='Avatar'></Avatar>
                         <div>
                             <Typography.Title level={5} className='cursor-pointer'>{car?.owner?.display_name}</Typography.Title>
                             <div className='flex flex-col gap-y-2'>
@@ -157,24 +143,24 @@ const CarDetailPage = () => {
                         <Typography.Title level={4} style={{
                             margin: 0
                         }}>{t("car.rating")}</Typography.Title>
-                        <Tag color='blue-inverse'>{listReviews?.length ?? 0}</Tag>
+                        <Tag color='blue-inverse'>{reviews?.length ?? 0}</Tag>
                     </div>
                     <Divider></Divider>
                     <Flex vertical>
-                        {listReviews && listReviews.map((review) => (
+                        {reviews && reviews.map((review) => (
                             <Row key={review.id}>
                                 <Col span={20}>
                                     <div className='flex items-start gap-x-2'>
-                                        <Avatar size={"large"} src={review?.lessee_image_url ?? DEFAULT_AVATAR} alt='Avatar'></Avatar>
+                                        <Avatar size={"large"} src={review?.lessee?.image_url} icon={<UserOutlined style={{ color: '#4754a4' }} />} alt='Avatar'></Avatar>
                                         <div className='flex-1'>
-                                            <Typography.Title level={5}>{review?.lessee_display_name}</Typography.Title>
+                                            <Typography.Title level={5}>{review?.lessee?.display_name}</Typography.Title>
                                             {review?.comment && <Typography.Paragraph>{review?.comment}</Typography.Paragraph>}
                                         </div>
                                     </div>
                                 </Col>
                                 <Col span={4}>
                                     <div className='flex flex-col items-end justify-end gap-y-2'>
-                                        <Typography.Text>21 July 2022</Typography.Text>
+                                        <Typography.Text>{convertTimestampToDayjs(review?.create_at)?.format("DD/MM/YYYY")}</Typography.Text>
                                         <Rate disabled defaultValue={review?.rating} allowHalf></Rate>
                                     </div>
                                 </Col>
@@ -189,7 +175,7 @@ const CarDetailPage = () => {
                         <Button type="link" href={handleGenerateViewAllCarsLink()}>{t("common.viewAll")}</Button>
                     </div>
                     <Row gutter={[32, 32]}>
-                        {related_cars.length > 0 && related_cars.map((car) => (
+                        {related_cars.length > 0 && related_cars?.slice(0, 4).map((car) => (
                             <Col key={car.id} span={6}>
                                 <CarCard car={car} />
                             </Col>

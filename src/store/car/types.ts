@@ -40,6 +40,7 @@ export interface IReview {
   id: string;
   comment: string;
   rating: number;
+  create_at: number;
   lessee: Owner;
 }
 

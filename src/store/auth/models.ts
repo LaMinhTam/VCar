@@ -9,6 +9,8 @@ export const ENDPOINTS = {
     `/notifications/subscribe-device?deviceToken=${token}`,
   GET_NOTIFICATIONS: "/notifications",
   MAKE_AS_READ: (id: string) => `/notifications/${id}/markAsRead`,
+  FORGOT_PASSWORD: `/auth/forgot-password`,
+  RESET_PASSWORD: `/auth/reset-password`,
 };
 
 export const NotificationParams = {

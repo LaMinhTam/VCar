@@ -80,7 +80,7 @@ const AccountDetails = () => {
         async function fetchMetamaskInfo() {
             const address = await connectWallet();
             if (address) {
-                const balance = await getWalletBalance(address);
+                const balance = await getWalletBalance(address, t);
                 setMetamaskInfo({
                     account: address,
                     balance: balance?.toString() || "0",
@@ -88,6 +88,7 @@ const AccountDetails = () => {
             }
         }
         fetchMetamaskInfo();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [refetchMe])
 
     const handleDepositToken = async () => {
@@ -109,7 +110,7 @@ const AccountDetails = () => {
         setLoading(true);
         const address = await connectWallet();
         if (address) {
-            const balance = await getWalletBalance(address);
+            const balance = await getWalletBalance(address, t);
             setMetamaskInfo({
                 account: address,
                 balance: balance?.toString() || "0",

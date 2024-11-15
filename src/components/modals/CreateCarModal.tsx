@@ -13,6 +13,7 @@ import { connectWallet, getUserInfoFromCookie, getWalletBalance, handleUploadFil
 import dayjs from "dayjs";
 import { useDispatch } from "react-redux";
 import { createCar } from "../../store/car/handlers";
+import { useTranslation } from "react-i18next";
 
 const config = {
     uploader: {
@@ -30,6 +31,7 @@ const CreateCarModal = ({ params, setParams, setOpen }: {
     params: IQueryCarOwner
     setParams: (params: IQueryCarOwner) => void;
 }) => {
+    const { t } = useTranslation();
     const dispatch = useDispatch();
     const userInfo = getUserInfoFromCookie();
     const [screenShot, setScreenShot] = useState<UploadFile[]>([]);
@@ -44,17 +46,18 @@ const CreateCarModal = ({ params, setParams, setOpen }: {
         };
         const address = await connectWallet();
         if (address) {
-            const balance = await getWalletBalance(address);
+            const balance = await getWalletBalance(address, t);
             if (balance !== null && parseFloat(balance) < 0.05) {
-                message.error('Số dư trong ví không đủ để thực hiện giao dịch');
+                message.error(t("msg.BALANCE_NOT_ENOUGH"));
                 setLoading(false);
                 return;
             } else {
                 const transactionResult = await sendTransaction(import.meta.env.VITE_VCAR_OWNER_METAMASK_ADDRESS, '0.05');
                 if (transactionResult.success) {
+                    message.success(t(transactionResult.message))
                     const files = screenShot.map((shot) => shot.originFileObj as File);
                     if (files.length === 0) {
-                        message.error('Vui lòng tải lên ít nhất 1 hình ảnh');
+                        message.error(t("msg.UPLOAD_AT_LEAST_ONE_IMAGE"));
                         setLoading(false);
                         return;
                     } else {
@@ -72,64 +75,64 @@ const CreateCarModal = ({ params, setParams, setOpen }: {
                             const response = await createCar(newValues);
                             if (response.success) {
                                 setLoading(false);
-                                message.success('Tạo xe thành công');
+                                message.success(t("msg.CREATE_CAR_SUCCESS"));
                                 setParams({ ...params, page: '1' });
                                 setOpen(false);
                             } else {
                                 setLoading(false);
-                                message.error('Lỗi hệ thống, chúng tôi sẽ chuyển lại phí giao dịch cho bạn trong vòng 24h');
+                                message.error(t("msg.SYSTEM_MAINTENANCE_FOR_CRUD_CAR"));
                             }
                         } else {
-                            message.error('Some images failed to upload');
+                            message.error(t("msg.UPLOAD_FAILURE"));
                             setLoading(false);
                         }
                     }
                 } else {
                     setLoading(false);
-                    message.error(transactionResult.message)
+                    message.error(t(transactionResult.message))
                 }
             }
         } else {
             setLoading(false);
-            message.error('Vui lòng kết nối ví để thực hiện giao dịch');
+            message.error(t("msg.METAMASK_NOT_CONNECTED"));
         }
     }
 
     const tabs: TabsProps['items'] = [
         {
             key: '1',
-            label: 'Xe',
+            label: t("common.car"),
             children: <CarInformationTab />,
             icon: <CarOutlined />,
         },
         {
             key: '2',
-            label: 'Chức năng',
+            label: t("common.feature"),
             children: <CarFeatureTab />,
             icon: <DeploymentUnitOutlined />
         },
         {
             key: '3',
-            label: 'Giấy tờ xe',
+            label: t("common.carLicense"),
             children: <CarLicenseTab />,
             icon: <IdcardOutlined />
         },
         {
             key: '4',
-            label: 'Hình ảnh',
+            label: t("common.image"),
             children: <CarImageTab screenShot={screenShot} setScreenShot={setScreenShot} />,
             icon: <PictureOutlined />
         },
         {
             key: '5',
-            label: 'Mô tả',
+            label: t("common.description"),
             children: <Form.Item
                 name="description"
                 required
                 rules={[
                     {
                         required: true,
-                        message: 'Vui lòng nhập mô tả',
+                        message: t("common.description.required"),
                     },
                 ]}
             >
@@ -139,7 +142,7 @@ const CreateCarModal = ({ params, setParams, setOpen }: {
         },
         {
             key: '6',
-            label: 'Phí thuê và chi phí khác',
+            label: t("common.rentalFeeAndOtherFee"),
             children: <RentFeeTab />,
             icon: <MoneyCollectOutlined />
         }
@@ -159,11 +162,11 @@ const CreateCarModal = ({ params, setParams, setOpen }: {
                     <Button onClick={() => setOpen(false)} type="default" style={{
                         padding: '4px 15px',
                         width: 120
-                    }}>Hủy</Button>
+                    }}>{t("common.cancel")}</Button>
                     <Button type="primary" style={{
                         padding: '4px 15px',
                         width: 120
-                    }} htmlType="submit">Tạo</Button>
+                    }} htmlType="submit">{t("common.create")}</Button>
                 </Flex>
             </Form>
         </Spin>

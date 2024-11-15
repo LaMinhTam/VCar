@@ -1,6 +1,5 @@
-import { EditOutlined, SlidersOutlined } from '@ant-design/icons';
-import { Button, Col, Divider, Flex, Modal, Row, Typography } from 'antd';
-import ImageUploader from '../../../components/common/ImageUploader';
+import { EditOutlined, SlidersOutlined, UserOutlined } from '@ant-design/icons';
+import { Avatar, Button, Col, Divider, Flex, Modal, Row, Typography } from 'antd';
 import { getUserInfoFromCookie } from '../../../utils';
 import UpdateProfileModal from '../../../components/modals/UpdateProfileModal';
 import { useState } from 'react';
@@ -35,7 +34,13 @@ const ProfileCard = ({
                     </Col>
                     <Col span={6}>
                         <Flex gap={12} vertical align="center">
-                            <ImageUploader></ImageUploader>
+                            {/* <ImageUploader></ImageUploader> */}
+                            <Avatar
+                                src={userInfo?.image_url}
+                                alt={userInfo?.display_name}
+                                icon={<UserOutlined style={{ color: '#4754a4' }} />}
+                                size={128}
+                            />
                             <Typography.Title level={5}>{userInfo?.display_name}</Typography.Title>
                             <Typography.Text>{t("account.my_account.join")}: 05/09/2024</Typography.Text>
                         </Flex>
@@ -72,7 +77,7 @@ const ProfileCard = ({
                 </Row>
             </Col>
 
-            <Modal title={t("account.my_account.update_profile")} footer={false} open={openUpdateProfileModal} onCancel={() => setOpenUpdateProfileModal(false)}>
+            <Modal title={t("account.my_account.update_profile")} footer={false} open={openUpdateProfileModal} onCancel={() => setOpenUpdateProfileModal(false)} maskClosable={false} destroyOnClose>
                 <UpdateProfileModal refetchMe={refetchMe} setRefetchMe={setRefetchMe} setOpenUpdateProfileModal={setOpenUpdateProfileModal}></UpdateProfileModal>
             </Modal>
         </>

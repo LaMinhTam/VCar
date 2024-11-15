@@ -1,4 +1,4 @@
-import { CarOutlined, DeleteOutlined, EditOutlined, LeftOutlined } from "@ant-design/icons";
+import { CarOutlined, DeleteOutlined, EditOutlined, HeartOutlined, LeftOutlined } from "@ant-design/icons";
 import gasStationIcon from "../assets/gas-station.png";
 import transmissionIcon from "../assets/transmission.png";
 import { Button, Carousel, Col, Divider, Flex, message, Modal, Rate, Row, Spin, Tag, Typography } from "antd";
@@ -23,7 +23,7 @@ const MyCarDetails = () => {
     const [refetchCarData, setRefetchCarData] = useState(false);
     const [onEditModal, setOpenEditModal] = useState(false);
     const { carDetail, loading } = useSelector((state: RootState) => state.car);
-    const { car } = carDetail;
+    const { car, reviews } = carDetail;
     useMemo(() => {
         dispatch({ type: GET_CAR_BY_ID, payload: id });
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -66,18 +66,18 @@ const MyCarDetails = () => {
     }, [car])
     const handleDeleteCar = () => {
         Modal.confirm({
-            title: 'Xác nhận xóa',
-            content: 'Bạn có chắc chắn muốn xóa xe này?',
+            title: t("account.my_cars.delete_confirm"),
+            content: t("account.my_cars.delete_desc"),
             async onOk() {
                 setDeleteLoading(true);
                 const response = await deleteCar(id as string);
                 if (response.success) {
                     setDeleteLoading(false);
-                    message.success("Xóa xe thành công");
+                    message.success(t("msg.DELETE_CAR_SUCCESS"));
                     navigate('/account/my-cars');
                 } else {
                     setDeleteLoading(false);
-                    message.error("Xóa xe thất bại");
+                    message.error(t("msg.DELETE_CAR_FAILED"));
                 }
             },
             onCancel() {
@@ -93,8 +93,8 @@ const MyCarDetails = () => {
                         <LeftOutlined />
                     </Link>
                     <Flex align="center" gap={20}>
-                        <Button type="primary" icon={<EditOutlined />} onClick={() => setOpenEditModal(true)}>Sửa</Button>
-                        <Button type="primary" danger icon={<DeleteOutlined />} onClick={handleDeleteCar}>Xóa</Button>
+                        <Button type="primary" icon={<EditOutlined />} onClick={() => setOpenEditModal(true)}>{t("common.update")}</Button>
+                        <Button type="primary" danger icon={<DeleteOutlined />} onClick={handleDeleteCar}>{t("common.delete")}</Button>
                     </Flex>
                 </Flex>
                 <Divider></Divider>
@@ -115,13 +115,13 @@ const MyCarDetails = () => {
                                     <Typography.Title level={3}>{car?.name}</Typography.Title>
                                     <div className='flex items-center justify-start gap-x-2'>
                                         <Rate allowHalf disabled defaultValue={car?.average_rating} />
-                                        <Typography.Text>440+ Reviewer</Typography.Text>
+                                        <Typography.Text>{reviews?.length ?? 0}+ {t("common.reviewer")}</Typography.Text>
                                     </div>
                                 </div>
+                                <HeartOutlined className='text-2xl cursor-pointer' />
                             </div>
-
                             <div>
-                                <Typography.Title level={5}>Đặc điểm</Typography.Title>
+                                <Typography.Title level={5}>{t("common.characteristic")}</Typography.Title>
                                 <div className="flex items-center justify-start mb-2 gap-x-5">
                                     <div className="flex items-center">
                                         <img
@@ -131,7 +131,7 @@ const MyCarDetails = () => {
                                         />
                                         <div className='flex flex-col'>
                                             <Typography.Text className="text-filter-range">
-                                                NL tiêu hao
+                                                {t("car.fuel_consumption")}
                                             </Typography.Text>
                                             <Typography.Text className="text-filter-range">
                                                 {car?.fuel_consumption} {t("common.litersPer100km")}
@@ -146,7 +146,7 @@ const MyCarDetails = () => {
                                         />
                                         <div className='flex flex-col'>
                                             <Typography.Text className="text-filter-range">
-                                                Hộp số
+                                                {t("car.transmission")}
                                             </Typography.Text>
                                             <Typography.Text className="text-filter-range">
                                                 {car?.transmission === "MANUAL" ? t("car.manual") : t("car.automatic")}
@@ -157,7 +157,7 @@ const MyCarDetails = () => {
                                         <CarOutlined className='mr-2 text-2xl' />
                                         <div className='flex flex-col'>
                                             <Typography.Text className="text-filter-range">
-                                                Số ghế
+                                                {t("car.seat")}
                                             </Typography.Text>
                                             <Typography.Text className="text-filter-range">
                                                 {car?.seat}
@@ -167,11 +167,11 @@ const MyCarDetails = () => {
                                 </div>
                             </div>
                             <div className="mt-2">
-                                <Typography.Title level={5}>Các tiện nghi khác</Typography.Title>
+                                <Typography.Title level={5}>{t("car.features")}</Typography.Title>
                                 <div className="flex flex-wrap gap-2">
                                     {car?.features.map((feature, index) => (
                                         <Tag key={index} color="blue">
-                                            {feature}
+                                            {t(`car.feature.${feature.toLowerCase()}`)}
                                         </Tag>
                                     ))}
                                 </div>
@@ -185,13 +185,13 @@ const MyCarDetails = () => {
                         </div>
                     </Col>
                     <Col span={24}>
-                        <Typography.Title level={5}>Mô tả</Typography.Title>
+                        <Typography.Title level={5}>{t("common.description")}</Typography.Title>
                         <div dangerouslySetInnerHTML={{ __html: car?.description }}></div>
                     </Col>
                 </Row>
             </div>
             <Modal
-                title="Thêm mới xe"
+                title={t("account.my_cars.update")}
                 open={onEditModal}
                 footer={false}
                 onCancel={() => setOpenEditModal(false)}

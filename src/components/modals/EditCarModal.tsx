@@ -14,6 +14,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { getUserInfoFromCookie, handleUploadFile } from "../../utils";
 import { useDispatch } from "react-redux";
 import { updateCar } from "../../store/car/handlers";
+import { useTranslation } from "react-i18next";
 
 const config = {
     uploader: {
@@ -33,6 +34,7 @@ const EditCarModal = ({ id, carData, setOpen, setRefetchCarData, refetchCarData 
     setRefetchCarData: (refetch: boolean) => void;
     refetchCarData: boolean;
 }) => {
+    const { t } = useTranslation();
     const dispatch = useDispatch();
     const userInfo = getUserInfoFromCookie();
     const [loading, setLoading] = useState(false);
@@ -82,7 +84,7 @@ const EditCarModal = ({ id, carData, setOpen, setRefetchCarData, refetchCarData 
             if (imageUrls.length === files.length) {
                 newValues.image_url = [...images, ...imageUrls];
             } else {
-                message.error('Some images failed to upload');
+                message.error(t("msg.UPLOAD_FAILURE"));
                 setLoading(false);
             }
         } else {
@@ -90,51 +92,51 @@ const EditCarModal = ({ id, carData, setOpen, setRefetchCarData, refetchCarData 
         }
         const response = await updateCar(newValues, id);
         if (response.success) {
-            message.success('Cập nhật thành công');
+            message.success(t("UPDATE_CAR_SUCCESS"));
             setLoading(false);
             setOpen(false);
             setRefetchCarData(!refetchCarData);
         } else {
             setLoading(false);
-            message.error(response.message);
+            message.error(t("msg.UPDATE_CAR_FAILED"));
         }
     }
 
     const tabs: TabsProps['items'] = [
         {
             key: '1',
-            label: 'Xe',
+            label: t("common.car"),
             children: <CarInformationTab />,
             icon: <CarOutlined />,
         },
         {
             key: '2',
-            label: 'Chức năng',
+            label: t("common.feature"),
             children: <CarFeatureTab features={carData?.features} />,
             icon: <DeploymentUnitOutlined />
         },
         {
             key: '3',
-            label: 'Giấy tờ xe',
+            label: t("common.carLicense"),
             children: <CarLicenseTab />,
             icon: <IdcardOutlined />
         },
         {
             key: '4',
-            label: 'Hình ảnh',
+            label: t("common.image"),
             children: <CarImageTab screenShot={screenShot} setScreenShot={setScreenShot} />,
             icon: <PictureOutlined />
         },
         {
             key: '5',
-            label: 'Mô tả',
+            label: t("common.description"),
             children: <Form.Item
                 name="description"
                 required
                 rules={[
                     {
                         required: true,
-                        message: 'Vui lòng nhập mô tả',
+                        message: t("common.description.required"),
                     },
                 ]}
             >
@@ -144,7 +146,7 @@ const EditCarModal = ({ id, carData, setOpen, setRefetchCarData, refetchCarData 
         },
         {
             key: '6',
-            label: 'Phí thuê và chi phí khác',
+            label: t("common.rentalFeeAndOtherFee"),
             children: <RentFeeTab />,
             icon: <MoneyCollectOutlined />
         }
@@ -170,11 +172,11 @@ const EditCarModal = ({ id, carData, setOpen, setRefetchCarData, refetchCarData 
                     <Button onClick={() => setOpen(false)} type="default" style={{
                         padding: '4px 15px',
                         width: 120
-                    }}>Hủy</Button>
+                    }}>{t("common.cancel")}</Button>
                     <Button type="primary" style={{
                         padding: '4px 15px',
                         width: 120
-                    }} htmlType="submit">Cập nhật</Button>
+                    }} htmlType="submit">{t("common.update")}</Button>
                 </Flex>
             </Form>
         </Spin>

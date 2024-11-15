@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { Button, Col, Flex, Form, FormProps, Input, Row, Typography } from "antd";
+import { Button, Col, Flex, Form, FormProps, Input, Modal, Row, Typography } from "antd";
 import LayoutAuthentication from "../layouts/LayoutAuthentication";
 import { toast } from "react-toastify";
 import { Link, useNavigate } from "react-router-dom";
@@ -11,6 +11,7 @@ import { IUser } from "../store/auth/types";
 import { axiosPrivate } from "../apis/axios";
 import { useAuth } from "../contexts/auth-context";
 import { ENDPOINTS } from "../store/profile/models";
+import ForgotPasswordModal from "../components/modals/ForgotPasswordModal";
 type FieldType = {
   email: string;
   password: string;
@@ -30,6 +31,7 @@ const LoginPage = () => {
   const { setIsLogged } = useAuth();
   const accessToken = getAccessToken();
   const [loading, setLoading] = useState(false);
+  const [forgotPasswordModalVisible, setForgotPasswordModalVisible] = useState(false);
 
   const onFinish = async (values: FieldType) => {
     setLoading(true);
@@ -46,7 +48,7 @@ const LoginPage = () => {
       navigate("/");
     } else {
       setLoading(false);
-      toast.error(t("login.failed"));
+      toast.error(t(`msg.${res?.message ?? "SYSTEM_MAINTENANCE"}`));
     }
   };
 
@@ -127,7 +129,7 @@ const LoginPage = () => {
                 <Input.Password placeholder={t("password.placeholder")} />
               </Form.Item>
               <Form.Item>
-                <Flex align="center" justify="flex-end"><Button type="link">{t('password.forgot')}</Button></Flex>
+                <Flex align="center" justify="flex-end"><Button type="link" onClick={() => setForgotPasswordModalVisible(true)}>{t('password.forgot')}</Button></Flex>
               </Form.Item>
               <Form.Item>
                 <Button
@@ -154,7 +156,18 @@ const LoginPage = () => {
           </Flex>
         </Col>
       </Row>
-    </LayoutAuthentication>
+      <Modal
+        open={forgotPasswordModalVisible}
+        onCancel={() => setForgotPasswordModalVisible(false)}
+        onClose={() => setForgotPasswordModalVisible(false)}
+        title={t("forgot_password.title")}
+        footer={false}
+        maskClosable={false}
+        destroyOnClose={true}
+      >
+        <ForgotPasswordModal setOpen={setForgotPasswordModalVisible} />
+      </Modal>
+    </LayoutAuthentication >
   );
 };
 

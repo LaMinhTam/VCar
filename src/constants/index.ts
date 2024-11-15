@@ -1,8 +1,8 @@
 export const RENT_REQUEST_OPTIONS = [
-  { label: "Tất cả", value: "" },
-  { label: "Đã duyệt", value: "APPROVED" },
-  { label: "Chờ duyệt", value: "PENDING" },
-  { label: "Từ chối", value: "REJECTED" },
+  { label: "account.my_trips.all", value: "" },
+  { label: "account.my_trips.approved", value: "APPROVED" },
+  { label: "account.my_trips.pending", value: "PENDING" },
+  { label: "account.my_trips.rejected", value: "REJECTED" },
 ];
 export enum RENTAL_SYSTEM_MESSAGE {
   LESSEE_SIGNED_CONTRACT,
