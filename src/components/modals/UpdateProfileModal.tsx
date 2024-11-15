@@ -51,12 +51,13 @@ const UpdateProfileModal = ({ setOpenUpdateProfileModal, refetchMe, setRefetchMe
             "upload_preset",
             import.meta.env.VITE_CLOUDINARY_PRESET_NAME || ""
         );
-        formData.append("public_id", avatar?.imageData?.name ?? convertDateToTimestamp(new Date().getDate().toString()));
+        formData.append("public_id", `user_avatar_${convertDateToTimestamp(new Date().toDateString())}`);
         const imageUrl = await handleUploadFile(formData, dispatch);
         if (imageUrl) {
             return imageUrl;
         }
     }
+
     const onFinish = async (values: FieldType) => {
         setLoading(true);
         let imageUrl = avatar.imageUrl;
