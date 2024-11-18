@@ -52,7 +52,7 @@ const CreateVehicleHandover = ({ form, rental_contract_id, setCreateHandoverLoad
             if (imageUrl) {
                 const signatureResult = await handleMetaMaskSignature(userInfo.id);
                 if (!signatureResult) {
-                    message.error('Failed to sign the document');
+                    message.error(t("msg.METAMASK_SIGNATURE_FAILED"));
                     return;
                 }
                 const digital_signature = {
@@ -72,17 +72,17 @@ const CreateVehicleHandover = ({ form, rental_contract_id, setCreateHandoverLoad
                 if (response?.success) {
                     setVehicleHandover(response?.data as IVehicleHandoverResponseData);
                     setCreateHandoverLoading(false);
-                    message.success('Create vehicle handover successfully');
+                    message.success(t("msg.CREATE_VEHICLE_HANDOVER_SUCCESS"));
                 } else {
                     setCreateHandoverLoading(false);
-                    message.error('Failed to create vehicle handover');
+                    message.error(t("msg.CREATE_VEHICLE_HANDOVER_FAILED"));
                 }
             } else {
                 setCreateHandoverLoading(false);
-                message.error('Failed to upload signature');
+                message.error(t("msg.UPLOAD_SIGNATURE_FAILED"));
             }
         } else {
-            message.error('Failed to get signature');
+            message.error(t("msg.METAMASK_SIGNATURE_FAILED"));
             setCreateHandoverLoading(false);
         }
     };
@@ -104,7 +104,7 @@ const CreateVehicleHandover = ({ form, rental_contract_id, setCreateHandoverLoad
                 <Col span={12}>
                     <Form.Item
                         name="handover_date"
-                        label="Thời gian bàn giao"
+                        label={t("account.rental_contract.handover_date")}
                         rules={[{
                             required: true,
                             message: t("require"),
@@ -117,15 +117,15 @@ const CreateVehicleHandover = ({ form, rental_contract_id, setCreateHandoverLoad
                 <Col span={12}>
                     <Form.Item
                         name="vehicle_condition"
-                        label="Tình trạng xe"
+                        label={t("account.rental_contract.vehicle_condition")}
                         rules={[{
                             required: true,
                             message: t("require"),
                         }]}
                     >
                         <Select className="w-full">
-                            <Option value="normal">Bình thường</Option>
-                            <Option value="damage">Hư hỏng</Option>
+                            <Option value="normal">{t("common.normal")}</Option>
+                            <Option value="damage">{t("common.damage")}</Option>
                         </Select>
                     </Form.Item>
                 </Col>
@@ -133,27 +133,27 @@ const CreateVehicleHandover = ({ form, rental_contract_id, setCreateHandoverLoad
                 <Col span={12}>
                     <Form.Item
                         name="odometer_reading"
-                        label="Số km đã đi"
+                        label={t("account.rental_contract.odometer_reading")}
                         rules={[{
                             required: true,
                             message: t("require"),
                         }]}
                     >
-                        <Input type="number" placeholder="Nhập số km đã đi" />
+                        <Input type="number" />
                     </Form.Item>
                 </Col>
 
                 <Col span={12}>
                     <Form.Item
                         name="personal_items"
-                        label="Đồ dùng cá nhân"
+                        label={t("account.rental_contract.personal_items")}
                     >
-                        <Input placeholder="Nhập đồ dùng cá nhân" />
+                        <Input />
                     </Form.Item>
                 </Col>
 
                 <Col span={24}>
-                    <Form.Item label="Thiệt hại" className="overflow-auto max-h-32">
+                    <Form.Item label={t("account.rental_contract.damages")} className="overflow-auto max-h-32">
                         <Space direction="horizontal" wrap className="w-full">
                             {damages.map((damage, index) => (
                                 <Tag
@@ -171,11 +171,10 @@ const CreateVehicleHandover = ({ form, rental_contract_id, setCreateHandoverLoad
                             <Input
                                 value={damageInput}
                                 onChange={(e) => setDamageInput(e.target.value)}
-                                placeholder="Nhập thiệt hại"
                                 className="w-full"
                             />
                             <Button type="dashed" onClick={addDamage} icon={<PlusOutlined />}>
-                                Thêm thiệt hại
+                                {t("account.rental_contract.add_damage")}
                             </Button>
                         </Space>
                     </Form.Item>
@@ -183,7 +182,7 @@ const CreateVehicleHandover = ({ form, rental_contract_id, setCreateHandoverLoad
 
                 <Col span={24}>
                     <Form.Item
-                        label="Tài sản thế chấp"
+                        label={t("account.rental_contract.collateral")}
                         rules={[{
                             required: true,
                             message: t("require"),
@@ -205,7 +204,7 @@ const CreateVehicleHandover = ({ form, rental_contract_id, setCreateHandoverLoad
                                             newCollateral[index].type = e.target.value;
                                             setCollateral(newCollateral);
                                         }}
-                                        placeholder="Loại tài sản"
+                                        placeholder={t("account.rental_contract.collateral_type")}
                                         className="w-full"
                                     />
                                     <Input
@@ -215,20 +214,20 @@ const CreateVehicleHandover = ({ form, rental_contract_id, setCreateHandoverLoad
                                             newCollateral[index].details = e.target.value;
                                             setCollateral(newCollateral);
                                         }}
-                                        placeholder="Chi tiết tài sản"
+                                        placeholder={t("account.rental_contract.collateral_detail")}
                                         className="w-full"
                                     />
                                 </Tag>
                             ))}
                             <Button type="dashed" onClick={addCollateral} icon={<PlusOutlined />}>
-                                Thêm tài sản thế chấp
+                                {t("account.rental_contract.add_collateral")}
                             </Button>
                         </Space>
                     </Form.Item>
                 </Col>
 
                 <Col span={24}>
-                    <Form.Item label="Chữ ký bàn giao">
+                    <Form.Item label={t("common.signature")}>
                         <SignatureCanvas
                             ref={sigCanvas}
                             penColor="black"
@@ -239,7 +238,7 @@ const CreateVehicleHandover = ({ form, rental_contract_id, setCreateHandoverLoad
                                 style: { border: '1px solid #000' }
                             }}
                         />
-                        <Button onClick={() => sigCanvas.current?.clear()} type='text'>Xóa chữ ký</Button>
+                        <Button onClick={() => sigCanvas.current?.clear()} type='text'>{t("common.deleteSignature")}</Button>
                     </Form.Item>
                 </Col>
             </Row>

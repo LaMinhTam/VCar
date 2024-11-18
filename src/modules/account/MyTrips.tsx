@@ -119,10 +119,6 @@ const MyTrips = () => {
         setIsModalOpen(true);
     };
 
-    const handleOk = () => {
-        setIsModalOpen(false);
-    };
-
     const handleCancel = () => {
         setIsModalOpen(false);
     };
@@ -154,7 +150,7 @@ const MyTrips = () => {
                     });
                 }}
             />
-            <Modal title="Chi tiết yêu cầu" open={isModalOpen} onOk={handleOk} width={860} onCancel={handleCancel}>
+            <Modal destroyOnClose={true} title={t("account.my_trips.request_detail")} open={isModalOpen} footer={false} width={860} onCancel={handleCancel}>
                 <TripDetailDialog record={modalRecord}></TripDetailDialog>
             </Modal>
         </div>

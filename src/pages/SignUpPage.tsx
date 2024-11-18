@@ -183,6 +183,7 @@ const SignUpPage = () => {
           footer={false}
           title={t("verify_code.title")}
           maskClosable={false}
+          destroyOnClose={true}
         >
           <VerifyCodeModal loading={loadingVerifyCode} handleVerifyCode={handleVerifyCode} />
         </Modal>

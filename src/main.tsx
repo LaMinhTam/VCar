@@ -138,15 +138,7 @@ createRoot(document.getElementById("root")!).render(
   <Provider store={store}>
     <AuthProvider value={{} as AuthContextType}>
       <App>
-        <Suspense
-          fallback={
-            <div className="flex items-center justify-center w-full h-screen mx-auto">
-              <Loading />
-            </div>
-          }
-        >
-          <RouterProvider router={router}></RouterProvider>
-        </Suspense>
+        <RouterProvider router={router}></RouterProvider>
       </App>
       <ToastContainer bodyClassName="font-primary text-sm"></ToastContainer>
       <Analytics />

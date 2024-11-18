@@ -197,6 +197,7 @@ const MyCarDetails = () => {
                 onCancel={() => setOpenEditModal(false)}
                 width={1000}
                 maskClosable={false}
+                destroyOnClose={true}
             >
                 <EditCarModal id={car?.id} carData={carData} setOpen={setOpenEditModal} refetchCarData={refetchCarData} setRefetchCarData={setRefetchCarData}></EditCarModal>
             </Modal>

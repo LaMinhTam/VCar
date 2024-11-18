@@ -1,4 +1,4 @@
-import { Avatar, Button, Col, Divider, Form, message, Modal, Row, Spin, Tag, Typography } from "antd";
+import { Avatar, Button, Col, Divider, Empty, Form, message, Modal, Row, Spin, Tag, Typography } from "antd";
 import { IContractData, IVehicleHandoverResponseData } from "../../store/rental/types";
 import RentalSummary from "../../modules/checkout/RentalSummary";
 import { calculateDays, fetchImageFromUrl, getUserInfoFromCookie, handleMetaMaskSignature, handleUploadSignature } from "../../utils";
@@ -17,10 +17,13 @@ import CreateVehicleHandover from "./CreateVehicleHandover";
 import SignatureCanvas from 'react-signature-canvas';
 import { getVehicleHandoverByContractId, lessorApproveReturn, postHandoverIssue } from "../../store/rental/handlers";
 import ImageModule from 'docxtemplater-image-module-free';
+import { isEmpty } from "lodash";
+import { useTranslation } from "react-i18next";
 
 const LessorContractModal = ({ record }: {
     record: IContractData;
 }) => {
+    const { t } = useTranslation()
     const userInfo = getUserInfoFromCookie();
     const [loading, setLoading] = useState(false);
     const [vehicleHandover, setVehicleHandover] = useState<IVehicleHandoverResponseData>({} as IVehicleHandoverResponseData);
@@ -31,7 +34,6 @@ const LessorContractModal = ({ record }: {
     const numberOfDays = calculateDays(record?.rental_start_date, record?.rental_end_date);
     const [isSignaturePadVisible, setIsSignaturePadVisible] = useState(false);
     const { carDetail } = useSelector((state: RootState) => state.car);
-    const { car } = carDetail;
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [handoverForm] = Form.useForm();
     const sigCanvas = useRef<SignatureCanvas>(null);
@@ -296,14 +298,15 @@ const LessorContractModal = ({ record }: {
         }
         fetchUser();
     }, [record?.lessee_id])
-    if (!record) return null;
+    if (!record || isEmpty(carDetail?.car)) return <Empty />;
+    const { car } = carDetail;
     return (
         <Spin spinning={loading}>
             {loading && <div className='flex items-center justify-center'><Spin size="large"></Spin></div>}
             <Row gutter={[12, 12]} justify={"start"}>
                 <Col span={12}>
                     <div className='w-full h-full p-4 rounded-lg shadow-md'>
-                        <Typography.Title level={4}>Chủ xe</Typography.Title>
+                        <Typography.Title level={4}>{t("common.carOwner")}</Typography.Title>
                         <Divider></Divider>
                         <div className='flex items-start gap-x-2'>
                             <Avatar size={"large"} src={DEFAULT_AVATAR} className='cursor-pointer' alt='Avatar'></Avatar>
@@ -314,31 +317,30 @@ const LessorContractModal = ({ record }: {
                                     <Typography.Text><MailOutlined className='mr-2 text-xl' />{car?.owner?.email}</Typography.Text>
                                 </div>
                             </div>
-                            <Button type='primary' className='ml-auto'>Nhắn tin</Button>
                         </div>
                         <Divider></Divider>
                         <Row gutter={[0, 12]}>
                             <Col span={24}>
-                                <Typography.Title level={5}>Ngày bắt đầu thuê:</Typography.Title>
+                                <Typography.Title level={5}>{t("account.rental_contract.rental_start_date")}:</Typography.Title>
                                 <Typography.Text>{new Date(record?.rental_start_date).toLocaleString()}</Typography.Text>
                             </Col>
                             <Divider className="m-0"></Divider>
                             <Col span={24}>
-                                <Typography.Title level={5}>Ngày kết thúc thuê:</Typography.Title>
+                                <Typography.Title level={5}>{t("account.rental_contract.rental_end_date")}:</Typography.Title>
                                 <Typography.Text>{new Date(record?.rental_end_date).toLocaleString()}</Typography.Text>
                             </Col>
                             <Divider className="m-0"></Divider>
                             <Col span={24}>
-                                <Typography.Title level={5}>Địa điểm lấy xe:</Typography.Title>
+                                <Typography.Title level={5}>{t("account.rental_contract.vehicle_hand_over_location")}:</Typography.Title>
                                 <Typography.Text>{record?.vehicle_hand_over_location}</Typography.Text>
                             </Col>
                             <Divider className="m-0"></Divider>
                             <Col span={24}>
-                                <Typography.Title level={5}>Trạng thái hợp đồng: <Tag color={
+                                <Typography.Title level={5}>{t("account.rental_contract.contract_status")}: <Tag color={
                                     record?.rental_status === 'SIGNED' ? 'green' :
                                         record?.rental_status === 'PENDING' ? 'orange' :
                                             record?.rental_status === 'CANCELED' ? 'red' : 'blue'
-                                }>{record?.rental_status}</Tag></Typography.Title>
+                                }>{t(`common.${record?.rental_status}`)}</Tag></Typography.Title>
                             </Col>
                         </Row>
                     </div>
@@ -351,32 +353,32 @@ const LessorContractModal = ({ record }: {
                 </Col>
                 <Divider className="m-2"></Divider>
                 <Col span={10} offset={14}>
-                    <Typography.Title level={5}>Trạng thái xe: <Tag color={
+                    <Typography.Title level={5}>{t("common.carStatus")}: <Tag color={
                         vehicleHandover?.lessee_approved ? 'green' : 'orange'
-                    }>{vehicleHandover?.lessee_approved ? 'Đã bàn giao' : 'Chưa bàn giao'}</Tag></Typography.Title>
-                    <Typography.Title level={5}>Trạng thái đơn thuê: <Tag color={
+                    }>{vehicleHandover?.lessee_approved ? t("common.HANDOVER") : t("common.NOT_HANDOVER")}</Tag></Typography.Title>
+                    <Typography.Title level={5}>{t("common.carRentalStatus")}: <Tag color={
                         vehicleHandover?.status === 'RETURNED' ? 'green' : 'orange'
-                    }>{vehicleHandover?.status === 'RETURNED' ? 'Đã hoàn thành' : 'Chưa hoàn thành'}</Tag></Typography.Title>
+                    }>{vehicleHandover?.status === 'RETURNED' ? t("common.COMPLETE") : t("common.INCOMPLETE")}</Tag></Typography.Title>
                 </Col>
                 <Divider className="m-0"></Divider>
                 <Col span={24}>
                     <Col span={24}>
                         <div className="flex items-center justify-end h-10 rounded-lg gap-x-3 bg-lite">
-                            <Button type="text" onClick={handleViewContract} loading={viewLoading}>View Contract</Button>
-                            {record?.rental_status === 'SIGNED' && vehicleHandover?.id && <Button type="text" loading={viewHandoverLoading} onClick={handleViewHandoverDocument}>View handover document</Button>}
-                            {record?.rental_status === 'SIGNED' && !vehicleHandover?.id && <Button type="primary" onClick={() => setIsModalOpen(true)}>Create Handover</Button>}
-                            {record?.rental_status === 'SIGNED' && vehicleHandover?.status === 'RETURNING' && <Button type="primary" onClick={() => setIsSignaturePadVisible(true)}>Approve Return</Button>}
-                            {record?.rental_status === 'SIGNED' && vehicleHandover?.status === 'RETURNED' && <Button type="primary" onClick={() => handleReportReturnedIssue(false)}>Returned Not Issue</Button>}
-                            {record?.rental_status === 'SIGNED' && vehicleHandover?.status === 'RETURNED' && <Button type="primary" onClick={() => handleReportReturnedIssue(true)}>Report Returned Issue</Button>}
+                            <Button type="text" onClick={handleViewContract} loading={viewLoading}>{t("account.rental_contract.view_contract")}</Button>
+                            {record?.rental_status === 'SIGNED' && vehicleHandover?.id && <Button type="text" loading={viewHandoverLoading} onClick={handleViewHandoverDocument}>{t("account.rental_contract.view_handover")}</Button>}
+                            {record?.rental_status === 'SIGNED' && !vehicleHandover?.id && <Button type="primary" onClick={() => setIsModalOpen(true)}>{t("account.rental_contract.create_handover")}</Button>}
+                            {record?.rental_status === 'SIGNED' && vehicleHandover?.status === 'RETURNING' && <Button type="primary" onClick={() => setIsSignaturePadVisible(true)}>{t("account.rental_contract.approve_returned")}</Button>}
+                            {record?.rental_status === 'SIGNED' && vehicleHandover?.status === 'RETURNED' && <Button type="primary" onClick={() => handleReportReturnedIssue(false)}>{t("account.rental_contract.return_not_issue")}</Button>}
+                            {record?.rental_status === 'SIGNED' && vehicleHandover?.status === 'RETURNED' && <Button type="primary" onClick={() => handleReportReturnedIssue(true)}>{t("account.rental_contract.report_issue")}</Button>}
                         </div>
                     </Col>
                 </Col>
             </Row>
-            <Modal title="Tạo biên bản bàn giao" open={isModalOpen} onOk={handleOk} onCancel={handleCancel} okButtonProps={{ loading: createHandoverLoading }}>
+            <Modal title={t("account.rental_contract.create_handover")} destroyOnClose={true} open={isModalOpen} onOk={handleOk} onCancel={handleCancel} okButtonProps={{ loading: createHandoverLoading }}>
                 <CreateVehicleHandover form={handoverForm} rental_contract_id={record.id} setCreateHandoverLoading={setCreateHandoverLoading} setVehicleHandover={setVehicleHandover} />
             </Modal>
             <Modal
-                title="Sign to Approve"
+                title={t("common.signature")}
                 open={isSignaturePadVisible}
                 onOk={() => {
                     sigCanvas.current?.clear();
@@ -384,8 +386,9 @@ const LessorContractModal = ({ record }: {
                     handleApproveReturn();
                 }}
                 onCancel={() => setIsSignaturePadVisible(false)}
-                okText="Approve"
-                cancelText="Cancel"
+                okText={t("common.sign")}
+                cancelText={t("common.cancel")}
+                destroyOnClose={true}
             >
                 <SignatureCanvas
                     ref={sigCanvas}

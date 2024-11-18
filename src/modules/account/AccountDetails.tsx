@@ -345,16 +345,16 @@ const AccountDetails = () => {
                     refetchMe={refetchMe}
                     setRefetchMe={setRefetchMe}
                 />
-                <Col span={24} className="px-8 py-6 rounded-lg shadow-md bg-lite">
-                    <Typography.Title level={3}>{t('stat.title')}</Typography.Title>
-                    <Tabs defaultActiveKey="1" items={role === "ROLE_USER" ? userTabs : adminTabs} />
-                </Col>
                 <WalletCard
                     loading={loading}
                     handleDepositToken={handleDepositToken}
                     handleCheckSyncWallet={handleCheckSyncWallet}
                     metamaskInfo={metamaskInfo}
                 />
+                <Col span={24} className="px-8 py-6 rounded-lg shadow-md bg-lite">
+                    <Typography.Title level={3}>{t('stat.title')}</Typography.Title>
+                    <Tabs defaultActiveKey="1" items={role === "ROLE_USER" ? userTabs : adminTabs} />
+                </Col>
                 <UserLicenseCard
                     onEdit={onEdit}
                     setOnEdit={setOnEdit}

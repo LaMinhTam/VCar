@@ -174,6 +174,7 @@ const MyCars = () => {
                     </Col>
                 </Row>
                 <Modal
+                    destroyOnClose={true}
                     title={t("account.my_cars.add_new")}
                     open={openCreateModal}
                     footer={false}

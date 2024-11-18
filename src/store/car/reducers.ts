@@ -36,7 +36,7 @@ const carSlice = createSlice({
       state.error = action.payload;
     },
 
-    getCarDetail(state) {
+    getCarDetails(state) {
       state.loading = true;
       state.error = null;
     },
@@ -59,7 +59,7 @@ export const {
   getCars,
   getCarsSuccess,
   getCarsFailed,
-  getCarDetail,
+  getCarDetails,
   getCarDetailSuccess,
   getCarDetailFailed,
   setMetaData

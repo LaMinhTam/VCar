@@ -2,6 +2,7 @@ import { EditOutlined, UploadOutlined } from "@ant-design/icons";
 import { Button, Col, Flex, Form, Input, Row, Typography, Upload, UploadFile, UploadProps } from "antd";
 import { getUserInfoFromCookie } from "../../../utils";
 import { useTranslation } from "react-i18next";
+import { convertTimestampToDayjs } from "../../../utils/helper";
 
 const UserLicenseCard = ({
     onEdit,
@@ -75,7 +76,7 @@ const UserLicenseCard = ({
                             <Input disabled value={userInfo?.car_license?.full_name} />
                         </Form.Item>
                         <Form.Item label={t("account.my_account.driver_license.dob")}>
-                            <Input disabled value={userInfo?.car_license?.dob} />
+                            <Input disabled value={convertTimestampToDayjs(Number(userInfo?.car_license?.dob))?.format("DD/MM/YYYY")} />
                         </Form.Item>
                     </Form>
                 </Col>

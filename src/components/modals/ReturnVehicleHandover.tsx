@@ -54,7 +54,7 @@ const ReturnVehicleHandover = ({ form, vehicle_handover_id, setReturnVehicleLoad
             if (imageUrl) {
                 const signatureResult = await handleMetaMaskSignature(userInfo.id);
                 if (!signatureResult) {
-                    message.error('Failed to sign the document');
+                    message.error(t("msg.METAMASK_SIGNATURE_FAILED"));
                     return;
                 }
                 const digital_signature = {
@@ -74,17 +74,17 @@ const ReturnVehicleHandover = ({ form, vehicle_handover_id, setReturnVehicleLoad
                 if (response?.success) {
                     setVehicleHandover(response?.data as IVehicleHandoverResponseData);
                     setReturnVehicleLoading(false);
-                    message.success('Create return vehicle handover successfully');
+                    message.success(t("msg.CREATE_RETURN_HANDOVER_SUCCESS"));
                 } else {
                     setReturnVehicleLoading(false);
-                    message.error('Failed to create return vehicle handover');
+                    message.error(t("msg.CREATE_RETURN_HANDOVER_FAILED"));
                 }
             } else {
                 setReturnVehicleLoading(false);
-                message.error('Failed to upload signature');
+                message.error(t("msg.UPLOAD_SIGNATURE_FAILED"));
             }
         } else {
-            message.error('Failed to get signature');
+            message.error(t("msg.METAMASK_SIGNATURE_FAILED"));
             setReturnVehicleLoading(false);
         }
         setReturnVehicleLoading(false);
@@ -107,7 +107,7 @@ const ReturnVehicleHandover = ({ form, vehicle_handover_id, setReturnVehicleLoad
                 <Col span={12}>
                     <Form.Item<ReturnHandoverFieldTypes>
                         name="return_date"
-                        label="Thời gian trả xe"
+                        label={t("account.rent_contract.returned_time")}
                         required
                         rules={[{
                             required: true,
@@ -127,8 +127,8 @@ const ReturnVehicleHandover = ({ form, vehicle_handover_id, setReturnVehicleLoad
                             message: t("require"),
                         }]}>
                         <Select className="w-full">
-                            <Option value="normal">Bình thường</Option>
-                            <Option value="damage">Hư hỏng</Option>
+                            <Option value="normal">{t("common.normal")}</Option>
+                            <Option value="damage">{t("common.damage")}</Option>
                         </Select>
                     </Form.Item>
                 </Col>
@@ -136,34 +136,34 @@ const ReturnVehicleHandover = ({ form, vehicle_handover_id, setReturnVehicleLoad
                 <Col span={12}>
                     <Form.Item<ReturnHandoverFieldTypes>
                         name="odometer_reading"
-                        label="Số km đã đi"
+                        label={t("account.rent_contract.odometer_reading")}
                         required
                         rules={[{
                             required: true,
                             message: t("require"),
                         }]}>
-                        <Input type="number" placeholder="Nhập số km đã đi" />
+                        <Input type="number" />
                     </Form.Item>
                 </Col>
 
                 <Col span={12}>
                     <Form.Item<ReturnHandoverFieldTypes>
                         name="fuel_level"
-                        label="Mức nhiên liệu"
+                        label={t("account.rent_contract.fuel_level")}
                         required
                         rules={[{
                             required: true,
                             message: t("require"),
                         }]}>
-                        <Input type="number" placeholder="Nhập mức nhiên liệu" />
+                        <Input type="number" />
                     </Form.Item>
                 </Col>
 
                 <Col span={12}>
                     <Form.Item<ReturnHandoverFieldTypes>
                         name="personal_items"
-                        label="Đồ dùng cá nhân">
-                        <Input placeholder="Nhập đồ dùng cá nhân" />
+                        label={t("account.rent_contract.personal_items")}>
+                        <Input />
                     </Form.Item>
                 </Col>
 
@@ -171,11 +171,11 @@ const ReturnVehicleHandover = ({ form, vehicle_handover_id, setReturnVehicleLoad
                     <Form.Item<ReturnHandoverFieldTypes>
                         name={"condition_matches_initial"}
                         required
-                        label="Tình trạng xe trả khớp với tình trạng ban đầu"
+                        label={t("account.rent_contract.condition_matches_initial")}
                         valuePropName="checked"
                         rules={[{
                             required: true,
-                            message: t("auth.required"),
+                            message: t("require"),
                         }]}
                     >
                         <Checkbox></Checkbox>
@@ -183,7 +183,7 @@ const ReturnVehicleHandover = ({ form, vehicle_handover_id, setReturnVehicleLoad
                 </Col>
 
                 <Col span={24}>
-                    <Form.Item label="Thiệt hại" className="overflow-auto max-h-32">
+                    <Form.Item label={t("account.rent_contract.damage")} className="overflow-auto max-h-32">
                         <Space direction="horizontal" wrap className="w-full">
                             {damages.map((damage, index) => (
                                 <Tag
@@ -199,11 +199,10 @@ const ReturnVehicleHandover = ({ form, vehicle_handover_id, setReturnVehicleLoad
                             <Input
                                 value={damageInput}
                                 onChange={(e) => setDamageInput(e.target.value)}
-                                placeholder="Nhập thiệt hại"
                                 className="w-full"
                             />
                             <Button type="dashed" onClick={addDamage} icon={<PlusOutlined />}>
-                                Thêm thiệt hại
+                                {t("account.rent_contract.add_damage")}
                             </Button>
                         </Space>
                     </Form.Item>
@@ -226,17 +225,16 @@ const ReturnVehicleHandover = ({ form, vehicle_handover_id, setReturnVehicleLoad
                             <Input
                                 value={returnedItemInput}
                                 onChange={(e) => setReturnedItemInput(e.target.value)}
-                                placeholder="Nhập tài sản trả lại"
                                 className="w-full"
                             />
                             <Button type="dashed" onClick={addReturnedItem} icon={<PlusOutlined />}>
-                                Thêm tài sản
+                                {t("account.rent_contract.add_returned_items")}
                             </Button>
                         </Space>
                     </Form.Item>
                 </Col>
                 <Col span={24}>
-                    <Form.Item label="Chữ ký bàn giao"
+                    <Form.Item label={t("common.signature")}
                         required
                         rules={[{
                             required: true,
@@ -253,7 +251,7 @@ const ReturnVehicleHandover = ({ form, vehicle_handover_id, setReturnVehicleLoad
                                 style: { border: '1px solid #000' }
                             }}
                         />
-                        <Button onClick={() => sigCanvas.current?.clear()} type='text'>Xóa chữ ký</Button>
+                        <Button onClick={() => sigCanvas.current?.clear()} type='text'>{t("common.deleteSignature")}</Button>
                     </Form.Item>
                 </Col>
             </Row>

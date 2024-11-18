@@ -4,6 +4,7 @@ import { getUserInfoFromCookie } from '../../../utils';
 import UpdateProfileModal from '../../../components/modals/UpdateProfileModal';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { convertTimestampToDayjs } from '../../../utils/helper';
 
 const ProfileCard = ({
     refetchMe,
@@ -50,7 +51,7 @@ const ProfileCard = ({
                             <Col span={24}>
                                 <Flex align="center" justify="space-between">
                                     <Typography.Text>{t("account.my_account.birthday")}</Typography.Text>
-                                    <Typography.Text>{userInfo?.car_license?.dob}</Typography.Text>
+                                    <Typography.Text>{convertTimestampToDayjs(Number(userInfo?.car_license?.dob))?.format("DD/MM/YYYY")}</Typography.Text>
                                 </Flex>
                             </Col>
                             <Col span={24}>
@@ -77,7 +78,7 @@ const ProfileCard = ({
                 </Row>
             </Col>
 
-            <Modal title={t("account.my_account.update_profile")} footer={false} open={openUpdateProfileModal} onCancel={() => setOpenUpdateProfileModal(false)} maskClosable={false} destroyOnClose>
+            <Modal title={t("account.my_account.update_profile")} footer={false} open={openUpdateProfileModal} onCancel={() => setOpenUpdateProfileModal(false)} maskClosable={false} destroyOnClose={true}>
                 <UpdateProfileModal refetchMe={refetchMe} setRefetchMe={setRefetchMe} setOpenUpdateProfileModal={setOpenUpdateProfileModal}></UpdateProfileModal>
             </Modal>
         </>

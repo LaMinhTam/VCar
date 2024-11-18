@@ -10,8 +10,10 @@ import { useParams } from "react-router-dom";
 import { getContractById } from "../../store/rental/handlers";
 import { RENT_REQUEST_OPTIONS } from "../../constants";
 import { CheckboxChangeEvent } from "antd/es/checkbox";
+import { useTranslation } from "react-i18next";
 
 const LessorContract = () => {
+    const { t } = useTranslation();
     const dispatch = useDispatch();
     const { lessorListContract, loading } = useSelector((state: RootState) => state.rental);
     const [modalRecord, setModalRecord] = useState<IContractData>({} as IContractData);
@@ -64,7 +66,7 @@ const LessorContract = () => {
             render: (_text: string, _record: IContractData, index: number) => index + 1,
         },
         {
-            title: 'Trạng thái',
+            title: t("account.rental_contract.status"),
             dataIndex: 'rental_status',
             key: 'rental_status',
             render: (status: string) => {
@@ -83,36 +85,36 @@ const LessorContract = () => {
                         color = 'blue';
                         break;
                 }
-                return <Tag color={color}>{status}</Tag>;
+                return <Tag color={color}>{t(`common.${status}`)}</Tag>;
             },
         },
         {
-            title: 'Ngày tạo hợp đồng',
+            title: t("account.rental_contract.created_at"),
             dataIndex: 'created_at',
             key: 'created_at',
             render: (text: number) => new Date(text).toLocaleString(),
         },
         {
-            title: 'Biển số xe',
+            title: t("account.rental_contract.vehicle_license_plate"),
             dataIndex: 'vehicle_license_plate',
             key: 'vehicle_license_plate',
         },
         {
-            title: 'Tổng tiền thuê',
+            title: t("account.rental_contract.total_rental_value"),
             dataIndex: 'total_rental_value',
             key: 'total_rental_value',
             render: (value: number) => formatPrice(value) + ' VND',
         },
         {
-            title: 'Địa điểm nhận xe',
+            title: t("account.rental_contract.vehicle_hand_over_location"),
             dataIndex: 'vehicle_hand_over_location',
             key: 'vehicle_hand_over_location',
         },
         {
-            title: 'Thao tác',
+            title: t("common.action"),
             key: 'action',
             render: (_text: string, record: IContractData) => (
-                <Typography.Link onClick={() => handleViewDetail(record)}>View detail</Typography.Link>
+                <Typography.Link onClick={() => handleViewDetail(record)}>{t("common.viewDetail")}</Typography.Link>
             ),
         },
     ];
@@ -125,10 +127,6 @@ const LessorContract = () => {
         setIsModalOpen(true);
     };
 
-    const handleOk = () => {
-        setIsModalOpen(false);
-    };
-
     const handleCancel = () => {
         setIsModalOpen(false);
     };
@@ -136,9 +134,9 @@ const LessorContract = () => {
 
     return (
         <div className="p-4">
-            <Typography.Title level={3}>Danh sách hợp đồng</Typography.Title>
+            <Typography.Title level={3}>{t("account.rental_contract.list")}</Typography.Title>
             <Flex justify="flex-end" className="mb-5">
-                <Radio.Group buttonStyle="solid" options={RENT_REQUEST_OPTIONS} value={params?.status} optionType="button" onChange={handleChangeStatus} />
+                <Radio.Group buttonStyle="solid" options={RENT_REQUEST_OPTIONS.map((item) => ({ label: t(item.label), value: item.value }))} value={params?.status} optionType="button" onChange={handleChangeStatus} />
             </Flex>
             <Table
                 className="w-full"
@@ -155,7 +153,7 @@ const LessorContract = () => {
                 }}
                 onChange={handleTableChange}
             />
-            <Modal title="Chi tiết hợp đồng" open={isModalOpen} onOk={handleOk} width={860} onCancel={handleCancel}>
+            <Modal destroyOnClose={true} title={t("account.rental_contract.detail")} open={isModalOpen} footer={false} width={860} onCancel={handleCancel}>
                 <LessorContractModal record={modalRecord}></LessorContractModal>
             </Modal>
         </div>

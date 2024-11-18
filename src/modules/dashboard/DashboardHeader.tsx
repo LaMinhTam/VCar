@@ -17,8 +17,8 @@ const DashboardHeader = () => {
         <Header className="fixed left-0 right-0 z-50 flex items-center justify-between shadow-md bg-lite">
             <div className="flex items-center justify-center gap-x-5">
                 <Link to={"/"} className="flex items-center justify-center">
-                    <Typography.Text className="text-4xl font-bold text-center cursor-pointer text-primary-default">
-                        VCAR
+                    <Typography.Text className="text-4xl font-bold text-center uppercase cursor-pointer text-primary-default">
+                        VivuOto
                     </Typography.Text>
                 </Link>
             </div>
@@ -27,7 +27,7 @@ const DashboardHeader = () => {
                 {isLogged ? <div className="flex items-center justify-center gap-x-5">
 
                     <Popover title={<Typography.Title level={4}>{t("common.notification")}</Typography.Title>} content={<NotificationContent />} trigger="click" placement="bottomRight">
-                        <Badge showZero count={0} size="default" className="cursor-pointer">
+                        <Badge dot size="default" className="cursor-pointer">
                             <BellOutlined className="text-xl" />
                         </Badge>
                     </Popover>

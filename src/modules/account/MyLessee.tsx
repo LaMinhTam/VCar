@@ -10,8 +10,10 @@ import { useParams } from "react-router-dom";
 import { getRentRequestById } from "../../store/rental/handlers";
 import { RENT_REQUEST_OPTIONS } from "../../constants";
 import { CheckboxChangeEvent } from "antd/es/checkbox";
+import { useTranslation } from "react-i18next";
 
 const MyLessee = () => {
+    const { t } = useTranslation();
     const { lessorListRequest, loading } = useSelector((state: RootState) => state.rental);
     const dispatch = useDispatch();
     const [modalRecord, setModalRecord] = useState<IRentalData>({} as IRentalData);
@@ -55,7 +57,7 @@ const MyLessee = () => {
             render: (_text, _record, index) => index + 1,
         },
         {
-            title: 'Trạng thái',
+            title: t("account.my_lessee.status"),
             dataIndex: 'status',
             key: 'status',
             render: (status: string) => {
@@ -73,37 +75,37 @@ const MyLessee = () => {
                     default:
                         color = 'blue';
                 }
-                return <Tag color={color}>{status}</Tag>;
+                return <Tag color={color}>{t(`common.${status}`)}</Tag>;
             },
         },
         {
-            title: 'Ngày tạo',
+            title: t("account.my_lessee.created_at"),
             dataIndex: 'created_at',
             key: 'created_at',
             render: (text: number) => new Date(text).toLocaleString(),
         },
         {
-            title: 'Ngày bắt đầu thuê',
+            title: t("account.my_lessee.rental_start_date"),
             dataIndex: 'rental_start_date',
             key: 'rental_start_date',
             render: (text: number) => new Date(text).toLocaleString(),
         },
         {
-            title: 'Ngày kết thúc thuê',
+            title: t("account.my_lessee.rental_end_date"),
             dataIndex: 'rental_end_date',
             key: 'rental_end_date',
             render: (text: number) => new Date(text).toLocaleString(),
         },
         {
-            title: 'Địa điểm lấy xe',
+            title: t("account.my_lessee.pick_up_location"),
             dataIndex: 'vehicle_hand_over_location',
             key: 'vehicle_hand_over_location',
         },
         {
-            title: 'Thao tác',
+            title: t("common.action"),
             key: 'action',
             render: (record: IRentalData) => (
-                <Typography.Link onClick={() => handleViewDetail(record)}>View detail</Typography.Link>
+                <Typography.Link onClick={() => handleViewDetail(record)}>{t("common.viewDetail")}</Typography.Link>
             ),
         },
     ];
@@ -116,19 +118,15 @@ const MyLessee = () => {
         setIsModalOpen(true);
     };
 
-    const handleOk = () => {
-        setIsModalOpen(false);
-    };
-
     const handleCancel = () => {
         setIsModalOpen(false);
     };
 
     return (
         <div className="p-4">
-            <Typography.Title level={3}>Danh sách chuyến</Typography.Title>
+            <Typography.Title level={3}>{t("account.my_lessee.list")}</Typography.Title>
             <Flex justify="flex-end" className="mb-5">
-                <Radio.Group buttonStyle="solid" options={RENT_REQUEST_OPTIONS} value={params?.status} optionType="button" onChange={handleChangeStatus} />
+                <Radio.Group buttonStyle="solid" options={RENT_REQUEST_OPTIONS.map((item) => ({ label: t(item.label), value: item.value }))} value={params?.status} optionType="button" onChange={handleChangeStatus} />
             </Flex>
             <Table
                 className="w-full"
@@ -144,7 +142,7 @@ const MyLessee = () => {
                     showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} items`,
                 }}
             />
-            <Modal title="Chi tiết yêu cầu" open={isModalOpen} onOk={handleOk} width={860} onCancel={handleCancel}>
+            <Modal destroyOnClose={true} title={t("account.my_lessee.request_detail")} open={isModalOpen} footer={false} width={860} onCancel={handleCancel}>
                 <LesseeDetailDialog record={modalRecord} setIsModalOpen={setIsModalOpen} setParams={setParams} params={params}></LesseeDetailDialog>
             </Modal>
         </div>

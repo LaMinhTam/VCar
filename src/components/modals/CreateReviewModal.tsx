@@ -1,6 +1,7 @@
 import { Form, Input, Rate, Button } from 'antd';
 import { useState } from 'react';
 import { createReview } from '../../store/rental/handlers';
+import { useTranslation } from 'react-i18next';
 
 const { TextArea } = Input;
 
@@ -13,6 +14,7 @@ const CreateReviewModal = ({ contract_id, setOpen }: {
     contract_id: string;
     setOpen: (open: boolean) => void;
 }) => {
+    const { t } = useTranslation();
     const [loading, setLoading] = useState(false);
     const [form] = Form.useForm();
 
@@ -39,21 +41,21 @@ const CreateReviewModal = ({ contract_id, setOpen }: {
         >
             <Form.Item<FieldValues>
                 name="rating"
-                label="Rating"
-                rules={[{ required: true, message: 'Please provide a rating' }]}
+                label={t("car.rating")}
+                rules={[{ required: true, message: t("require") }]}
             >
                 <Rate />
             </Form.Item>
             <Form.Item<FieldValues>
                 name="comment"
-                label="Comment"
-                rules={[{ required: true, message: 'Please provide a comment' }]}
+                label={t("common.comment")}
+                rules={[{ required: true, message: t("require") }]}
             >
                 <TextArea autoSize={{ minRows: 3, maxRows: 6 }} />
             </Form.Item>
             <Form.Item>
                 <Button type="primary" htmlType="submit" loading={loading}>
-                    Create
+                    {t("common.create")}
                 </Button>
             </Form.Item>
         </Form>

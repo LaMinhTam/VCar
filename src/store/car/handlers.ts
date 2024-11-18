@@ -10,6 +10,7 @@ import { axiosInstance, axiosPrivate } from "../../apis/axios";
 import { ENDPOINTS } from "./models";
 import {
   getCarDetailFailed,
+  getCarDetails,
   getCarDetailSuccess,
   getCars,
   getCarsFailed,
@@ -55,6 +56,7 @@ function* searchCar(action: {
 
 function* getCarDetail(action: { type: string; payload: string }) {
   try {
+    yield put(getCarDetails())
     const response: AxiosResponse<ICarDetailResponse> = yield call(
       axiosInstance.get,
       ENDPOINTS.FIND_CAR_BY_ID(action.payload)

@@ -2,6 +2,7 @@ import { EditOutlined, UploadOutlined } from "@ant-design/icons";
 import { Button, Col, Flex, Form, Input, Row, Typography, Upload, UploadFile, UploadProps } from "antd";
 import { getUserInfoFromCookie } from "../../../utils";
 import { useTranslation } from "react-i18next";
+import { convertTimestampToDayjs } from "../../../utils/helper";
 
 const UserIdentificationCard = ({
     onEditIdentification,
@@ -70,7 +71,7 @@ const UserIdentificationCard = ({
                             <Input disabled value={userInfo?.citizen_identification?.citizen_identification_number} />
                         </Form.Item>
                         <Form.Item label={t("account.my_account.citizen_identification.issue_date")}>
-                            <Input disabled value={userInfo?.citizen_identification?.issued_date} />
+                            <Input disabled value={convertTimestampToDayjs(Number(userInfo?.citizen_identification?.issued_date))?.format("DD/MM/YYYY")} />
                         </Form.Item>
                         <Form.Item label={t("account.my_account.citizen_identification.issue_location")}>
                             <Input disabled value={userInfo?.citizen_identification?.issued_location} />
