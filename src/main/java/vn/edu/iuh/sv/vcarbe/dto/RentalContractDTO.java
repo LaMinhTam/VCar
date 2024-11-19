@@ -3,6 +3,7 @@ package vn.edu.iuh.sv.vcarbe.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import vn.edu.iuh.sv.vcarbe.entity.HandoverIssue;
 import vn.edu.iuh.sv.vcarbe.entity.RentalStatus;
 
 import java.util.Date;
@@ -72,4 +73,5 @@ public class RentalContractDTO {
     private RentalStatus rentalStatus;
     private String lesseeSignature;
     private String lessorSignature;
+    private HandoverIssue handoverIssue;
 }

@@ -111,7 +111,7 @@ public class RentalContractController {
             @Parameter(description = "Rental contract ID (must be a valid ObjectId)", schema = @Schema(type = "string"))
             @PathVariable ObjectId id,
             @Valid @RequestBody PostHandoverUpdateDTO postHandoverUpdateDTO) {
-        rentalContractService.updatePostHandoverIssues(userPrincipal, id, postHandoverUpdateDTO.hasPostHandoverIssues());
+        rentalContractService.updatePostHandoverIssues(userPrincipal, id, postHandoverUpdateDTO.handoverIssue());
         return ResponseEntity.ok(new ApiResponseWrapper(200, MessageKeys.SUCCESS.name(), null));
     }
 }

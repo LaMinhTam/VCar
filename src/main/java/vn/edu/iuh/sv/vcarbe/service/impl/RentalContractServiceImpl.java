@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import vn.edu.iuh.sv.vcarbe.dto.RentalContractDTO;
+import vn.edu.iuh.sv.vcarbe.entity.HandoverIssue;
 import vn.edu.iuh.sv.vcarbe.entity.RentalContract;
 import vn.edu.iuh.sv.vcarbe.entity.User;
 import vn.edu.iuh.sv.vcarbe.exception.AppException;
@@ -61,11 +62,11 @@ public class RentalContractServiceImpl implements RentalContractService {
     }
 
     @Override
-    public void updatePostHandoverIssues(UserPrincipal userPrincipal, ObjectId id, boolean hasPostHandoverIssues) {
+    public void updatePostHandoverIssues(UserPrincipal userPrincipal, ObjectId id, HandoverIssue handoverIssue) {
         RentalContract rentalContract = rentalContractRepository.findByLessorIdAndId(userPrincipal.getId(), id)
                 .orElseThrow(() -> new AppException(404, MessageKeys.CONTRACT_NOT_FOUND.name()));
-        rentalContract.setHasPostHandoverIssues(hasPostHandoverIssues);
-        if (!hasPostHandoverIssues) {
+        rentalContract.setHandoverIssue(handoverIssue);
+        if (handoverIssue.equals(HandoverIssue.NOT_ISSUE)) {
             User user = userRepository.findById(rentalContract.getLesseeId())
                     .orElseThrow(() -> new AppException(404, MessageKeys.USER_NOT_FOUND.name()));
             if (user.getMetamaskAddress() != null) {
