@@ -25,6 +25,15 @@ interface INotificationResponse {
   meta: IMetaData;
 }
 
+interface IRefreshToken {
+  code: number;
+  message: string;
+  data: {
+    access_token: string;
+    refresh_token: string;
+  }
+}
+
 async function login(email: string, password: string) {
   try {
     loginRequest();
@@ -185,6 +194,27 @@ async function handleResetPassword(
   }
 }
 
+async function fetchRefreshToken(refreshToken: string) {
+  try {
+    const response: AxiosResponse<IRefreshToken> = await axiosPrivate.post(ENDPOINTS.REFRESH_TOKEN, { refresh_token: refreshToken });
+    if (response.data.code === 200) {
+      const {
+        access_token,
+        refresh_token,
+      } = response.data.data;
+      saveAccessToken(access_token);
+      saveRefreshToken(refresh_token);
+      return { success: true, message: response.data.message, data: { access_token, refresh_token } };
+    }else {
+      return { success: false, message: response.data.message, data: null };
+    }
+  } catch (error) {
+    const typedError = error as Error;
+    console.error("refreshToken ~ error:", typedError.message);
+    return { success: false, message: null, data: null };
+  }
+}
+
 export {
   login,
   subscribeDevice,
@@ -193,5 +223,6 @@ export {
   register,
   verifyEmail,
   handleForgotPassword,
-  handleResetPassword
+  handleResetPassword,
+  fetchRefreshToken
 };

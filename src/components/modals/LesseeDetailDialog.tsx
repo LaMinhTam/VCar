@@ -174,7 +174,6 @@ const LesseeDetailDialog = ({ record, setIsModalOpen, params, setParams }: {
                         onCancel={() => setIsSignaturePadVisible(false)}
                         okText={t("common.sign")}
                         cancelText={t("common.cancel")}
-                        destroyOnClose={true}
                     >
                         <SignatureCanvas
                             ref={sigCanvas}

@@ -116,11 +116,13 @@ const LesseeContractModal = ({ record }: {
                             setSignLoading(false);
                         } else {
                             setLoading(false);
-                            message.error(transactionResult.message)
+                            setSignLoading(false);
+                            message.error(t(transactionResult.message))
                         }
                     }
                 } else {
                     setLoading(false);
+                    setSignLoading(false);
                     message.error(t("msg.METAMASK_NOT_CONNECTED"));
                 }
             } else {
@@ -189,10 +191,10 @@ const LesseeContractModal = ({ record }: {
             MoneyCollateral: '',
             OtherCollateral: '',
             // Insert signatures from URL into the docx file
-            LessorHandoverSign: vehicleHandover?.lessor_signature || '',
-            LesseeHandoverSign: vehicleHandover?.lessee_signature || '',
-            LessorReturnSign: vehicleHandover?.return_lessor_signature || '',
-            LesseeReturnSign: vehicleHandover?.return_lessee_signature || '',
+            LessorHandoverSign: vehicleHandover?.lessor_name || '',
+            LesseeHandoverSign: vehicleHandover?.lessee_name || '',
+            LessorReturnSign: vehicleHandover?.lessor_name || '',
+            LesseeReturnSign: vehicleHandover?.lessee_name || '',
             ReHour: vehicleHandover?.return_hour || '',
             ReDay: new Date(vehicleHandover?.return_date).getDate() || '',
             ReMonth: new Date(vehicleHandover?.return_date).getMonth() + 1 || '',
@@ -245,11 +247,11 @@ const LesseeContractModal = ({ record }: {
             DiaChiBenA: record?.lessor_contact_address,
             DienThoaiBenA: record?.lessor_phone_number,
             TenBenB: userInfo?.display_name || '',
-            CMNDBenB: '987654321',
+            CMNDBenB: userInfo?.citizen_identification?.citizen_identification_number || '',
             B1_D: '01',
             B1_M: '01',
             B1_Y: '2020',
-            B1_Z: 'Hà Nội',
+            B1_Z: userInfo?.citizen_identification?.issued_location || '',
             PassportBenB: 'P123456',
             B2_D: '01',
             B2_M: '01',
@@ -281,7 +283,9 @@ const LesseeContractModal = ({ record }: {
             NgayKTThue: new Date(record?.rental_end_date).toLocaleDateString() || '',
             PhiVuotTGThue: record?.extra_hourly_charge?.toString() || '',
             TongTienThue: record?.total_rental_value?.toString() || '',
-            DiaDiemBanGiaoXe: record?.vehicle_hand_over_location || ''
+            DiaDiemBanGiaoXe: record?.vehicle_hand_over_location || '',
+            chuKyChuXe: record?.vehicle_owner_name || '',
+            chuKyKhachThue: userInfo?.display_name || '',
         };
         doc.render(data);
 
@@ -409,7 +413,6 @@ const LesseeContractModal = ({ record }: {
                             handleSignContract();
                         }
                     }}
-                    destroyOnClose={true}
                     onCancel={() => setIsSignaturePadVisible(false)}
                     okText={t("common.sign")}
                     cancelText={t("common.cancel")}

@@ -18,6 +18,7 @@
     "auth.alreadyHaveAccount": "Đã có tài khoản?",
     "auth.signIn": "Đăng Nhập",
     "auth.dontHaveAccount": "Chưa có tài khoản?",
+    "auth.sessionExpired": "Phiên đăng nhập đã hết hạn",
     "auth.passwordsDoNotMatch": "Mật khẩu không khớp!",
     "verify_code.title": "Xác thực mã",
     "verify_code.desc": "Chúng tôi đã gửi mã xác thực đến email của bạn.",
@@ -104,9 +105,9 @@
     "common.reset_password": "Đặt lại mật khẩu",
     "common.APPROVE": "DUYỆT",
     "common.REJECT": "TỪ CHỐI",
-    "common.APPROVED": "Đã duyệt",
-    "common.PENDING": "Đang chờ",
-    "common.REJECTED": "Đã từ chối",
+    "common.APPROVED": "ĐÃ DUYỆT",
+    "common.PENDING": "ĐANG CHỜ",
+    "common.REJECTED": "ĐÃ TỪ CHỐI",
     "common.SIGNED": "ĐÃ KÝ",
     "common.CANCELED": "ĐÃ HỦY",
     "common.signature": "Chữ ký",
@@ -480,6 +481,9 @@
     "msg.APPROVE_HANDOVER_SUCCESS": "Duyệt bàn giao xe thành công!",
     "msg.APPROVE_HANDOVER_FAILED": "Duyệt bàn giao xe thất bại!",
     "msg.CREATE_RETURN_HANDOVER_SUCCESS": "Tạo bàn giao xe trả thành công!",
-    "msg.CREATE_RETURN_HANDOVER_FAILED": "Tạo bàn giao xe trả thất bại!"
+    "msg.CREATE_RETURN_HANDOVER_FAILED": "Tạo bàn giao xe trả thất bại!",
+    "msg.POST_HANDOVER_ISSUE": "We will contact you within 24 hours!",
+    "msg.POST_HANDOVER_NOT_ISSUE": "Đã xác nhận trả xe không có vấn đề!",
+    "msg.REPORT_ISSUE_FAIL": "Báo cáo vấn đề thất bại, Vui lòng thử lại sau!"
   }
 }

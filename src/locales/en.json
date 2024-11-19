@@ -18,6 +18,7 @@
     "auth.alreadyHaveAccount": "Already have an account?",
     "auth.signIn": "Sign in",
     "auth.dontHaveAccount": "Don't have an account?",
+    "auth.sessionExpired": "Session expired, please login again",
     "auth.passwordsDoNotMatch": "Passwords do not match!",
     "verify_code.title": "Verify code",
     "verify_code.desc": "We have sent a verification code to your email.",
@@ -473,6 +474,9 @@
     "msg.CREATE_RETURN_HANDOVER_SUCCESS": "Create return vehicle handover successfully!",
     "msg.CREATE_RETURN_HANDOVER_FAILED": "Failed to create return vehicle handover!",
     "msg.CREATE_VEHICLE_HANDOVER_SUCCESS": "Create vehicle handover successfully!",
-    "msg.CREATE_VEHICLE_HANDOVER_FAILED": "Failed to create vehicle handover!"
+    "msg.CREATE_VEHICLE_HANDOVER_FAILED": "Failed to create vehicle handover!",
+    "msg.POST_HANDOVER_ISSUE": "We will contact you in 24h!",
+    "msg.POST_HANDOVER_NOT_ISSUE": "Confirmed return of car without problem!",
+    "msg.REPORT_ISSUE_FAIL": "Failed to report issue, please try again later!"
   }
 }

@@ -119,6 +119,7 @@ const MyLessee = () => {
     };
 
     const handleCancel = () => {
+        setParams({ ...params })
         setIsModalOpen(false);
     };
 
@@ -142,7 +143,7 @@ const MyLessee = () => {
                     showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} items`,
                 }}
             />
-            <Modal destroyOnClose={true} title={t("account.my_lessee.request_detail")} open={isModalOpen} footer={false} width={860} onCancel={handleCancel}>
+            <Modal maskClosable={false} destroyOnClose={true} title={t("account.my_lessee.request_detail")} open={isModalOpen} footer={false} width={860} onCancel={handleCancel}>
                 <LesseeDetailDialog record={modalRecord} setIsModalOpen={setIsModalOpen} setParams={setParams} params={params}></LesseeDetailDialog>
             </Modal>
         </div>

@@ -25,6 +25,7 @@ const LessorContractModal = ({ record }: {
 }) => {
     const { t } = useTranslation()
     const userInfo = getUserInfoFromCookie();
+    const [handoverIssue, setHandoverIssue] = useState(record?.handover_issue ?? "UNDEFINED");
     const [loading, setLoading] = useState(false);
     const [vehicleHandover, setVehicleHandover] = useState<IVehicleHandoverResponseData>({} as IVehicleHandoverResponseData);
     const [createHandoverLoading, setCreateHandoverLoading] = useState(false);
@@ -50,7 +51,7 @@ const LessorContractModal = ({ record }: {
         setLoading(true);
         const signatureResult = await handleMetaMaskSignature(userInfo.id);
         if (!signatureResult) {
-            message.error("Failed to get signature from MetaMask");
+            message.error(t("msg.METAMASK_SIGNATURE_FAILED"));
             setLoading(false);
             return;
         }
@@ -65,17 +66,17 @@ const LessorContractModal = ({ record }: {
                     signature_url: imageUrl
                 }, vehicleHandover?.id);
                 if (response?.success) {
-                    message.success("Approved vehicle handover successfully");
+                    message.success(t("msg.APPROVE_HANDOVER_SUCCESS"));
                     setLoading(false);
                     setVehicleHandover(response?.data as IVehicleHandoverResponseData);
                     return;
                 } else {
-                    message.error("Failed to approve vehicle handover");
+                    message.error(t("msg.APPROVE_HANDOVER_FAILED"));
                     setLoading(false);
                     return;
                 }
             } else {
-                message.error("Failed to upload signature");
+                message.error(t("msg.UPLOAD_SIGNATURE_FAILED"));
                 setLoading(false);
                 return;
             }
@@ -245,21 +246,22 @@ const LessorContractModal = ({ record }: {
         setViewLoading(false);
     };
 
-
     const handleReportReturnedIssue = async (isApproved: boolean) => {
         setLoading(true);
-        const response = await postHandoverIssue(record.id, isApproved);
+        const approveCode = isApproved ? 'ISSUE' : 'NOT_ISSUE';
+        const response = await postHandoverIssue(record.id, approveCode);
         if (response?.success) {
             if (isApproved) {
                 setLoading(false);
-                message.success("Chúng tôi sẽ liên hệ với bạn trong vòng 24h");
+                message.success(t("msg.POST_HANDOVER_ISSUE"));
+                setHandoverIssue(approveCode)
             } else {
                 setLoading(false);
-                message.success("Đã xác nhận trả xe không có vấn đề");
+                message.success(t("msg.POST_HANDOVER_NOT_ISSUE"));
             }
         } else {
             setLoading(false);
-            message.error("Failed to report issue");
+            message.error(t("msg.REPORT_ISSUE_FAIL"));
         }
     }
     const dispatch = useDispatch();
@@ -368,8 +370,8 @@ const LessorContractModal = ({ record }: {
                             {record?.rental_status === 'SIGNED' && vehicleHandover?.id && <Button type="text" loading={viewHandoverLoading} onClick={handleViewHandoverDocument}>{t("account.rental_contract.view_handover")}</Button>}
                             {record?.rental_status === 'SIGNED' && !vehicleHandover?.id && <Button type="primary" onClick={() => setIsModalOpen(true)}>{t("account.rental_contract.create_handover")}</Button>}
                             {record?.rental_status === 'SIGNED' && vehicleHandover?.status === 'RETURNING' && <Button type="primary" onClick={() => setIsSignaturePadVisible(true)}>{t("account.rental_contract.approve_returned")}</Button>}
-                            {record?.rental_status === 'SIGNED' && vehicleHandover?.status === 'RETURNED' && <Button type="primary" onClick={() => handleReportReturnedIssue(false)}>{t("account.rental_contract.return_not_issue")}</Button>}
-                            {record?.rental_status === 'SIGNED' && vehicleHandover?.status === 'RETURNED' && <Button type="primary" onClick={() => handleReportReturnedIssue(true)}>{t("account.rental_contract.report_issue")}</Button>}
+                            {record?.rental_status === 'SIGNED' && vehicleHandover?.status === 'RETURNED' && <Button type="primary" disabled={handoverIssue !== 'UNDEFINED'} onClick={() => handleReportReturnedIssue(false)}>{t("account.rental_contract.return_not_issue")}</Button>}
+                            {record?.rental_status === 'SIGNED' && vehicleHandover?.status === 'RETURNED' && <Button type="primary" disabled={handoverIssue !== 'UNDEFINED'} onClick={() => handleReportReturnedIssue(true)}>{t("account.rental_contract.report_issue")}</Button>}
                         </div>
                     </Col>
                 </Col>
@@ -388,7 +390,6 @@ const LessorContractModal = ({ record }: {
                 onCancel={() => setIsSignaturePadVisible(false)}
                 okText={t("common.sign")}
                 cancelText={t("common.cancel")}
-                destroyOnClose={true}
             >
                 <SignatureCanvas
                     ref={sigCanvas}

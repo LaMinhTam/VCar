@@ -5,6 +5,7 @@ import { saveAccessToken, saveRefreshToken, saveUser } from "../utils";
 import { useAuth } from "../contexts/auth-context";
 import ContractIcon from "../components/icons/ContractIcon";
 import { useTranslation } from "react-i18next";
+import RequiredAuthLayout from "../layouts/RequireAuthLayout";
 
 const AccountPage = () => {
     const { t } = useTranslation();
@@ -70,7 +71,7 @@ const AccountPage = () => {
     }
 
     return (
-        <div>
+        <RequiredAuthLayout>
             <Row gutter={[24, 0]}>
                 <Col span={6}>
                     <Row>
@@ -107,7 +108,7 @@ const AccountPage = () => {
                     <Outlet />
                 </Col>
             </Row>
-        </div>
+        </RequiredAuthLayout>
     );
 };
 

@@ -12,6 +12,8 @@ import { useTranslation } from 'react-i18next';
 import CarCard from '../components/CarCard';
 import CarCardSkeleton from '../components/common/CarCardSkeleton';
 import { convertTimestampToDayjs, handleGenerateViewAllCarsLink } from '../utils/helper';
+import { useAuth } from '../contexts/auth-context';
+import { toast } from 'react-toastify';
 
 const CarDetailPage = () => {
     const navigate = useNavigate();
@@ -19,13 +21,18 @@ const CarDetailPage = () => {
     const { id } = useParams();
     const dispatch = useDispatch<AppDispatch>();
     const { carDetail, loading } = useSelector((state: RootState) => state.car);
+    const { isLogged } = useAuth()
     const { car, related_cars, reviews } = carDetail;
     useMemo(() => {
         dispatch({ type: GET_CAR_BY_ID, payload: id });
     }, [dispatch, id])
     const handleRentNow = (id: string) => {
-        localStorage.setItem("STORAGE_RENT_CAR_ID", id);
-        navigate("/checkout");
+        if (isLogged) {
+            localStorage.setItem("STORAGE_RENT_CAR_ID", id);
+            navigate("/checkout");
+        } else {
+            toast.warning(t("msg.REQUIRE_AUTHENTICATION_FEATURE"))
+        }
     }
     return (
         <div>

@@ -15,6 +15,7 @@ import { toast } from "react-toastify";
 import { handleRentRequest } from "../store/rental/handlers";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import RequiredAuthLayout from "../layouts/RequireAuthLayout";
 
 const CheckoutPage = () => {
     const navigate = useNavigate();
@@ -27,6 +28,7 @@ const CheckoutPage = () => {
     const userInfo = getUserInfoFromCookie();
     const { carDetail, loading } = useSelector((state: RootState) => state.car);
     const { car } = carDetail;
+    const [rentLoading, setRentLoading] = useState(false);
     const dispatch = useDispatch();
     const [paymentMethod, setPaymentMethod] = useState("VNPAY");
     const numberOfDays = useMemo(() => {
@@ -51,35 +53,45 @@ const CheckoutPage = () => {
     };
 
     const onRent = async () => {
+        setRentLoading(true)
         if (!isTermsAgreed) {
             toast.error(t('msg.AGREE_TERMS_CONDITIONS'));
+            setRentLoading(false);
             return;
         } else if (!province) {
             toast.error(t('msg.SELECT_PROVINCE'));
+            setRentLoading(false);
             return;
         } else if (numberOfDays <= 0) {
             toast.error(t('msg.SELECT_RENTAL_PERIOD'));
+            setRentLoading(false);
             return;
         } else if (!paymentMethod) {
             toast.error(t('msg.SELECT_PAYMENT_METHOD'));
+            setRentLoading(false);
             return;
         } else {
             if (!userInfo.phone_number) {
                 toast.error(t('msg.PHONE_NUMBER_REQUIRED'));
+                setRentLoading(false);
                 return;
             } else if (!userInfo?.citizen_identification?.citizen_identification_number) {
                 toast.error(t('msg.CITIZEN_IDENTIFICATION_REQUIRED'));
+                setRentLoading(false);
                 return;
             } else if (!userInfo?.car_license?.id) {
                 toast.error(t('msg.CAR_LICENSE_REQUIRED'));
+                setRentLoading(false);
                 return;
             } else {
                 const response = await handleRentRequest(carId ?? '', startTimestamp!, endTimestamp!, province);
                 if (response?.success) {
                     navigate('/account/my-trips')
                     toast.success(t('msg.RENT_REQUEST_SENT'));
+                    setRentLoading(false);
                 } else {
                     toast.error(t('msg.RENT_REQUEST_FAILED'));
+                    setRentLoading(false);
                 }
             }
         }
@@ -90,40 +102,41 @@ const CheckoutPage = () => {
     }, [carId, dispatch])
 
     return (
-        <div>
-            {!loading && car?.id && <div>
-                <Row gutter={[32, 0]}>
-                    <Col span={16}>
-                        <Row gutter={[0, 32]}>
-                            <Col span={24}>
-                                <BillingInfo
-                                    userInfo={userInfo}
-                                ></BillingInfo>
-                            </Col>
-                            <Col span={24}>
-                                <RentalInfo setProvince={setProvince} onChange={handleDateChange}></RentalInfo>
-                            </Col>
-                            <Col span={24}>
-                                <PaymentInfo
-                                    paymentMethod={paymentMethod}
-                                    onChange={onChange}
-                                ></PaymentInfo>
-                            </Col>
-                            <Col span={24}>
-                                <Confirmation onRent={onRent} handleCheckboxChange={handleCheckboxChange}></Confirmation>
-                            </Col>
-                        </Row>
-                    </Col>
-                    <Col span={8}>
-                        <RentalSummary
-                            car={car}
-                            totalDays={numberOfDays}
-                        ></RentalSummary>
-                    </Col>
-                </Row>
-            </div>}
-            {loading && <div className='flex items-center justify-center'><Spin size="large"></Spin></div>}
-        </div>
+        <RequiredAuthLayout>
+            <Spin spinning={loading || rentLoading}>
+                {car?.id && <div>
+                    <Row gutter={[32, 0]}>
+                        <Col span={16}>
+                            <Row gutter={[0, 32]}>
+                                <Col span={24}>
+                                    <BillingInfo
+                                        userInfo={userInfo}
+                                    ></BillingInfo>
+                                </Col>
+                                <Col span={24}>
+                                    <RentalInfo setProvince={setProvince} onChange={handleDateChange}></RentalInfo>
+                                </Col>
+                                <Col span={24}>
+                                    <PaymentInfo
+                                        paymentMethod={paymentMethod}
+                                        onChange={onChange}
+                                    ></PaymentInfo>
+                                </Col>
+                                <Col span={24}>
+                                    <Confirmation onRent={onRent} handleCheckboxChange={handleCheckboxChange}></Confirmation>
+                                </Col>
+                            </Row>
+                        </Col>
+                        <Col span={8}>
+                            <RentalSummary
+                                car={car}
+                                totalDays={numberOfDays}
+                            ></RentalSummary>
+                        </Col>
+                    </Row>
+                </div>}
+            </Spin>
+        </RequiredAuthLayout>
     );
 };
 

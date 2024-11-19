@@ -120,6 +120,7 @@ const MyTrips = () => {
     };
 
     const handleCancel = () => {
+        setParams({ ...params })
         setIsModalOpen(false);
     };
 
@@ -150,7 +151,7 @@ const MyTrips = () => {
                     });
                 }}
             />
-            <Modal destroyOnClose={true} title={t("account.my_trips.request_detail")} open={isModalOpen} footer={false} width={860} onCancel={handleCancel}>
+            <Modal maskClosable={false} destroyOnClose={true} title={t("account.my_trips.request_detail")} open={isModalOpen} footer={false} width={860} onCancel={handleCancel}>
                 <TripDetailDialog record={modalRecord}></TripDetailDialog>
             </Modal>
         </div>

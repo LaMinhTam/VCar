@@ -105,6 +105,9 @@ export interface IContractData {
   vehicle_hand_over_location: string;
   rental_request_id: string;
   rental_status: string;
+  handover_issue?:string
+  lessee_signature?: string;
+  lessor_signature?: string;
 }
 
 export interface IDigitalSignature {

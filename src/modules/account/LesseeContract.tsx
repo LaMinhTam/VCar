@@ -124,6 +124,7 @@ const LesseeContract = () => {
     };
 
     const handleCancel = () => {
+        setParams({ ...params })
         setIsModalOpen(false);
     };
 
@@ -145,7 +146,7 @@ const LesseeContract = () => {
                 }}
                 onChange={handleTableChange}
             />
-            <Modal destroyOnClose={true} title={t("account.rent_contract.detail")} open={isModalOpen} footer={false} width={860} onCancel={handleCancel}>
+            <Modal maskClosable={false} destroyOnClose={true} title={t("account.rent_contract.detail")} open={isModalOpen} footer={false} width={860} onCancel={handleCancel}>
                 <LesseeContractModal record={modalRecord}></LesseeContractModal>
             </Modal>
         </div>

@@ -432,13 +432,13 @@ export async function getReviewByCarId(car_id: string) {
 
 export async function postHandoverIssue(
   id: string,
-  isApproved: boolean
+  approveCode: string
 ) {
   try {
     const response = await axiosPrivate.patch(
       ENDPOINTS.POST_HANDOVER_ISSUE(id),
       {
-        has_post_handover_issues: isApproved,
+        handover_issue: approveCode,
       }
     );
     if (response?.data?.code === 200) {
