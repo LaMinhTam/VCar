@@ -10,10 +10,12 @@ import { ICar } from '../../store/car/types';
 import { debounce } from 'lodash';
 import CarCard from '../car/CarCard';
 import CardSkeleton from '../../components/common/CardSkeleton';
-import { ParamListBase, useNavigation } from '@react-navigation/native';
+import { ParamListBase, useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 const MyCars = () => {
+    const route = useRoute();
+    const { refetchCars } = route.params as { refetchCars?: boolean };
     const navigation = useNavigation<NativeStackNavigationProp<ParamListBase>>();
     const [cars, setCars] = useState<ICar[]>([]);
     const [meta, setMeta] = useState({} as IMetaData);
@@ -51,7 +53,7 @@ const MyCars = () => {
             setLoading(false);
         }
         fetchData();
-    }, [params]);
+    }, [params, refetchCars]);
 
     useMemo(() => {
         searchKeyWordDebounce();

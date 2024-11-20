@@ -1,21 +1,23 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { View, Text, TextInput as RNTextInput, Alert } from 'react-native';
+import React, { useState, useRef } from 'react';
+import { View, TextInput as RNTextInput } from 'react-native';
 import { Button } from 'react-native-paper';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { ParamListBase, useNavigation } from '@react-navigation/native';
+import { ParamListBase, useNavigation, useRoute } from '@react-navigation/native';
 import LayoutAuthentication from '../layouts/LayoutAuthentication';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
-import { VERIFY_CODE } from '../store/auth/actions';
 import { RootState } from '../store/configureStore';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import Loading from '../components/common/Loading';
-import { setIsRecheckToken } from '../store/auth/reducers';
+import { verifyEmail } from '../store/auth/handlers';
+import { Toast } from '@ant-design/react-native';
+import { setIsReCheckToken } from '../store/auth/reducers';
 
 const VerifyCodeScreen = () => {
-    const { loading, error, email, verification_code, email_verified } = useSelector((state: RootState) => state.auth);
+    const { loading, error } = useSelector((state: RootState) => state.auth);
+    const route = useRoute();
+    const { verification_code, email } = route.params as { verification_code: string, email: string };
     const [code, setCode] = useState<string[]>(
-        Array.from({ length: verification_code.length || 6 }, () => ''),
+        Array.from({ length: verification_code.length || 5 }, () => ''),
     );
     const { isRecheckToken } = useSelector((state: RootState) => state.auth);
     const navigation = useNavigation<NativeStackNavigationProp<ParamListBase>>();
@@ -23,20 +25,23 @@ const VerifyCodeScreen = () => {
     const inputRefs = useRef<(RNTextInput | null)[]>([]);
     const dispatch = useDispatch();
 
-    const handleVerifyCode = () => {
+    const handleVerifyCode = async () => {
+        const key = Toast.loading({
+            content: t('common.processing'),
+            duration: 0,
+            mask: true
+        });
         const enteredCode = code.join('');
-        dispatch({ type: VERIFY_CODE, payload: { email, verification_code: enteredCode } });
-    };
-
-    useEffect(() => {
-        if (email_verified) {
-            Alert.alert('Verify Success', t('verify_code.success'), [{ text: 'OK' }]);
-            // navigation.navigate('HOME_SCREEN');
-            dispatch(setIsRecheckToken(!isRecheckToken));
-        } else if (error) {
-            Alert.alert('Verify Failed', t('verify_code.failed'), [{ text: 'OK' }]);
+        const res = await verifyEmail(email, enteredCode);
+        if (res.success) {
+            Toast.remove(key);
+            Toast.success(t('common.success'), 1);
+            dispatch(setIsReCheckToken(!isRecheckToken));
+        } else {
+            Toast.remove(key);
+            Toast.fail(t(`msg.${res?.message ?? ''}`));
         }
-    }, [email_verified, error, navigation]);
+    };
 
     const handleChangeText = (text: string, index: number) => {
         const newCode = [...code];

@@ -3,10 +3,13 @@ import axiosRetry from 'axios-retry';
 import {API_BASE_URL} from '../constants';
 import {getTokens} from '../utils/auth';
 
-const RETRIES = 5;
+const RETRIES = 1;
 
 export const axiosInstance = axios.create({
   baseURL: API_BASE_URL,
+  validateStatus: (status) => {
+    return status >= 200 && status < 500;
+  },
 });
 
 // Apply axios-retry to the standard axios instance
@@ -23,6 +26,9 @@ export const axiosPrivate = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
+  },
+  validateStatus: (status) => {
+    return status >= 200 && status < 500;
   },
 });
 

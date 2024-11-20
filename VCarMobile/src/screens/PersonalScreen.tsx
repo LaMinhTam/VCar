@@ -8,11 +8,11 @@ import { GET_ME } from '../store/profile/action';
 import { removeTokens } from '../utils/auth';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ParamListBase, useFocusEffect, useNavigation } from '@react-navigation/native';
-import { setIsRecheckToken } from '../store/auth/reducers';
 import { getWalletBalance } from '../utils';
 import { useWalletConnectModal } from '@walletconnect/modal-react-native';
 import ProfileCard from '../modules/profile/ProfileCard';
 import ProfileCardSkeleton from '../components/common/ProfileCardSkeleton';
+import { setIsReCheckToken } from '../store/auth/reducers';
 
 const PersonalScreen = () => {
     const dispatch = useDispatch();
@@ -25,7 +25,7 @@ const PersonalScreen = () => {
 
     const handleLogout = async () => {
         await removeTokens();
-        dispatch(setIsRecheckToken(!isRecheckToken));
+        dispatch(setIsReCheckToken(!isRecheckToken));
         if (isConnected) {
             await provider?.disconnect();
         }
@@ -70,7 +70,7 @@ const PersonalScreen = () => {
                     <Text className="ml-4 text-base font-medium uppercase text-text8">Account Settings</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity className="flex-row items-center py-2 border-b border-gray-200" onPress={() => navigation.navigate("MY_CARS")}>
+                <TouchableOpacity className="flex-row items-center py-2 border-b border-gray-200" onPress={() => navigation.navigate("MY_CARS", { refetchCars: true })}>
                     <Icon name="drive-eta" type="material" color="#000" size={24} />
                     <Text className="ml-4 text-base font-medium uppercase text-text8">My Cars</Text>
                 </TouchableOpacity>

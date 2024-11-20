@@ -143,7 +143,7 @@ const EditMyCar = () => {
         if (response?.success) {
             Toast.remove(key);
             Toast.success(t('common.success'));
-            navigation.goBack();
+            navigation.navigate('MY_CARS', { refetchCars: true });
         } else {
             Toast.remove(key);
             Toast.fail(response?.message);

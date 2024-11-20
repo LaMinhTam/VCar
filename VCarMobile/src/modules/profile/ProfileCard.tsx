@@ -49,12 +49,12 @@ const ProfileCard = ({ me, balance }: {
                     className="object-contain w-12 h-12 mr-4 rounded-full"
                 />
                 <View>
-                    <Text className="font-bold text-white">{me.display_name}</Text>
-                    <Text className="text-white">{me.email}</Text>
-                    <Text className='text-white'>Balance: {balance}</Text>
+                    <Text className="font-bold text-white">{me?.display_name}</Text>
+                    <Text className="text-white">{me?.phone_number}</Text>
+                    <Text className='text-white'>Balance: {Number(balance).toFixed(2)}</Text>
                 </View>
                 <Button
-                    type='solid'
+                    type='outline'
                     title={`Deposit`}
                     buttonStyle={{
                         paddingVertical: 12,

@@ -1,11 +1,9 @@
-import {takeLatest} from 'redux-saga/effects';
-import {login, signup, verifyCode} from './handlers';
-import {LOGIN, SIGN_UP, VERIFY_CODE} from './actions';
+// import { takeLatest } from "redux-saga/effects";
+// import { login } from "./handlers";
+// import { LOGIN } from "./actions";
 
 function* authSaga() {
-  yield takeLatest(LOGIN, login);
-  yield takeLatest(SIGN_UP, signup);
-  yield takeLatest(VERIFY_CODE, verifyCode);
+  // yield takeLatest(LOGIN, login);
 }
 
 export default authSaga;

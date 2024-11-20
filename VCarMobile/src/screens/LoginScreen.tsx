@@ -1,16 +1,16 @@
 import React, { useEffect } from 'react';
-import { View, Text, Pressable, ToastAndroid, Alert } from 'react-native';
+import { View, Text, Pressable } from 'react-native';
 import { TextInput, Button } from 'react-native-paper';
 import LayoutAuthentication from '../layouts/LayoutAuthentication';
 import { useTranslation } from 'react-i18next';
-import { ParamListBase, useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useDispatch, useSelector } from 'react-redux';
-import { LOGIN } from '../store/auth/actions';
-import Loading from '../components/common/Loading';
 import { RootState } from '../store/configureStore';
 import { validateEmail, validatePassword } from '../utils/validate';
-import { setIsRecheckToken } from '../store/auth/reducers';
+import { login } from '../store/auth/handlers';
+import { Toast } from '@ant-design/react-native';
+import { setIsReCheckToken } from '../store/auth/reducers';
+import { ParamListBase, useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 const LoginScreen = () => {
     const navigation = useNavigation<NativeStackNavigationProp<ParamListBase>>();
@@ -30,7 +30,7 @@ const LoginScreen = () => {
     });
     const dispatch = useDispatch();
     const { t } = useTranslation();
-    const { loading, error, access_token } = useSelector((state: RootState) => state.auth);
+    const { loading, error } = useSelector((state: RootState) => state.auth);
 
     const handleLogin = async () => {
         // Reset error state
@@ -66,18 +66,27 @@ const LoginScreen = () => {
 
         if (!hasError) {
             // Call API if no pre-validation errors
-            dispatch({ type: LOGIN, payload: { username, password } });
+            // dispatch({ type: LOGIN, payload: { username, password } });
+            const key = Toast.loading({
+                content: t('common.processing'),
+                duration: 0,
+                mask: true
+            });
+            const response = await login(username, password);
+            if (response.success) {
+                Toast.remove(key);
+                Toast.success(t('common.success'));
+                dispatch(setIsReCheckToken(!isRecheckToken));
+            } else {
+                Toast.remove(key);
+                Toast.fail(t(`msg.${response?.message ?? ''}`));
+            }
         }
     };
 
     useEffect(() => {
-        if (access_token) {
-            Alert.alert('Login Success', t('auth.login.success'), [{ text: 'OK' }]);
-            dispatch(setIsRecheckToken(!isRecheckToken));
-        } else if (error) {
-            Alert.alert('Login Failed', t('auth.login.failed'), [{ text: 'OK' }]);
-        }
-    }, [access_token, error, navigation]);
+        Toast.removeAll()
+    }, [])
 
     return (
         <LayoutAuthentication
@@ -117,13 +126,16 @@ const LoginScreen = () => {
             </View>
 
             <View className="flex-row items-center justify-end w-full mr-2">
-                <Pressable>
+                <Pressable onPress={() => navigation.navigate('FORGOT_PASSWORD_SCREEN')}>
                     <Text className="mb-6 text-sm text-text2">{t('auth.login.forgot_password')}</Text>
                 </Pressable>
             </View>
-            <Button mode="contained" className="flex items-center justify-center w-full mb-4" disabled={loading} onPress={handleLogin}>
-                {!loading ? t('auth.login') : <Loading />}
+            <Button mode="contained" className="w-full mb-4" disabled={loading} onPress={handleLogin}>
+                {t('auth.login')}
             </Button>
+            {/* <Pressable className='items-center flex-1' onPress={() => navigation.navigate(`REGISTER_SCREEN`)}>
+                <Text className="text-sm text-text2">{t('auth.login.register')} <Text className="font-bold text-text8">{t('auth.register')}</Text></Text>
+            </Pressable> */}
         </LayoutAuthentication>
     );
 };

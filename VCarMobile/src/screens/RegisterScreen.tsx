@@ -5,10 +5,10 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import LayoutAuthentication from '../layouts/LayoutAuthentication';
 import { useTranslation } from 'react-i18next';
 import { validateEmail, validatePassword } from '../utils/validate';
-import { Alert, View } from 'react-native';
-import { useDispatch, useSelector } from 'react-redux';
-import { SIGN_UP } from '../store/auth/actions';
-import { RootState } from '../store/configureStore';
+import { View } from 'react-native';
+import { useDispatch } from 'react-redux';
+import { register } from '../store/auth/handlers';
+import { Toast } from '@ant-design/react-native';
 
 const RegisterScreen = () => {
     const [showPassword, setShowPassword] = React.useState(false);
@@ -17,7 +17,7 @@ const RegisterScreen = () => {
     const [password, setPassword] = React.useState('');
     const [name, setName] = React.useState('');
     const { t } = useTranslation();
-    const { verification_code, error } = useSelector((state: RootState) => state.auth);
+    // const { verification_code, error } = useSelector((state: RootState) => state.auth);
 
     const dispatch = useDispatch();
 
@@ -33,7 +33,7 @@ const RegisterScreen = () => {
         },
     });
 
-    const handleRegister = () => {
+    const handleRegister = async () => {
         // Reset error state
         setErrorType({
             require: {
@@ -71,18 +71,23 @@ const RegisterScreen = () => {
         }
 
         if (!hasError) {
-            console.log('dispatch run');
-            dispatch({ type: SIGN_UP, payload: { name, email, password } });
+            // dispatch({ type: SIGN_UP, payload: { name, email, password } });
+            const key = Toast.loading({
+                content: t('common.processing'),
+                duration: 0,
+                mask: true
+            });
+            const res = await register(name, email, password);
+            if (res.success) {
+                Toast.remove(key);
+                Toast.success(t('common.success'), 1);
+                navigation.navigate('VERIFY_CODE_SCREEN', { verification_code: res?.data?.verification_code, email: email });
+            } else {
+                Toast.remove(key);
+                Toast.fail(t(`msg.${res?.message ?? ''}`));
+            }
         }
     };
-
-    React.useEffect(() => {
-        if (verification_code && !error) {
-            navigation.navigate('VERIFY_CODE_SCREEN');
-        } else if (error) {
-            Alert.alert('Login Failed', t('auth.register.failed'), [{ text: 'OK' }]);
-        }
-    }, [verification_code, error]);
 
     return (
         <LayoutAuthentication
@@ -96,6 +101,7 @@ const RegisterScreen = () => {
                 className="w-full mb-2"
                 value={name}
                 onChangeText={(text) => setName(text)}
+                outlineStyle={{ borderRadius: 10 }}
             />
             <View className='flex-row items-center justify-start w-full mb-2'>
                 {errorType.require.name && (
@@ -110,6 +116,7 @@ const RegisterScreen = () => {
                 keyboardType="email-address"
                 value={email}
                 onChangeText={(text) => setEmail(text)}
+                outlineStyle={{ borderRadius: 10 }}
             />
             <View className='flex-row items-center justify-start w-full mb-2'>
                 {errorType.require.email && (
@@ -128,6 +135,7 @@ const RegisterScreen = () => {
                 right={<TextInput.Icon icon={showPassword ? "eye-outline" : "eye-off-outline"} onPress={() => setShowPassword(!showPassword)} />}
                 value={password}
                 onChangeText={(text) => setPassword(text)}
+                outlineStyle={{ borderRadius: 10 }}
             />
             <View className='flex-row items-center justify-start w-full mb-4'>
                 {errorType.require.password && (

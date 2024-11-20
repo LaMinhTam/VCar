@@ -14,6 +14,7 @@ import enUS from '@ant-design/react-native/lib/locale-provider/en_US'
 import {
   WalletConnectModal,
 } from '@walletconnect/modal-react-native';
+import ForgotPasswordScreen from './screens/ForgotPasswordScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -44,6 +45,7 @@ const RootNavigator = () => {
           <Stack.Screen name='LOGIN_SCREEN' component={LoginScreen} options={{ headerShown: false }} />
           <Stack.Screen name='REGISTER_SCREEN' component={RegisterScreen} options={{ headerShown: false }} />
           <Stack.Screen name='VERIFY_CODE_SCREEN' component={VerifyCodeScreen} options={{ headerShown: false }} />
+          <Stack.Screen name='FORGOT_PASSWORD_SCREEN' component={ForgotPasswordScreen} options={{ headerShown: false }} />
         </>
       )}
     </Stack.Navigator>

@@ -112,7 +112,7 @@ const CreateMyCar = () => {
                             if (response.success) {
                                 Toast.remove(key);
                                 Toast.success(t('common.success'));
-                                navigation.goBack();
+                                navigation.navigate('MY_CARS', { refetchCars: true });
                             } else {
                                 Toast.remove(key);
                                 Toast.fail('error.wallet.system');
