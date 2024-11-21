@@ -11,6 +11,7 @@ import { useTranslation } from 'react-i18next';
 import CarDetailScreen from '../../screens/CarDetailScreen';
 import EditMyCar from '../profile/my_cars/EditMyCar';
 import CreateMyCar from '../profile/my_cars/CreateMyCar';
+import AccountSettings from '../profile/account/AccountSettings';
 
 const Stack = createNativeStackNavigator();
 
@@ -68,6 +69,13 @@ const PersonalNavigator = () => {
                 component={EditMyCar}
                 options={{
                     title: t('profile.my_cars.edit'),
+                }}
+            />
+            <Stack.Screen
+                name="ACCOUNT_SETTINGS_SCREEN"
+                component={AccountSettings}
+                options={{
+                    title: t('account.settings.title'),
                 }}
             />
 

@@ -4,12 +4,12 @@ import { Image } from 'react-native';
 import { Button } from 'react-native-elements';
 import { Flex, Toast } from '@ant-design/react-native';
 import { DEFAULT_AVATAR } from '../../constants';
-import { IUser } from '../../store/profile/types';
 import { useWalletConnectModal } from '@walletconnect/modal-react-native';
 import { buyToken } from '../../store/profile/handlers';
 import { ParamListBase, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTranslation } from 'react-i18next';
+import { IUser } from '../../store/auth/types';
 
 const ProfileCard = ({ me, balance }: {
     me: IUser,
@@ -45,7 +45,7 @@ const ProfileCard = ({ me, balance }: {
         <View className="flex-row items-center p-4 mb-6 bg-blue-500 rounded-xl">
             <Flex direction='row'>
                 <Image
-                    source={{ uri: DEFAULT_AVATAR }}
+                    source={{ uri: me?.image_url }}
                     className="object-contain w-12 h-12 mr-4 rounded-full"
                 />
                 <View>
@@ -60,7 +60,7 @@ const ProfileCard = ({ me, balance }: {
                         paddingVertical: 12,
                         backgroundColor: '#FFF',
                         borderRadius: 30,
-                        marginLeft: 10,
+                        marginLeft: 100,
                     }}
                     titleStyle={{
                         color: '#103F74',

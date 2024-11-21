@@ -7,6 +7,7 @@ import {RefObject} from 'react';
 
 import { ethers } from 'ethers';
 import { Asset } from 'react-native-image-picker';
+import { CitizenIdentificationData, LicenseData } from '../store/profile/types';
 
 export const formatPrice = (price: number) => {
   return numeral(price).format('0,0');
@@ -210,3 +211,56 @@ export const sendTransaction = async (
   }
 };
 
+export const handleRecognizeLicensePlate = async (
+  formData: FormData
+) => {
+  try {
+    const response = await axios.post(
+      "https://api.fpt.ai/vision/dlr/vnm",
+      formData,
+      {
+        headers: {
+          "api-key": process.env.VITE_FPT_KYC_SECRET_KEY,
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+
+    if (response?.data?.data) {
+      return {
+        success: true,
+        data: response.data.data.at(0) as LicenseData,
+      };
+    }
+  } catch (error) {
+    console.error("Error during recognition:", error);
+    return { success: false, data: null };
+  }
+};
+
+export const handleRecognizeCitizenIdentification = async (
+  formData: FormData
+) => {
+  try {
+    const response = await axios.post(
+      "https://api.fpt.ai/vision/idr/vnm",
+      formData,
+      {
+        headers: {
+          "api-key": process.env.VITE_FPT_KYC_SECRET_KEY,
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+
+    if (response?.data?.data) {
+      return {
+        success: true,
+        data: response.data.data.at(0) as CitizenIdentificationData,
+      };
+    }
+  } catch (error) {
+    console.error("Error during recognition:", error);
+    return { success: false, data: null };
+  }
+};

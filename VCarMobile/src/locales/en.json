@@ -65,6 +65,9 @@
     "common.relatedCar": "Related Cars",
     "common.welcome": "Welcome!",
     "common.update": "Update",
+    "common.updateProfile": "Update Profile",
+    "common.updateCitizenIdentification": "Update Citizen Identification",
+    "common.updateDriverLicense": "Update Driver License",
     "common.create": "Create",
     "common.image": "Image",
     "common.selectFile": "Select File",
@@ -102,6 +105,7 @@
     "common.comment": "Comment",
     "common.normal": "Normal",
     "common.damage": "Damage",
+    "common.sync": "Sync",
 
     "auth.login.title": "Welcome to VCar!",
     "auth.login.desc": "Enter your VCar account to continue.",
@@ -158,6 +162,15 @@
     "profile.my_cars.choose_feature": "Choose feature",
     "profile.my_cars.upload_image": "Upload image",
     "profile.my_cars.image_note": "Maximum number of images: 10 images",
+
+    "account.settings.title": "Account settings",
+    "account.settings.information": "Account Information",
+    "account.settings.display_name": "Display Name",
+    "account.settings.phoneNumber": "Phone number",
+    "account.settings.language": "Language",
+    "account.settings.sync_wallet": "Sync wallet",
+    "account.settings.citizen_identification": "Citizen Identification",
+    "account.settings.driver_license": "Driver License",
 
     "car.name": "Car Name",
     "car.name.required": "Car name is required",
@@ -300,6 +313,7 @@
     "msg.CREATE_VEHICLE_HANDOVER_FAILED": "Failed to create vehicle handover!",
     "msg.POST_HANDOVER_ISSUE": "We will contact you in 24h!",
     "msg.POST_HANDOVER_NOT_ISSUE": "Confirmed return of car without problem!",
-    "msg.REPORT_ISSUE_FAIL": "Failed to report issue, please try again later!"
+    "msg.REPORT_ISSUE_FAIL": "Failed to report issue, please try again later!",
+    "msg.RECOGNIZE_FAIL": "Recognize failure, Please try again later!"
   }
 }

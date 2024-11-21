@@ -65,6 +65,9 @@
     "common.relatedCar": "Xe liên quan",
     "common.welcome": "Xin chào bạn!",
     "common.update": "Cập nhật",
+    "common.updateProfile": "Cập nhật thông tin cá nhân",
+    "common.updateCitizenIdentification": "Cập nhật căn cước công dân",
+    "common.updateDriverLicense": "Cập nhật bằng lái xe",
     "common.create": "Tạo",
     "common.image": "Hình ảnh",
     "common.selectFile": "Chọn tệp",
@@ -102,6 +105,7 @@
     "common.comment": "Bình luận",
     "common.normal": "Bình thường",
     "common.damage": "Hư hỏng",
+    "common.sync": "Đồng bộ",
 
     "auth.login.title": "Chào mừng bạn đến với VCar!",
     "auth.login.desc": "Nhập tài khoản VCar của bạn để tiếp tục.",
@@ -159,6 +163,15 @@
     "profile.my_cars.choose_feature": "Chọn tính năng",
     "profile.my_cars.upload_image": "Tải ảnh lên",
     "profile.my_cars.image_note": "Số lượng ảnh tối đa: 10 ảnh",
+
+    "account.settings.title": "Cài đặt tài khoản",
+    "account.settings.information": "Thông tin tài khoản",
+    "account.settings.display_name": "Tên hiển thị",
+    "account.settings.phoneNumber": "Số điện thoại",
+    "account.settings.language": "Ngôn ngữ",
+    "account.settings.sync_wallet": "Đồng bộ ví",
+    "account.settings.citizen_identification": "Căn cước công dân",
+    "account.settings.driver_license": "Bằng lái xe",
 
     "car.name": "Tên xe",
     "car.name.required": "Yêu cầu nhập tên xe",
@@ -302,6 +315,7 @@
     "msg.CREATE_RETURN_HANDOVER_FAILED": "Tạo bàn giao xe trả thất bại!",
     "msg.POST_HANDOVER_ISSUE": "We will contact you within 24 hours!",
     "msg.POST_HANDOVER_NOT_ISSUE": "Đã xác nhận trả xe không có vấn đề!",
-    "msg.REPORT_ISSUE_FAIL": "Báo cáo vấn đề thất bại, Vui lòng thử lại sau!"
+    "msg.REPORT_ISSUE_FAIL": "Báo cáo vấn đề thất bại, Vui lòng thử lại sau!",
+    "msg.RECOGNIZE_FAIL": "Nhận diện thất bại vui lòng thử lại sau!"
   }
 }

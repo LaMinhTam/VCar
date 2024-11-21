@@ -65,7 +65,7 @@ const PersonalScreen = () => {
 
             {/* Danh sách chức năng */}
             <View className="space-y-4">
-                <TouchableOpacity className="flex-row items-center py-2 border-b border-gray-200">
+                <TouchableOpacity className="flex-row items-center py-2 border-b border-gray-200" onPress={() => navigation.navigate("ACCOUNT_SETTINGS_SCREEN")}>
                     <Icon name="account-circle" type="material" color="#000" size={24} />
                     <Text className="ml-4 text-base font-medium uppercase text-text8">Account Settings</Text>
                 </TouchableOpacity>
@@ -88,21 +88,6 @@ const PersonalScreen = () => {
                 <TouchableOpacity className="flex-row items-center py-2 border-b border-gray-200">
                     <Icon name="lock" type="material" color="#000" size={24} />
                     <Text className="ml-4 text-base font-medium uppercase text-text8">Change Password</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity className="flex-row items-center py-2 border-b border-gray-200">
-                    <Icon name="drive-eta" type="material" color="#000" size={24} />
-                    <Text className="ml-4 text-base font-medium uppercase text-text8">Update license</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity className="flex-row items-center py-2 border-b border-gray-200">
-                    <Icon name="perm-identity" type="material" color="#000" size={24} />
-                    <Text className="ml-4 text-base font-medium uppercase text-text8">Update citizen identification</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity className="flex-row items-center py-2 border-b border-gray-200">
-                    <Icon name="perm-identity" type="material" color="#000" size={24} />
-                    <Text className="ml-4 text-base font-medium uppercase text-text8">Update metamask wallet</Text>
                 </TouchableOpacity>
             </View>
 
