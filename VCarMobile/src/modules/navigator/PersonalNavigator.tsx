@@ -12,6 +12,7 @@ import CarDetailScreen from '../../screens/CarDetailScreen';
 import EditMyCar from '../profile/my_cars/EditMyCar';
 import CreateMyCar from '../profile/my_cars/CreateMyCar';
 import AccountSettings from '../profile/account/AccountSettings';
+import MyLessee from '../profile/my_lessee/MyLessee';
 
 const Stack = createNativeStackNavigator();
 
@@ -76,6 +77,13 @@ const PersonalNavigator = () => {
                 component={AccountSettings}
                 options={{
                     title: t('account.settings.title'),
+                }}
+            />
+            <Stack.Screen
+                name="MY_LESSEE_SCREEN"
+                component={MyLessee}
+                options={{
+                    title: t('account.my_lessee'),
                 }}
             />
 

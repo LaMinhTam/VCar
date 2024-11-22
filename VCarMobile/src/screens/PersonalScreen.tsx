@@ -13,8 +13,10 @@ import { useWalletConnectModal } from '@walletconnect/modal-react-native';
 import ProfileCard from '../modules/profile/ProfileCard';
 import ProfileCardSkeleton from '../components/common/ProfileCardSkeleton';
 import { setIsReCheckToken } from '../store/auth/reducers';
+import { useTranslation } from 'react-i18next';
 
 const PersonalScreen = () => {
+    const { t } = useTranslation();
     const dispatch = useDispatch();
     const { me, loading } = useSelector((state: RootState) => state.profile);
     const { isRecheckToken } = useSelector((state: RootState) => state.auth);
@@ -67,27 +69,27 @@ const PersonalScreen = () => {
             <View className="space-y-4">
                 <TouchableOpacity className="flex-row items-center py-2 border-b border-gray-200" onPress={() => navigation.navigate("ACCOUNT_SETTINGS_SCREEN")}>
                     <Icon name="account-circle" type="material" color="#000" size={24} />
-                    <Text className="ml-4 text-base font-medium uppercase text-text8">Account Settings</Text>
+                    <Text className="ml-4 text-base font-medium uppercase text-text8">{t("account.settings")}</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity className="flex-row items-center py-2 border-b border-gray-200" onPress={() => navigation.navigate("MY_CARS", { refetchCars: true })}>
                     <Icon name="drive-eta" type="material" color="#000" size={24} />
-                    <Text className="ml-4 text-base font-medium uppercase text-text8">My Cars</Text>
+                    <Text className="ml-4 text-base font-medium uppercase text-text8">{t("account.my_cars")}</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity className="flex-row items-center py-2 border-b border-gray-200" onPress={() => navigation.navigate("MY_TRIP")}>
                     <Icon name="tour" type="material" color="#000" size={24} />
-                    <Text className="ml-4 text-base font-medium uppercase text-text8">My Trip</Text>
+                    <Text className="ml-4 text-base font-medium uppercase text-text8">{t("account.my_trips")}</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity className="flex-row items-center py-2 border-b border-gray-200">
+                <TouchableOpacity className="flex-row items-center py-2 border-b border-gray-200" onPress={() => navigation.navigate("MY_LESSEE_SCREEN")}>
                     <Icon name="accessibility" type="material" color="#000" size={24} />
-                    <Text className="ml-4 text-base font-medium uppercase text-text8">My Lessee</Text>
+                    <Text className="ml-4 text-base font-medium uppercase text-text8">{t("account.my_lessee")}</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity className="flex-row items-center py-2 border-b border-gray-200">
                     <Icon name="lock" type="material" color="#000" size={24} />
-                    <Text className="ml-4 text-base font-medium uppercase text-text8">Change Password</Text>
+                    <Text className="ml-4 text-base font-medium uppercase text-text8">{t("account.change_password")}</Text>
                 </TouchableOpacity>
             </View>
 

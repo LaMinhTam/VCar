@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Avatar, Divider, Icon } from 'react-native-elements';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { GET_CAR_BY_ID } from '../../store/car/action';
-import { getContractByRequestId, getVehicleHandoverByContractId, lesseeApproveHandover, signContract } from '../../store/rental/handlers';
+import { approveRentRequest, getContractByRequestId, getRentRequestById, getVehicleHandoverByContractId, lesseeApproveHandover, rejectRentRequest, signContract } from '../../store/rental/handlers';
 import { calculateDays, formatDate, formatPrice, getWalletBalance, handleMetaMaskSignature, handleUploadSignature, sendTransaction } from '../../utils';
 import { RootState } from '../../store/configureStore';
 import { IContractData, IRentalData, IVehicleHandoverResponseData } from '../../store/rental/types';
@@ -21,7 +21,10 @@ import { useTranslation } from 'react-i18next';
 const RentalDetail = () => {
     const { t } = useTranslation();
     const route = useRoute();
-    const { record } = route.params as { record: IRentalData };
+    const [triggerRefetch, setTriggerRefetch] = useState(false);
+    const { requestId, type } = route.params as { requestId: string, type: string };
+    console.log("RentalDetail ~ requestId:", requestId)
+    const [record, setRecord] = useState<IRentalData>({} as IRentalData);
     const [contract, setContract] = useState<IContractData>({} as IContractData);
     const [vehicleHandover, setVehicleHandover] = useState<IVehicleHandoverResponseData>({} as IVehicleHandoverResponseData);
     const dispatch = useDispatch();
@@ -34,13 +37,78 @@ const RentalDetail = () => {
     const { open, isConnected, address, provider } = useWalletConnectModal();
 
     useEffect(() => {
+        fetchRentalRequestById();
+    }, [requestId, triggerRefetch]);
+
+    const fetchRentalRequestById = async () => {
+        const key = Toast.loading({
+            content: t('common.processing'),
+            duration: 0,
+            mask: true
+        });
+        const response = await getRentRequestById(requestId);
+        if (response?.success) {
+            Toast.remove(key);
+            setRecord(response.data as IRentalData);
+        } else {
+            Toast.remove(key);
+            Toast.fail(t("msg.SYSTEM_MAINTENANCE"), 1);
+            return;
+        }
+    }
+
+    useEffect(() => {
         fetchRentalContractById(record?.id);
-    }, [record?.id]);
+    }, [record?.id, triggerRefetch]);
 
     const fetchRentalContractById = async (id: string) => {
         const response = await getContractByRequestId(id);
         if (response?.success && response.data) {
             setContract(response.data);
+        }
+    };
+
+    const handleRejectRentRequest = async () => {
+        const key = Toast.loading({
+            content: t('common.processing'),
+            duration: 0,
+            mask: true
+        });
+        const response = await rejectRentRequest(record.id);
+        if (response?.success) {
+            Toast.remove(key);
+            Toast.success(t("msg.REQUEST_REJECTED"), 1);
+        } else {
+            Toast.remove(key);
+            Toast.fail(t("msg.REJECT_REQUEST_FAILED"), 1);
+        }
+    };
+
+    const handleApproveRentRequest = async () => {
+        const key = Toast.loading({
+            content: t('common.processing'),
+            duration: 0,
+            mask: true
+        });
+        const signatureResult = await handleMetaMaskSignature(me?.id ?? '', provider);
+        if (!signatureResult) {
+            Toast.fail(t("msg.METAMASK_SIGNATURE_FAILED"), 1);
+            Toast.remove(key);
+            return;
+        }
+        const { account, signature, msg } = signatureResult;
+        const response = await approveRentRequest(record.id, {
+            address: account,
+            signature,
+            message: msg,
+            signature_url: "https://picsum.photos/200",
+        });
+        if (response?.success) {
+            Toast.remove(key);
+            Toast.success(t("msg.REQUEST_APPROVED"), 1);
+        } else {
+            Toast.remove(key);
+            Toast.fail(t("msg.APPROVE_REQUEST_FAILED"), 1);
         }
     };
 
@@ -173,7 +241,7 @@ const RentalDetail = () => {
                 <Divider />
                 <View style={{ marginBottom: 8 }} className="p-4">
                     <View style={{ flexDirection: 'row', marginBottom: 4 }}>
-                        <Text style={{ color: '#888' }}>Created at: </Text>
+                        <Text style={{ color: '#888' }}>{t("account.my_lessee.created_at")}: </Text>
                         <Text style={{ fontWeight: '500' }}>{formatDate(record.created_at)}</Text>
                     </View>
                     <View style={{ flexDirection: 'row', marginBottom: 4 }}>
@@ -181,64 +249,67 @@ const RentalDetail = () => {
                         <Text style={{ fontWeight: '500' }}>{formatDate(record.rental_start_date)}</Text>
                     </View>
                     <View style={{ flexDirection: 'row', marginBottom: 4 }}>
-                        <Text style={{ color: '#888' }}>Rental end date: </Text>
+                        <Text style={{ color: '#888' }}>{t("account.my_lessee.rental_end_date")}: </Text>
                         <Text style={{ fontWeight: '500' }}>{formatDate(record.rental_end_date)}</Text>
                     </View>
                     <View style={{ flexDirection: 'row', marginBottom: 4 }}>
-                        <Text style={{ color: '#888' }}>Location: </Text>
+                        <Text style={{ color: '#888' }}>{t("common.location")}: </Text>
                         <Text style={{ color: '#666' }}>{record.vehicle_hand_over_location}</Text>
                     </View>
                     <View style={{ flexDirection: 'row' }}>
-                        <Text style={{ color: '#888' }}>Status: </Text>
+                        <Text style={{ color: '#888' }}>{t("account.my_lessee.status")}: </Text>
                         <Text
                             style={{
                                 fontWeight: '500',
                                 color: record.status === 'APPROVED' ? 'green' : record.status === 'PENDING' ? 'orange' : 'red',
+                                textTransform: 'uppercase',
                             }}
                         >
-                            {record.status}
+                            {t(`common.${record.status}`)}
                         </Text>
                     </View>
                     <View style={{ flexDirection: 'row' }}>
-                        <Text style={{ color: '#888' }}>Car Status: </Text>
+                        <Text style={{ color: '#888' }}>{t("common.carStatus")}: </Text>
                         <Text
                             style={{
                                 fontWeight: '500',
                                 color: vehicleHandover?.lessee_approved ? 'green' : 'orange',
+                                textTransform: 'uppercase',
                             }}
                         >
-                            {vehicleHandover?.lessee_approved ? 'HANDOVER' : 'NOT HANDOVER'}
+                            {vehicleHandover?.lessee_approved ? t(`common.HANDOVER`) : t(`common.NOT_HANDOVER`)}
                         </Text>
                     </View>
                     <View style={{ flexDirection: 'row' }}>
-                        <Text style={{ color: '#888' }}>Rent Status: </Text>
+                        <Text style={{ color: '#888' }}>{t("common.carRentalStatus")}: </Text>
                         <Text
                             style={{
                                 fontWeight: '500',
                                 color: vehicleHandover?.status === 'RETURNED' ? 'green' : 'orange',
+                                textTransform: 'uppercase',
                             }}
                         >
-                            {vehicleHandover?.status === 'RETURNED' ? 'COMPLETE' : 'INCOMPLETE'}
+                            {vehicleHandover?.status === 'RETURNED' ? t("common.COMPLETE") : t("common.INCOMPLETE")}
                         </Text>
                     </View>
                 </View>
                 <Divider />
                 {/* Host Detail */}
                 <View className="p-4">
-                    <Text className="text-xs font-bold text-gray-900">HOST DETAIL</Text>
+                    <Text className="text-xs font-bold text-gray-900">{t("common.carOwner")}</Text>
                     <View className="flex-row items-center mt-2">
                         <Avatar
                             rounded
-                            source={{ uri: car?.owner.image_url ?? 'https://randomuser.me/api/portraits/men/85.jpg' }}
+                            source={{ uri: car?.owner?.image_url ?? 'https://randomuser.me/api/portraits/men/85.jpg' }}
                             size="medium"
                         />
                         <View className="ml-4">
-                            <Text className="text-sm font-bold text-gray-900">{car?.owner.display_name}</Text>
+                            <Text className="text-sm font-bold text-gray-900">{car?.owner?.display_name}</Text>
                             <Text className="text-xs text-gray-600">Ho Chi Minh, Viet Nam</Text>
                         </View>
-                        <View className="ml-auto">
+                        {/* <View className="ml-auto">
                             <Button type='ghost' className="text-lite bg-thirdly" onPress={() => { }} >Contact</Button>
-                        </View>
+                        </View> */}
                     </View>
                 </View>
                 <Divider />
@@ -247,17 +318,30 @@ const RentalDetail = () => {
                     padding: 16,
                     gap: 10
                 }}>
-                    {contract?.rental_status === 'SIGNED' && vehicleHandover?.id && <Button type="warning">View handover document</Button>}
-                    {contract?.id && <Button type="warning">View Contract</Button>}
-                    {contract?.rental_status === 'SIGNED' && vehicleHandover?.status === 'CREATED' && <Button type="primary" onPress={handleApproveVehicleHandover}>Approve handover</Button>}
-                    {contract?.rental_status === 'SIGNED' && vehicleHandover?.status === 'RENDING' && <Button type="primary" onPress={() => setVisibleReturnedModal(true)}>Return Vehicle</Button>}
-                    {contract.rental_status === 'PENDING' && <Button type="primary" onPress={handleSignContract}>Sign Contract</Button>}
-                    {contract.rental_status === 'SIGNED' && vehicleHandover?.status === 'RETURNED' && <Button type="primary" >Review</Button>}
+                    {/* BOTH */}
+                    {contract?.rental_status === 'SIGNED' && vehicleHandover?.id && <Button type="warning">{t("account.rent_contract.view_handover")}</Button>}
+                    {contract?.id && <Button type="warning">{t("account.rent_contract.view_contract")}</Button>}
+
+                    {/* LESSEE */}
+                    {type === 'LESSEE' && contract?.rental_status === 'SIGNED' && vehicleHandover?.status === 'CREATED' && <Button type="primary" onPress={handleApproveVehicleHandover}>{t("account.rent_contract.approve_handover")}</Button>}
+                    {type === 'LESSEE' && contract?.rental_status === 'SIGNED' && vehicleHandover?.status === 'RENDING' && <Button type="primary" onPress={() => setVisibleReturnedModal(true)}>{t("account.rent_contract.return_vehicle")}</Button>}
+                    {type === 'LESSEE' && contract.rental_status === 'PENDING' && <Button type="primary" onPress={handleSignContract}>{t("account.rent_contract.sign_contract")}</Button>}
+                    {type === 'LESSEE' && contract.rental_status === 'SIGNED' && vehicleHandover?.status === 'RETURNED' && <Button type="primary" >{t("account.rent_contract.review")}</Button>}
+
+                    {/* LESSOR */}
+                    {type === 'LESSOR' && record.status === 'PENDING' && (<>
+                        <Button type="warning" onPress={handleRejectRentRequest}>{t("common.REJECT")}</Button>
+                        <Button type="primary" onPress={handleApproveRentRequest}>{t("common.APPROVE")}</Button>
+                    </>)}
+                    {type === 'LESSOR' && contract?.rental_status === 'SIGNED' && !vehicleHandover?.id && <Button type="primary">{t("account.rental_contract.create_handover")}</Button>}
+                    {type === 'LESSOR' && contract?.rental_status === 'SIGNED' && vehicleHandover?.status === 'RETURNING' && <Button type="primary">{t("account.rental_contract.approve_returned")}</Button>}
+                    {type === 'LESSOR' && contract?.rental_status === 'SIGNED' && vehicleHandover?.status === 'RETURNED' && <Button type="primary">{t("account.rental_contract.return_not_issue")}</Button>}
+                    {type === 'LESSOR' && contract?.rental_status === 'SIGNED' && vehicleHandover?.status === 'RETURNED' && <Button type="primary">{t("account.rental_contract.report_issue")}</Button>}
                 </Flex>
             </ScrollView>
 
             <Modal
-                title="Create return vehicle handover"
+                title={t("account.rent_contract.create_return_vehicle_handover")}
                 visible={visibleReturnedModal}
                 onClose={() => setVisibleReturnedModal(false)}
                 popup
