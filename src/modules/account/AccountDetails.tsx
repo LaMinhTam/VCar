@@ -174,32 +174,37 @@ const AccountDetails = () => {
 
                 // Send the image URL to the license recognition API
                 const res = await handleRecognizeCitizenIdentification(recognitionData);
-                let dob = res?.data?.dob || "";
-                if (dob) {
-                    const [day, month, year] = dob.split('/');
-                    dob = `${year}-${month}-${day}`;
-                }
-                let doe = res?.data?.doe || "";
-                if (doe) {
-                    const [day, month, year] = doe.split('/');
-                    doe = `${year}-${month}-${day}`;
-                }
-                const updateResponse = await updateCitizenLicense({
-                    identification_number: res?.data?.id || "",
-                    issued_date: doe,
-                    issued_location: res?.data?.address_entities?.province || "",
-                    permanent_address: res?.data?.address || "",
-                    contact_address: res?.data?.address || "",
-                    identification_image_url: imageUrl,
-                })
-                if (updateResponse?.success) {
-                    setLoading(false);
-                    message.success(t("msg.UPDATE_CITIZEN_IDENTIFICATION_SUCCESS"));
-                    setOnEditIdentification(false);
-                    setRefetchMe(!refetchMe);
+                if (res?.success) {
+                    let dob = res?.data?.dob || "";
+                    if (dob) {
+                        const [day, month, year] = dob.split('/');
+                        dob = `${year}-${month}-${day}`;
+                    }
+                    let doe = res?.data?.doe || "";
+                    if (doe) {
+                        const [day, month, year] = doe.split('/');
+                        doe = `${year}-${month}-${day}`;
+                    }
+                    const updateResponse = await updateCitizenLicense({
+                        identification_number: res?.data?.id || "",
+                        issued_date: doe,
+                        issued_location: res?.data?.address_entities?.province || "",
+                        permanent_address: res?.data?.address || "",
+                        contact_address: res?.data?.address || "",
+                        identification_image_url: imageUrl,
+                    })
+                    if (updateResponse?.success) {
+                        setLoading(false);
+                        message.success(t("msg.UPDATE_CITIZEN_IDENTIFICATION_SUCCESS"));
+                        setOnEditIdentification(false);
+                        setRefetchMe(!refetchMe);
+                    } else {
+                        setLoading(false);
+                        message.error(t("msg.UPDATE_CITIZEN_IDENTIFICATION_FAILED"));
+                    }
                 } else {
                     setLoading(false);
-                    message.error(t("msg.UPDATE_CITIZEN_IDENTIFICATION_FAILED"));
+                    message.error(t("msg.RECOGNIZE_FAIL"));
                 }
             } else {
                 setLoading(false);
@@ -232,25 +237,30 @@ const AccountDetails = () => {
 
                 // Send the image URL to the license recognition API
                 const res = await handleRecognizeLicensePlate(recognitionData);
-                let dob = res?.data?.dob || "";
-                if (dob) {
-                    const [day, month, year] = dob.split('/');
-                    dob = `${year}-${month}-${day}`;
-                }
-                const updateResponse = await updateLicense({
-                    id: res?.data?.id || "",
-                    full_name: res?.data?.name || "",
-                    dob: dob,
-                    license_image_url: imageUrl,
-                })
-                if (updateResponse?.success) {
-                    setLoading(false);
-                    message.success(t("msg.UPDATE_LICENSE_SUCCESS"));
-                    setOnEdit(false);
-                    setRefetchMe(!refetchMe);
+                if (res?.success) {
+                    let dob = res?.data?.dob || "";
+                    if (dob) {
+                        const [day, month, year] = dob.split('/');
+                        dob = `${year}-${month}-${day}`;
+                    }
+                    const updateResponse = await updateLicense({
+                        id: res?.data?.id || "",
+                        full_name: res?.data?.name || "",
+                        dob: dob,
+                        license_image_url: imageUrl,
+                    })
+                    if (updateResponse?.success) {
+                        setLoading(false);
+                        message.success(t("msg.UPDATE_LICENSE_SUCCESS"));
+                        setOnEdit(false);
+                        setRefetchMe(!refetchMe);
+                    } else {
+                        setLoading(false);
+                        message.error(t("msg.UPDATE_LICENSE_FAILED"));
+                    }
                 } else {
                     setLoading(false);
-                    message.error(t("msg.UPDATE_LICENSE_FAILED"));
+                    message.error(t("msg.RECOGNIZE_FAIL"));
                 }
             } else {
                 setLoading(false);

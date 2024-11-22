@@ -477,6 +477,7 @@
     "msg.CREATE_VEHICLE_HANDOVER_FAILED": "Failed to create vehicle handover!",
     "msg.POST_HANDOVER_ISSUE": "We will contact you in 24h!",
     "msg.POST_HANDOVER_NOT_ISSUE": "Confirmed return of car without problem!",
-    "msg.REPORT_ISSUE_FAIL": "Failed to report issue, please try again later!"
+    "msg.REPORT_ISSUE_FAIL": "Failed to report issue, please try again later!",
+    "msg.RECOGNIZE_FAIL": "Recognize failure, Please try again later!"
   }
 }
