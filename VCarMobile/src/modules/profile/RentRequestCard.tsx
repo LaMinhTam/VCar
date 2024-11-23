@@ -17,7 +17,7 @@ const RentRequestCard = ({ item, type }: {
     return (
         <Card style={{ margin: 8, borderRadius: 8 }}>
             <Card.Header
-                title="Rental Details"
+                title={t("common.rentalOrderDetail")}
                 style={{ borderBottomWidth: 1, borderBottomColor: '#f0f0f0' }}
                 extra={
                     <Button

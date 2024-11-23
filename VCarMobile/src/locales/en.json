@@ -97,6 +97,7 @@
     "common.sign": "Sign",
     "common.deleteSignature": "Delete Signature",
     "common.carStatus": "Car status",
+    "common.rentalOrderDetail": "Rental Order Detail",
     "common.carRentalStatus": "Car Rental Status",
     "common.COMPLETE": "Complete",
     "common.INCOMPLETE": "Incomplete",
@@ -107,6 +108,7 @@
     "common.damage": "Damage",
     "common.sync": "Sync",
     "common.sortDescending": "Sort Descending",
+    "common.add": "Add",
 
     "auth.login.title": "Welcome to VCar!",
     "auth.login.desc": "Enter your VCar account to continue.",

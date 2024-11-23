@@ -434,3 +434,23 @@ export async function getReviewByCarId(car_id: string) {
     return {success: false, data: null};
   }
 }
+
+export async function postHandoverIssue(
+  id: string,
+  approveCode: string
+) {
+  try {
+    const response = await axiosPrivate.patch(
+      ENDPOINTS.POST_HANDOVER_ISSUE(id),
+      {
+        handover_issue: approveCode,
+      }
+    );
+    if (response?.data?.code === 200) {
+      return { success: true, data: response.data.data };
+    }
+  } catch (error) {
+    console.error(error);
+    return { success: false, data: null };
+  }
+}

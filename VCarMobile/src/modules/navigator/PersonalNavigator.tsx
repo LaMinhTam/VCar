@@ -13,6 +13,7 @@ import EditMyCar from '../profile/my_cars/EditMyCar';
 import CreateMyCar from '../profile/my_cars/CreateMyCar';
 import AccountSettings from '../profile/account/AccountSettings';
 import MyLessee from '../profile/my_lessee/MyLessee';
+import ChangePassword from '../profile/change_password/ChangePassword';
 
 const Stack = createNativeStackNavigator();
 
@@ -43,7 +44,7 @@ const PersonalNavigator = () => {
                 name="RENTAL_DETAIL"
                 component={RentalDetail}
                 options={{
-                    title: 'Rental Detail',
+                    title: t("common.rentalOrderDetail"),
                 }}
             />
             <Stack.Screen
@@ -84,6 +85,13 @@ const PersonalNavigator = () => {
                 component={MyLessee}
                 options={{
                     title: t('account.my_lessee'),
+                }}
+            />
+            <Stack.Screen
+                name="CHANGE_PASSWORD_SCREEN"
+                component={ChangePassword}
+                options={{
+                    title: t('account.change_password'),
                 }}
             />
 

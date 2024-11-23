@@ -4,19 +4,19 @@ export interface IRentalState {
   lesseeRequest: IRentalData;
   lessorListRequest: {
     data: IRentalData[];
-    meta: IMetaData
+    meta: IMetaData;
   };
   lesseeListRequest: {
     data: IRentalData[];
-    meta: IMetaData
+    meta: IMetaData;
   };
   lesseeListContract: {
     data: IContractData[];
-    meta: IMetaData
+    meta: IMetaData;
   };
   lessorListContract: {
     data: IContractData[];
-    meta: IMetaData
+    meta: IMetaData;
   };
   uploadProgress: number;
 }
@@ -54,58 +54,61 @@ export interface IContractParams {
   sortDescending: string;
   page: string;
   size: string;
+  status: string;
 }
 
 export interface ILessorApproveRequestResponse {
-  id:                            string;
-  owner:                         string;
-  lessee:                        string;
-  created_at:                    number;
-  car_id:                        string;
-  vehicle_license_plate:         string;
-  vehicle_manufacturing_year:    number;
-  vehicle_registration_number:   string;
-  vehicle_registration_date:     string;
+  id: string;
+  owner: string;
+  lessee: string;
+  created_at: number;
+  car_id: string;
+  vehicle_license_plate: string;
+  vehicle_manufacturing_year: number;
+  vehicle_registration_number: string;
+  vehicle_registration_date: string;
   vehicle_registration_location: string;
-  vehicle_owner_name:            string;
-  rental_price_per_day:          number;
-  mileage_limit_per_day:         number;
-  extra_mileage_charge:          number;
-  rental_start_date:             number;
-  rental_end_date:               number;
-  extra_hourly_charge:           number;
-  total_rental_value:            number;
-  vehicle_hand_over_location:    string;
+  vehicle_owner_name: string;
+  rental_price_per_day: number;
+  mileage_limit_per_day: number;
+  extra_mileage_charge: number;
+  rental_start_date: number;
+  rental_end_date: number;
+  extra_hourly_charge: number;
+  total_rental_value: number;
+  vehicle_hand_over_location: string;
 }
 
 export interface IContractData {
-  id:                            string;
-  lessor_id:                     string;
-  lessee_id:                     string;
-  created_at:                    number;
-  lessor_identity_number:        string;
-  lessor_permanent_address:      string;
-  lessor_contact_address:        string;
-  lessor_phone_number:           string;
-  car_id:                        string;
-  vehicle_license_plate:         string;
-  vehicle_manufacturing_year:    number;
-  vehicle_registration_number:   string;
-  vehicle_registration_date:     Date;
+  id: string;
+  lessor_id: string;
+  lessee_id: string;
+  created_at: number;
+  lessor_identity_number: string;
+  lessor_permanent_address: string;
+  lessor_contact_address: string;
+  lessor_phone_number: string;
+  car_id: string;
+  vehicle_license_plate: string;
+  vehicle_manufacturing_year: number;
+  vehicle_registration_number: string;
+  vehicle_registration_date: Date;
   vehicle_registration_location: string;
-  vehicle_owner_name:            string;
-  rental_price_per_day:          number;
-  mileage_limit_per_day:         number;
-  extra_mileage_charge:          number;
-  rental_start_date:             number;
-  rental_end_date:               number;
-  extra_hourly_charge:           number;
-  total_rental_value:            number;
-  vehicle_hand_over_location:    string;
-  rental_request_id:             string;
-  rental_status:                 string;
+  vehicle_owner_name: string;
+  rental_price_per_day: number;
+  mileage_limit_per_day: number;
+  extra_mileage_charge: number;
+  rental_start_date: number;
+  rental_end_date: number;
+  extra_hourly_charge: number;
+  total_rental_value: number;
+  vehicle_hand_over_location: string;
+  rental_request_id: string;
+  rental_status: string;
+  handover_issue?:string
+  lessee_signature?: string;
+  lessor_signature?: string;
 }
-
 
 export interface IDigitalSignature {
   signature: string;
@@ -159,40 +162,40 @@ export interface ReturnHandoverFieldTypes {
 }
 
 export interface IVehicleHandoverResponseData {
-        id:                        string;
-        lessee_id:                 string;
-        lessor_id:                 string;
-        lessor_name:               string;
-        lessee_name:               string;
-        location:                  string;
-        rental_contract_id:        string;
-        handover_date:             number;
-        handover_hour:             number;
-        initial_condition_normal:  boolean;
-        vehicle_condition:         string;
-        odometer_reading:          number;
-        fuel_level:                number;
-        personal_items:            string;
-        return_date:               number;
-        return_hour:               number;
-        condition_matches_initial: boolean;
-        return_vehicle_condition:  string;
-        return_damages:            string[];
-        return_odometer_reading:   number;
-        return_fuel_level:         number;
-        lessee_approved:           boolean;
-        lessor_approved:           boolean;
-        lessee_signature:          string;
-        lessor_signature:          string;
-        return_lessee_signature:   string;
-        return_lessor_signature:   string;
-        car_manufacturing_year:    number;
-        car_license_plate:         string;
-        car_seat:                  number;
-        status:                    string;
+  id: string;
+  lessee_id: string;
+  lessor_id: string;
+  lessor_name: string;
+  lessee_name: string;
+  location: string;
+  rental_contract_id: string;
+  handover_date: number;
+  handover_hour: number;
+  initial_condition_normal: boolean;
+  vehicle_condition: string;
+  odometer_reading: number;
+  fuel_level: number;
+  personal_items: string;
+  return_date: number;
+  return_hour: number;
+  condition_matches_initial: boolean;
+  return_vehicle_condition: string;
+  return_damages: string[];
+  return_odometer_reading: number;
+  return_fuel_level: number;
+  lessee_approved: boolean;
+  lessor_approved: boolean;
+  lessee_signature: string;
+  lessor_signature: string;
+  return_lessee_signature: string;
+  return_lessor_signature: string;
+  car_manufacturing_year: number;
+  car_license_plate: string;
+  car_seat: number;
+  status: string;
 }
 
 export interface Collateral {
-  type:    string;
+  type: string;
   details: string;
 }

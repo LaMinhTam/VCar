@@ -97,6 +97,7 @@
     "common.sign": "Ký",
     "common.deleteSignature": "Xóa chữ ký",
     "common.carStatus": "Trạng thái xe",
+    "common.rentalOrderDetail": "Chi tiết đơn thuê",
     "common.carRentalStatus": "Trạng thái đơn thuê",
     "common.COMPLETE": "Đã hoàn thành",
     "common.INCOMPLETE": "Chưa hoàn thành",
@@ -107,6 +108,7 @@
     "common.damage": "Hư hỏng",
     "common.sync": "Đồng bộ",
     "common.sortDescending": "Sắp xếp giảm dần",
+    "common.add": "Thêm",
 
     "auth.login.title": "Chào mừng bạn đến với VCar!",
     "auth.login.desc": "Nhập tài khoản VCar của bạn để tiếp tục.",

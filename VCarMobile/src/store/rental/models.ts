@@ -24,6 +24,8 @@ export const ENDPOINTS = {
   // [REVIEW]
   CREATE_REVIEW: '/reviews',
   GET_REVIEW_BY_CAR_ID: (id: string) => `/reviews/car/${id}`,
+  POST_HANDOVER_ISSUE: (id: string) =>
+    `/rental-contracts/${id}/post-handover`,
 };
 
 export const RentalRequestParams = {

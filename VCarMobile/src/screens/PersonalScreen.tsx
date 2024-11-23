@@ -87,7 +87,7 @@ const PersonalScreen = () => {
                     <Text className="ml-4 text-base font-medium uppercase text-text8">{t("account.my_lessee")}</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity className="flex-row items-center py-2 border-b border-gray-200">
+                <TouchableOpacity className="flex-row items-center py-2 border-b border-gray-200" onPress={() => navigation.navigate("CHANGE_PASSWORD_SCREEN")}>
                     <Icon name="lock" type="material" color="#000" size={24} />
                     <Text className="ml-4 text-base font-medium uppercase text-text8">{t("account.change_password")}</Text>
                 </TouchableOpacity>

@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Avatar, Divider, Icon } from 'react-native-elements';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { GET_CAR_BY_ID } from '../../store/car/action';
-import { approveRentRequest, getContractByRequestId, getRentRequestById, getVehicleHandoverByContractId, lesseeApproveHandover, rejectRentRequest, signContract } from '../../store/rental/handlers';
+import { approveRentRequest, getContractByRequestId, getRentRequestById, getVehicleHandoverByContractId, lesseeApproveHandover, lessorApproveReturn, postHandoverIssue, rejectRentRequest, signContract } from '../../store/rental/handlers';
 import { calculateDays, formatDate, formatPrice, getWalletBalance, handleMetaMaskSignature, handleUploadSignature, sendTransaction } from '../../utils';
 import { RootState } from '../../store/configureStore';
 import { IContractData, IRentalData, IVehicleHandoverResponseData } from '../../store/rental/types';
@@ -16,14 +16,15 @@ import {
 } from '@walletconnect/modal-react-native';
 import ReturnVehicleHandover from '../../components/dialog/ReturnVehicleHandover';
 import { useTranslation } from 'react-i18next';
+import CreateVehicleHandover from '../../components/dialog/CreateVehicleHandover';
 
 
 const RentalDetail = () => {
     const { t } = useTranslation();
     const route = useRoute();
     const [triggerRefetch, setTriggerRefetch] = useState(false);
+    const [handoverIssue, setHandoverIssue] = useState('');
     const { requestId, type } = route.params as { requestId: string, type: string };
-    console.log("RentalDetail ~ requestId:", requestId)
     const [record, setRecord] = useState<IRentalData>({} as IRentalData);
     const [contract, setContract] = useState<IContractData>({} as IContractData);
     const [vehicleHandover, setVehicleHandover] = useState<IVehicleHandoverResponseData>({} as IVehicleHandoverResponseData);
@@ -31,9 +32,9 @@ const RentalDetail = () => {
     const numberOfDays = calculateDays(record?.rental_start_date, record?.rental_end_date);
     const { carDetail } = useSelector((state: RootState) => state.car);
     const navigation = useNavigation<NativeStackNavigationProp<ParamListBase>>();
-    const { car } = carDetail;
     const { me } = useSelector((state: RootState) => state.profile);
     const [visibleReturnedModal, setVisibleReturnedModal] = useState(false);
+    const [visibleCreateVehicleHandoverModal, setVisibleCreateVehicleHandoverModal] = useState(false);
     const { open, isConnected, address, provider } = useWalletConnectModal();
 
     useEffect(() => {
@@ -52,7 +53,6 @@ const RentalDetail = () => {
             setRecord(response.data as IRentalData);
         } else {
             Toast.remove(key);
-            Toast.fail(t("msg.SYSTEM_MAINTENANCE"), 1);
             return;
         }
     }
@@ -62,9 +62,19 @@ const RentalDetail = () => {
     }, [record?.id, triggerRefetch]);
 
     const fetchRentalContractById = async (id: string) => {
+        const key = Toast.loading({
+            content: t('common.processing'),
+            duration: 0,
+            mask: true
+        });
         const response = await getContractByRequestId(id);
         if (response?.success && response.data) {
+            Toast.remove(key);
+            setHandoverIssue(response?.data?.handover_issue ?? 'UNDEFINED');
             setContract(response.data);
+        } else {
+            Toast.remove(key);
+            return;
         }
     };
 
@@ -97,18 +107,24 @@ const RentalDetail = () => {
             return;
         }
         const { account, signature, msg } = signatureResult;
-        const response = await approveRentRequest(record.id, {
-            address: account,
-            signature,
-            message: msg,
-            signature_url: "https://picsum.photos/200",
-        });
-        if (response?.success) {
-            Toast.remove(key);
-            Toast.success(t("msg.REQUEST_APPROVED"), 1);
+        if (signature) {
+            const response = await approveRentRequest(record.id, {
+                address: account,
+                signature,
+                message: msg,
+                signature_url: "https://picsum.photos/200",
+            });
+            if (response?.success) {
+                Toast.remove(key);
+                setTriggerRefetch(!triggerRefetch);
+                Toast.success(t("msg.REQUEST_APPROVED"), 1);
+            } else {
+                Toast.remove(key);
+                Toast.fail(t("msg.APPROVE_REQUEST_FAILED"), 1);
+            }
         } else {
             Toast.remove(key);
-            Toast.fail(t("msg.APPROVE_REQUEST_FAILED"), 1);
+            Toast.fail(t("msg.METAMASK_SIGNATURE_FAILED"), 1);
         }
     };
 
@@ -155,11 +171,55 @@ const RentalDetail = () => {
         }
     }
 
+    const handleApproveReturn = async () => {
+        const key = Toast.loading({
+            content: t('common.processing'),
+            duration: 0,
+            mask: true
+        });
+        const signatureResult = await handleMetaMaskSignature(me?.id ?? '', provider);
+        if (!signatureResult) {
+            Toast.remove(key);
+            Toast.fail(t("msg.METAMASK_SIGNATURE_FAILED"), 1);
+            return;
+        }
+        const { account, signature, msg } = signatureResult;
+        if (signature) {
+            const response = await lessorApproveReturn({
+                signature,
+                message: msg,
+                address: account,
+                signature_url: "https://picsum.photos/200"
+            }, vehicleHandover?.id);
+            if (response?.success) {
+                Toast.success(t("msg.APPROVE_HANDOVER_SUCCESS"), 1);
+                Toast.remove(key);
+                setVehicleHandover(response?.data as IVehicleHandoverResponseData);
+                return;
+            } else {
+                Toast.fail(t("msg.APPROVE_HANDOVER_FAILED"), 1);
+                Toast.remove(key);
+                return;
+            }
+        } else {
+            Toast.remove(key);
+            Toast.fail(t("msg.METAMASK_SIGNATURE_FAILED"), 1);
+        }
+    }
+
     useEffect(() => {
         async function fetchVehicleHandover() {
+            const key = Toast.loading({
+                content: t('common.processing'),
+                duration: 0,
+                mask: true
+            });
             const response = await getVehicleHandoverByContractId(contract?.id);
             if (response?.success) {
+                Toast.remove(key);
                 setVehicleHandover(response?.data as IVehicleHandoverResponseData);
+            } else {
+                Toast.remove(key);
             }
         }
         fetchVehicleHandover();
@@ -222,6 +282,32 @@ const RentalDetail = () => {
             }
         }
     }
+
+    const handleReportReturnedIssue = async (isApproved: boolean) => {
+        const key = Toast.loading({
+            content: t('common.processing'),
+            duration: 0,
+            mask: true
+        });
+        const approveCode = isApproved ? 'ISSUE' : 'NOT_ISSUE';
+        const response = await postHandoverIssue(contract.id, approveCode);
+        if (response?.success) {
+            if (isApproved) {
+                Toast.remove(key);
+                Toast.success(t("msg.POST_HANDOVER_ISSUE"), 1);
+                setHandoverIssue(approveCode)
+            } else {
+                Toast.remove(key);
+                Toast.success(t("msg.POST_HANDOVER_NOT_ISSUE"), 1);
+            }
+        } else {
+            Toast.remove(key);
+            Toast.fail(t("msg.REPORT_ISSUE_FAIL"), 1);
+        }
+    }
+
+    if (!carDetail?.car || !record) return <Text>{t("common.empty")}</Text>
+    const { car } = carDetail;
 
     return (
         <SafeAreaView className="flex-1 bg-white">
@@ -326,17 +412,17 @@ const RentalDetail = () => {
                     {type === 'LESSEE' && contract?.rental_status === 'SIGNED' && vehicleHandover?.status === 'CREATED' && <Button type="primary" onPress={handleApproveVehicleHandover}>{t("account.rent_contract.approve_handover")}</Button>}
                     {type === 'LESSEE' && contract?.rental_status === 'SIGNED' && vehicleHandover?.status === 'RENDING' && <Button type="primary" onPress={() => setVisibleReturnedModal(true)}>{t("account.rent_contract.return_vehicle")}</Button>}
                     {type === 'LESSEE' && contract.rental_status === 'PENDING' && <Button type="primary" onPress={handleSignContract}>{t("account.rent_contract.sign_contract")}</Button>}
-                    {type === 'LESSEE' && contract.rental_status === 'SIGNED' && vehicleHandover?.status === 'RETURNED' && <Button type="primary" >{t("account.rent_contract.review")}</Button>}
+                    {type === 'LESSEE' && contract.rental_status === 'SIGNED' && vehicleHandover?.status === 'RETURNED' && <Button type="primary">{t("account.rent_contract.review")}</Button>}
 
                     {/* LESSOR */}
                     {type === 'LESSOR' && record.status === 'PENDING' && (<>
                         <Button type="warning" onPress={handleRejectRentRequest}>{t("common.REJECT")}</Button>
                         <Button type="primary" onPress={handleApproveRentRequest}>{t("common.APPROVE")}</Button>
                     </>)}
-                    {type === 'LESSOR' && contract?.rental_status === 'SIGNED' && !vehicleHandover?.id && <Button type="primary">{t("account.rental_contract.create_handover")}</Button>}
-                    {type === 'LESSOR' && contract?.rental_status === 'SIGNED' && vehicleHandover?.status === 'RETURNING' && <Button type="primary">{t("account.rental_contract.approve_returned")}</Button>}
-                    {type === 'LESSOR' && contract?.rental_status === 'SIGNED' && vehicleHandover?.status === 'RETURNED' && <Button type="primary">{t("account.rental_contract.return_not_issue")}</Button>}
-                    {type === 'LESSOR' && contract?.rental_status === 'SIGNED' && vehicleHandover?.status === 'RETURNED' && <Button type="primary">{t("account.rental_contract.report_issue")}</Button>}
+                    {type === 'LESSOR' && contract?.rental_status === 'SIGNED' && !vehicleHandover?.id && <Button type="primary" onPress={() => setVisibleCreateVehicleHandoverModal(true)}>{t("account.rental_contract.create_handover")}</Button>}
+                    {type === 'LESSOR' && contract?.rental_status === 'SIGNED' && vehicleHandover?.status === 'RETURNING' && <Button type="primary" onPress={handleApproveReturn}>{t("account.rental_contract.approve_returned")}</Button>}
+                    {type === 'LESSOR' && contract?.rental_status === 'SIGNED' && vehicleHandover?.status === 'RETURNED' && <Button type="primary" disabled={handoverIssue !== 'UNDEFINED'} onPress={() => handleReportReturnedIssue(false)}>{t("account.rental_contract.return_not_issue")}</Button>}
+                    {type === 'LESSOR' && contract?.rental_status === 'SIGNED' && vehicleHandover?.status === 'RETURNED' && <Button type="primary" disabled={handoverIssue !== 'UNDEFINED'} onPress={() => handleReportReturnedIssue(true)}>{t("account.rental_contract.report_issue")}</Button>}
                 </Flex>
             </ScrollView>
 
@@ -352,6 +438,21 @@ const RentalDetail = () => {
                     setVisible={setVisibleReturnedModal}
                     userId={me?.id}
                     handoverId={vehicleHandover?.id}
+                    setVehicleHandover={setVehicleHandover}
+                />
+            </Modal>
+            <Modal
+                title={t("account.rental_contract.create_handover")}
+                visible={visibleCreateVehicleHandoverModal}
+                onClose={() => setVisibleCreateVehicleHandoverModal(false)}
+                popup
+                animationType="slide-up"
+            >
+                <CreateVehicleHandover
+                    visible={visibleCreateVehicleHandoverModal}
+                    setVisible={setVisibleCreateVehicleHandoverModal}
+                    userId={me?.id}
+                    contractId={contract?.id}
                     setVehicleHandover={setVehicleHandover}
                 />
             </Modal>
