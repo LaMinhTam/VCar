@@ -120,6 +120,7 @@
     "common.star": "star",
     "common.deposit": "Deposit token",
     "common.balance": "Balance",
+    "common.createReview": "Create Review",
 
     "auth.login.title": "Welcome to VCar!",
     "auth.login.desc": "Enter your VCar account to continue.",
@@ -411,6 +412,8 @@
     "msg.POST_HANDOVER_ISSUE": "We will contact you in 24h!",
     "msg.POST_HANDOVER_NOT_ISSUE": "Confirmed return of car without problem!",
     "msg.REPORT_ISSUE_FAIL": "Failed to report issue, please try again later!",
-    "msg.RECOGNIZE_FAIL": "Recognize failure, Please try again later!"
+    "msg.RECOGNIZE_FAIL": "Recognize failure, Please try again later!",
+    "msg.CREATE_REVIEW_SUCCESS": "Create review successfully!",
+    "msg.CREATE_REVIEW_FAILED": "Create review failed!"
   }
 }

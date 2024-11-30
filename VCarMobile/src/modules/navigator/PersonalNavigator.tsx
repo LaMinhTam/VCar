@@ -37,7 +37,7 @@ const PersonalNavigator = () => {
                 name="MY_TRIP"
                 component={MyTrip}
                 options={{
-                    title: 'My Trip',
+                    title: t("account.my_trips"),
                 }}
             />
             <Stack.Screen

@@ -17,6 +17,7 @@ import {
 import ReturnVehicleHandover from '../../components/dialog/ReturnVehicleHandover';
 import { useTranslation } from 'react-i18next';
 import CreateVehicleHandover from '../../components/dialog/CreateVehicleHandover';
+import CreateReviewDialog from '../../components/dialog/CreateReviewDialog';
 
 
 const RentalDetail = () => {
@@ -35,6 +36,7 @@ const RentalDetail = () => {
     const { me } = useSelector((state: RootState) => state.profile);
     const [visibleReturnedModal, setVisibleReturnedModal] = useState(false);
     const [visibleCreateVehicleHandoverModal, setVisibleCreateVehicleHandoverModal] = useState(false);
+    const [visibleReviewModal, setVisibleReviewModal] = useState(false);
     const { open, isConnected, address, provider } = useWalletConnectModal();
 
     useEffect(() => {
@@ -412,7 +414,7 @@ const RentalDetail = () => {
                     {type === 'LESSEE' && contract?.rental_status === 'SIGNED' && vehicleHandover?.status === 'CREATED' && <Button type="primary" onPress={handleApproveVehicleHandover}>{t("account.rent_contract.approve_handover")}</Button>}
                     {type === 'LESSEE' && contract?.rental_status === 'SIGNED' && vehicleHandover?.status === 'RENDING' && <Button type="primary" onPress={() => setVisibleReturnedModal(true)}>{t("account.rent_contract.return_vehicle")}</Button>}
                     {type === 'LESSEE' && contract.rental_status === 'PENDING' && <Button type="primary" onPress={handleSignContract}>{t("account.rent_contract.sign_contract")}</Button>}
-                    {type === 'LESSEE' && contract.rental_status === 'SIGNED' && vehicleHandover?.status === 'RETURNED' && <Button type="primary">{t("account.rent_contract.review")}</Button>}
+                    {type === 'LESSEE' && contract.rental_status === 'SIGNED' && vehicleHandover?.status === 'RETURNED' && <Button type="primary" onPress={() => setVisibleReviewModal(true)}>{t("account.rent_contract.review")}</Button>}
 
                     {/* LESSOR */}
                     {type === 'LESSOR' && record.status === 'PENDING' && (<>
@@ -455,6 +457,15 @@ const RentalDetail = () => {
                     contractId={contract?.id}
                     setVehicleHandover={setVehicleHandover}
                 />
+            </Modal>
+            <Modal
+                title={t("account.rental_contract.create_handover")}
+                visible={visibleReviewModal}
+                onClose={() => setVisibleReviewModal(false)}
+                popup
+                animationType="slide-up"
+            >
+                <CreateReviewDialog visible={visibleReviewModal} setVisible={setVisibleReviewModal} contract_id={contract.id} />
             </Modal>
 
             {/* Footer Section */}

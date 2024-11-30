@@ -120,6 +120,7 @@
     "common.star": "sao",
     "common.deposit": "Nạp token",
     "common.balance": "Số dư",
+    "common.createReview": "Tạo đánh giá",
 
     "auth.login.title": "Chào mừng bạn đến với VCar!",
     "auth.login.desc": "Nhập tài khoản VCar của bạn để tiếp tục.",
@@ -414,6 +415,8 @@
     "msg.POST_HANDOVER_ISSUE": "We will contact you within 24 hours!",
     "msg.POST_HANDOVER_NOT_ISSUE": "Đã xác nhận trả xe không có vấn đề!",
     "msg.REPORT_ISSUE_FAIL": "Báo cáo vấn đề thất bại, Vui lòng thử lại sau!",
-    "msg.RECOGNIZE_FAIL": "Nhận diện thất bại vui lòng thử lại sau!"
+    "msg.RECOGNIZE_FAIL": "Nhận diện thất bại vui lòng thử lại sau!",
+    "msg.CREATE_REVIEW_SUCCESS": "Tạo đánh giá thành công!",
+    "msg.CREATE_REVIEW_FAILED": "Tạo đánh giá thất bại!"
   }
 }
