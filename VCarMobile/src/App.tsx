@@ -15,6 +15,9 @@ import {
   WalletConnectModal,
 } from '@walletconnect/modal-react-native';
 import ForgotPasswordScreen from './screens/ForgotPasswordScreen';
+import messaging from '@react-native-firebase/messaging';
+import { subscribeDevice } from './store/auth/handlers';
+import { PermissionsAndroid } from 'react-native';
 
 const Stack = createNativeStackNavigator();
 
@@ -35,6 +38,35 @@ const RootNavigator = () => {
 
     fetchTokens();
   }, [isRecheckToken]);
+
+
+
+
+
+  // useEffect(() => {
+  //   const requestUserPermission = async () => {
+  //     PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS);
+  //     const authStatus = await messaging().requestPermission();
+  //     console.log("requestUserPermission ~ authStatus:", authStatus)
+  //     const enabled =
+  //       authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+  //       authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+
+  //     if (enabled) {
+  //       console.log('Authorization status:', authStatus);
+  //       try {
+  //         console.log('Attempting to get FCM token...');
+  //         const token = await messaging().getToken();
+  //         console.log('FCM token retrieved successfully');
+  //         console.log('FCM token:', token);
+  //       } catch (error) {
+  //         console.error('Error getting FCM token:', error);
+  //       }
+  //     }
+  //   };
+
+  //   requestUserPermission();
+  // }, [messaging])
 
   return (
     <Stack.Navigator>
@@ -64,6 +96,7 @@ const providerMetadata = {
 };
 
 export default function App() {
+
   return (
     <Provider store={store}>
       <PaperProvider>

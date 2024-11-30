@@ -10,20 +10,19 @@ export const ENDPOINTS = {
 };
 
 export const QuerySearchCar = {
-  query: '',
-  province: 'Ho_Chi_Minh',
-  page: '0',
-  size: '10',
-  transmission: 'MANUAL,AUTO',
-  seats: '',
-  minConsumption: '0',
-  maxConsumption: '20',
-  maxRate: '',
-  rentalStartDate: '1729828230000',
-  rentalEndDate: '1732506630000',
-  rating: '',
+  query: "",
+  province: "",
+  page: 1,
+  size: 10,
+  transmission: "MANUAL,AUTO",
+  seats: "",
+  minConsumption: 0,
+  maxConsumption: 0,
+  maxRate: "",
+  rentalStartDate: "",
+  rentalEndDate: "",
+  rating: "",
 };
-
 export const QueryCarOwner = {
   page: "1",
   size: "10",

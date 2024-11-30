@@ -8,6 +8,7 @@ import {
   getCars,
   getCarsFailed,
   getCarsSuccess,
+  setMetaData,
 } from './reducers';
 import { IMetaData } from '../rental/types';
 import { AxiosResponse } from 'axios';
@@ -25,6 +26,14 @@ interface ICarDetailResponse {
   data: CarDetail;
 }
 
+
+interface ICarResponse {
+  code: number;
+  message: string;
+  data: ICar[];
+  meta?: IMetaData;
+}
+
 function* searchCar(action: {
   type: string;
   payload: IQuerySearchCar;
@@ -38,10 +47,35 @@ function* searchCar(action: {
         params: action.payload,
       }
     );
+    yield put(setMetaData(response?.data?.meta as IMetaData));
     yield put(getCarsSuccess(response.data.data));
   } catch (error) {
     const typedError = error as Error;
     yield put(getCarsFailed(typedError.message));
+  }
+}
+
+async function searchCarHomePage(params: IQuerySearchCar) {
+  try {
+    const response = await axiosInstance.get(ENDPOINTS.SEARCH, {
+      params,
+    });
+    if (response?.data?.code === 200) {
+      return {
+        success: true,
+        data: response?.data?.data,
+        message: response?.data?.message,
+        meta: response?.data?.meta,
+      };
+    }
+  } catch (error) {
+    const typedError = error as Error;
+    return {
+      success: false,
+      data: [],
+      meta: {} as IMetaData,
+      message: typedError.message,
+    };
   }
 }
 
@@ -140,4 +174,4 @@ export const deleteCar = async (id: string) => {
   }
 };
 
-export {searchCar, getCarDetail, getMyCars};
+export {searchCar, getCarDetail, getMyCars, searchCarHomePage};

@@ -6,8 +6,10 @@ import RentRequestCard from './RentRequestCard';
 import { useDispatch, useSelector } from 'react-redux';
 import { GET_LESSEE_REQUESTS } from '../../store/rental/action';
 import { RootState } from '../../store/configureStore';
+import { useTranslation } from 'react-i18next';
 
 const MyTrip = () => {
+    const { t } = useTranslation();
     const [selectedStatus, setSelectedStatus] = useState<'APPROVED' | 'REJECTED' | 'PENDING'>('APPROVED');
     const [sortDescending, setSortDescending] = useState(true);
     const { lesseeListRequest, loading } = useSelector((state: RootState) => state.rental);
@@ -61,19 +63,19 @@ const MyTrip = () => {
                     {/* Status Chips */}
                     <View style={{ flexDirection: 'row', marginRight: 16 }}>
                         <Chip
-                            title="APPROVED"
+                            title={t("common.APPROVED")}
                             type={selectedStatus === 'APPROVED' ? 'solid' : 'outline'}
                             onPress={() => handleStatusChange('APPROVED')}
                             buttonStyle={{ marginRight: 8 }}
                         />
                         <Chip
-                            title="PENDING"
+                            title={t("common.PENDING")}
                             type={selectedStatus === 'PENDING' ? 'solid' : 'outline'}
                             onPress={() => handleStatusChange('PENDING')}
                             buttonStyle={{ marginRight: 8 }}
                         />
                         <Chip
-                            title="REJECTED"
+                            title={t("common.REJECTED")}
                             type={selectedStatus === 'REJECTED' ? 'solid' : 'outline'}
                             onPress={() => handleStatusChange('REJECTED')}
                         />
@@ -81,7 +83,7 @@ const MyTrip = () => {
 
                     {/* Sort Switch */}
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                        <Text style={{ marginRight: 8, color: '#4a4a4a' }}>Sort Descending</Text>
+                        <Text style={{ marginRight: 8, color: '#4a4a4a' }}>{t("common.sortDescending")}</Text>
                         <Switch
                             value={sortDescending}
                             onValueChange={handleSortChange}

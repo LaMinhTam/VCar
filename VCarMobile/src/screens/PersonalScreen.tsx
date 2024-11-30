@@ -96,7 +96,7 @@ const PersonalScreen = () => {
             {/* Nút Logout */}
             <View className='fixed bottom-[-30px] left-0 right-0'>
                 <Button
-                    title="Logout"
+                    title={t("common.logout")}
                     buttonStyle={{
                         backgroundColor: '#103F74',
                         borderRadius: 30,

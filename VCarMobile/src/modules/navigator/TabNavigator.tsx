@@ -2,6 +2,7 @@ import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import HomeScreen from '../../screens/HomeScreen';
 import Icon from 'react-native-vector-icons/Ionicons';
+import IconMaterial from 'react-native-vector-icons/MaterialCommunityIcons';
 import CarScreen from '../../screens/CarScreen';
 import { ScreenOptions } from '../../constants';
 import ConversationScreen from '../../screens/ConversationScreen';
@@ -10,6 +11,8 @@ import HomeNavigator from './HomeNavigator';
 import CarNavigator from './CarNavigator';
 import ConversationNavigator from './ConversationNavigator';
 import PersonalNavigator from './PersonalNavigator';
+import NotificationNavigator from './NotificationNavigator';
+import { Badge } from '@ant-design/react-native';
 
 const Tab = createBottomTabNavigator();
 
@@ -50,7 +53,7 @@ const TabNavigator = () => {
                     tabBarLabel: '',
                 }}
             />
-            <Tab.Screen
+            {/* <Tab.Screen
                 name="CONVERSATION_TAB"
                 component={ConversationNavigator}
                 options={{
@@ -61,6 +64,23 @@ const TabNavigator = () => {
                             size={24}
                             color={focused ? 'blue' : 'black'}
                         />
+                    ),
+                    tabBarLabel: '',
+                }}
+            /> */}
+            <Tab.Screen
+                name="NOTIFICATION_TAB"
+                component={NotificationNavigator}
+                options={{
+                    headerShown: false,
+                    tabBarIcon: ({ focused }) => (
+                        <Badge dot>
+                            <IconMaterial
+                                name="bell-outline"
+                                size={24}
+                                color={focused ? 'blue' : 'black'}
+                            />
+                        </Badge>
                     ),
                     tabBarLabel: '',
                 }}

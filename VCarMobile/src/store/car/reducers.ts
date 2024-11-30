@@ -1,3 +1,4 @@
+import { IMetaData } from '../rental/types';
 import {CarDetail, ICar, IReview} from './types';
 import {createSlice, PayloadAction} from '@reduxjs/toolkit';
 
@@ -6,6 +7,7 @@ export interface ICarState {
   cars: ICar[];
   loading: boolean;
   error: null | string;
+  meta: IMetaData
 }
 
 const initialState: ICarState = {
@@ -13,6 +15,7 @@ const initialState: ICarState = {
   cars: [],
   loading: false,
   error: null,
+  meta: {} as IMetaData,
 };
 
 const carSlice = createSlice({
@@ -46,6 +49,9 @@ const carSlice = createSlice({
       state.loading = false;
       state.error = action.payload;
     },
+    setMetaData: (state, action: PayloadAction<IMetaData>) => {
+      state.meta = action.payload;
+    },
   },
 });
 
@@ -56,5 +62,6 @@ export const {
   getCarDetail,
   getCarDetailSuccess,
   getCarDetailFailed,
+  setMetaData
 } = carSlice.actions;
 export default carSlice.reducer;

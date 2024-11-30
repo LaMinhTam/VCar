@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, ScrollView } from 'react-native';
 import { CheckBox, Button, Dialog, Input, Icon, Chip } from 'react-native-elements';
 import { Dimensions } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
 const { height } = Dimensions.get('window'); // Lấy chiều cao màn hình
 
@@ -11,6 +12,7 @@ const FilterPopup = ({ isVisible, toggleDialog, searchParams, setSearchParams }:
     searchParams: any,
     setSearchParams: (params: any) => void
 }) => {
+    const { t } = useTranslation();
     const [rentalType, setRentalType] = useState('Day');
     const [carTypes, setCarTypes] = useState<string[]>([]);
     const [capacity, setCapacity] = useState<string[]>([]);
@@ -21,7 +23,7 @@ const FilterPopup = ({ isVisible, toggleDialog, searchParams, setSearchParams }:
         setSearchParams({
             ...searchParams,
             transmission: carTypes.join(','),
-            seats: capacity.join(','),
+            seats: capacity?.filter((item) => item)?.join(','),
             rating: rating,
             maxRate: price,
         });
@@ -65,16 +67,16 @@ const FilterPopup = ({ isVisible, toggleDialog, searchParams, setSearchParams }:
             <ScrollView>
                 <View style={{ padding: 16 }}>
                     {/* Rental Type */}
-                    <Text style={{ marginBottom: 16, fontSize: 18, fontWeight: 'bold' }}>Rental Type</Text>
+                    <Text style={{ marginBottom: 16, fontSize: 18, fontWeight: 'bold' }}>{t("common.rentalType")}</Text>
                     <View style={{ flexDirection: 'row', marginBottom: 16 }}>
                         <Chip
-                            title="Day"
+                            title={t("common.day")}
                             containerStyle={{ marginRight: 20 }} // Cách giữa các Chip
                             buttonStyle={{ backgroundColor: rentalType === 'Day' ? '#3B82F6' : '#F3F4F6', borderRadius: 10 }}
                             onPress={() => setRentalType('Day')}
                             titleStyle={{ color: rentalType === 'Day' ? 'white' : 'black' }}
                         />
-                        <Chip
+                        {/* <Chip
                             title="Hour"
                             containerStyle={{ marginRight: 20 }} // Cách giữa các Chip
                             buttonStyle={{ backgroundColor: rentalType === 'Hour' ? '#3B82F6' : '#F3F4F6', borderRadius: 10 }}
@@ -87,16 +89,16 @@ const FilterPopup = ({ isVisible, toggleDialog, searchParams, setSearchParams }:
                             buttonStyle={{ backgroundColor: rentalType === 'Month' ? '#3B82F6' : '#F3F4F6', borderRadius: 10 }}
                             onPress={() => setRentalType('Month')}
                             titleStyle={{ color: rentalType === 'Month' ? 'white' : 'black' }}
-                        />
+                        /> */}
                     </View>
 
                     {/* Car Type */}
-                    <Text style={{ marginBottom: 16, fontSize: 18, fontWeight: 'bold' }}>Transmission</Text>
+                    <Text style={{ marginBottom: 16, fontSize: 18, fontWeight: 'bold' }}>{t("car.transmission")}</Text>
                     <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
                         {['AUTO', 'MANUAL'].map((type) => (
                             <CheckBox
                                 key={type}
-                                title={type}
+                                title={type === "MANUAL" ? t("car.manual") : t("car.automatic")}
                                 checked={carTypes.includes(type)}
                                 onPress={() => {
                                     setCarTypes((prev) =>
@@ -109,17 +111,15 @@ const FilterPopup = ({ isVisible, toggleDialog, searchParams, setSearchParams }:
                     </View>
 
                     {/* Capacity */}
-                    <Text style={{ marginBottom: 16, fontSize: 18, fontWeight: 'bold' }}>Capacity</Text>
+                    <Text style={{ marginBottom: 16, fontSize: 18, fontWeight: 'bold' }}>{t("car.seat")}</Text>
                     <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
-                        {['2 Person', '4 Person', '6 Person', '8 or More'].map((cap) => (
+                        {['2', '4', '6', '8'].map((cap) => (
                             <CheckBox
                                 key={cap}
                                 title={cap}
                                 checked={capacity.includes(cap)}
                                 onPress={() => {
-                                    setCapacity((prev) =>
-                                        prev.includes(cap) ? prev.filter((c) => c !== cap) : [...prev, cap]
-                                    );
+                                    setCapacity((prev) => [...prev, cap]);
                                 }}
                                 containerStyle={{ backgroundColor: 'transparent', borderWidth: 0 }}
                             />
@@ -127,7 +127,7 @@ const FilterPopup = ({ isVisible, toggleDialog, searchParams, setSearchParams }:
                     </View>
 
                     {/* Price */}
-                    <Text style={{ marginBottom: 16, fontSize: 18, fontWeight: 'bold' }}>Price</Text>
+                    <Text style={{ marginBottom: 16, fontSize: 18, fontWeight: 'bold' }}>{t("car.daily_rate")}</Text>
                     <Input
                         value={price.toString()}
                         onChangeText={(value) => setPrice(value)}
@@ -135,15 +135,15 @@ const FilterPopup = ({ isVisible, toggleDialog, searchParams, setSearchParams }:
                         containerStyle={{ width: '100%' }}
                         inputStyle={{ height: 40, borderColor: 'gray', borderWidth: 1, paddingLeft: 10 }}
                     />
-                    <Text>From $0 to ${price}</Text>
+                    {/* <Text>{t("common.from")} $0 to ${price}</Text> */}
 
                     {/* Rating */}
-                    <Text style={{ marginBottom: 16, fontSize: 18, fontWeight: 'bold' }}>Rating</Text>
+                    <Text style={{ marginBottom: 16, fontSize: 18, fontWeight: 'bold' }}>{t("common.rating")}</Text>
                     <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
                         {[5, 4, 3, 2, 1].map((ratingValue) => (
                             <Chip
                                 key={ratingValue}
-                                title={`${ratingValue} Star${ratingValue > 1 ? 's' : ''}`}
+                                title={`${ratingValue} ${t("common.star")}`}
                                 containerStyle={{ marginRight: 10, marginBottom: 10 }}
                                 buttonStyle={{ backgroundColor: rating === ratingValue ? '#3B82F6' : '#F3F4F6', borderRadius: 10 }}
                                 titleStyle={{ color: rating === ratingValue ? 'white' : 'black' }}

@@ -40,6 +40,7 @@ export interface IReview {
   id: string;
   comment: string;
   rating: number;
+  create_at: number;
   lessee: Owner;
 }
 
@@ -50,17 +51,18 @@ export type CarDetail = {
 };
 
 export interface IQuerySearchCar {
-  query: string;
-  province: string;
-  page: string;
-  size: string;
-  transmission: string;
-  seats: string;
-  minConsumption: string;
-  maxRate: string;
-  rentalStartDate: string;
-  rentalEndDate: string;
-  rating: string;
+  query?: string;
+  province?: string;
+  page?: number | string;
+  size?: number | string;
+  transmission?: string;
+  seats?: string;
+  minConsumption?: number | string;
+  maxConsumption?: number | string,
+  maxRate?: string | number;
+  rentalStartDate?: number | string;
+  rentalEndDate?: number | string;
+  rating?: string | number;
 }
 
 export interface IQueryCarOwner {

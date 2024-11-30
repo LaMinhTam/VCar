@@ -4,6 +4,7 @@ import {Dispatch} from '@reduxjs/toolkit';
 import axios from 'axios';
 import {Toast} from '@ant-design/react-native';
 import {RefObject} from 'react';
+import dayjs from "dayjs";
 
 import { ethers } from 'ethers';
 import { Asset } from 'react-native-image-picker';
@@ -263,4 +264,40 @@ export const handleRecognizeCitizenIdentification = async (
     console.error("Error during recognition:", error);
     return { success: false, data: null };
   }
+};
+
+export const handleFormatLink = (msg: string, id: string) => {
+  let data = {
+    type: '',
+    id: '',
+  }
+  switch (msg) {
+    case "LESSEE_SIGNED_CONTRACT":
+      data.type === 'LESSOR'
+      data.id = id;
+      break;
+    case "NEW_RENTAL_REQUEST":
+      data.type === 'LESSOR'
+      data.id = id;
+      break;
+    case "RENTAL_REQUEST_APPROVED":
+      data.type === 'LESSEE'
+      data.id = id;
+      break;
+    case "RENTAL_REQUEST_REJECTED":
+      data.type === 'LESSEE'
+      data.id = id;
+      break;
+    default:
+      break;
+  }
+  return data;
+};
+
+export const convertTimestampToDayjs = (timestamp: number | null): dayjs.Dayjs | null => {
+  if (timestamp === null) {
+    return null;
+  }
+  const seconds = timestamp.toString().length === 13 ? Math.floor(timestamp / 1000) : timestamp;
+  return dayjs.unix(seconds);
 };

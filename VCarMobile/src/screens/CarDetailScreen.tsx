@@ -12,8 +12,10 @@ import { formatPrice } from '../utils';
 import Gallery from '../components/gallery';
 import { useWindowDimensions } from 'react-native';
 import RenderHtml, { RenderHTML } from 'react-native-render-html';
+import { useTranslation } from 'react-i18next';
 
 export default function CarDetailScreen() {
+    const { t } = useTranslation();
     const route = useRoute();
     const { carId } = route.params as { carId: string };
     const navigation = useNavigation<NativeStackNavigationProp<ParamListBase>>();
@@ -53,26 +55,26 @@ export default function CarDetailScreen() {
 
                 {/* Car Details */}
                 <View className="p-4">
-                    <Text className="text-xs font-bold text-text8">CAR DETAIL</Text>
+                    <Text className="text-xs font-bold text-text8">{t("common.carDetail")}</Text>
                     <View className="flex-row justify-between mt-2">
-                        <Text className="text-sm text-text3">Fuel</Text>
-                        <Text className="text-sm font-bold text-gray-900">{car.fuel}</Text>
+                        <Text className="text-sm text-text3">{t("car.fuel")}</Text>
+                        <Text className="text-sm font-bold text-gray-900">{t(`car.${car?.fuel?.toLowerCase()}`)}</Text>
                     </View>
                     <View className="flex-row justify-between mt-2">
-                        <Text className="text-sm text-text3">Status</Text>
-                        <Text className="text-sm font-bold text-gray-900">{car.status}</Text>
+                        <Text className="text-sm text-text3">{t("common.carStatus")}</Text>
+                        <Text className="text-sm font-bold text-gray-900">{t(`common.${car?.status?.toLowerCase()}`)}</Text>
                     </View>
                     <View className="flex-row justify-between mt-2">
-                        <Text className="text-sm text-text3">Kilometers</Text>
-                        <Text className="text-sm font-bold text-gray-900">{car.fuel_consumption}</Text>
+                        <Text className="text-sm text-text3">{t("car.fuel_consumption")}</Text>
+                        <Text className="text-sm font-bold text-gray-900">{car?.fuel_consumption} {t("common.litersPer100km")}</Text>
                     </View>
                     <View className="flex-row justify-between mt-2">
-                        <Text className="text-sm text-text3">Seats</Text>
+                        <Text className="text-sm text-text3">{t("car.seat")}</Text>
                         <Text className="text-sm font-bold text-gray-900">{car.seat}</Text>
                     </View>
                     <View className="flex-row justify-between mt-2">
-                        <Text className="text-sm text-text3">Transmission</Text>
-                        <Text className="text-sm font-bold text-gray-900">{car.transmission}</Text>
+                        <Text className="text-sm text-text3">{t("car.transmission")}</Text>
+                        <Text className="text-sm font-bold text-gray-900">{car?.transmission === "MANUAL" ? t("car.manual") : t("car.automatic")}</Text>
                     </View>
                 </View>
 
@@ -86,16 +88,16 @@ export default function CarDetailScreen() {
 
                 {/* Host Detail */}
                 <View className="p-4">
-                    <Text className="text-xs font-bold text-gray-900">HOST DETAIL</Text>
+                    <Text className="text-xs font-bold text-gray-900">{t("common.carOwner")}</Text>
                     <View className="flex-row items-center mt-2">
-                        <Avatar rounded source={{ uri: car.owner.image_url ?? 'https://randomuser.me/api/portraits/men/85.jpg' }} size="medium" />
+                        <Avatar rounded source={{ uri: car?.owner?.image_url ?? 'https://randomuser.me/api/portraits/men/85.jpg' }} size="medium" />
                         <View className="ml-4">
-                            <Text className="text-sm font-bold text-gray-900">{car.owner.display_name}</Text>
+                            <Text className="text-sm font-bold text-gray-900">{car?.owner?.display_name}</Text>
                             <Text className="text-xs text-gray-600">Ho Chi Minh, Viet Nam</Text>
                         </View>
-                        <View className="ml-auto">
+                        {/* <View className="ml-auto">
                             <Button title="Contact" type='outline' className='text-lite bg-thirdly' onPress={() => { }} />
-                        </View>
+                        </View> */}
                     </View>
                 </View>
 
@@ -103,21 +105,21 @@ export default function CarDetailScreen() {
 
                 {/* Reviews Section */}
                 <View className="p-4">
-                    <Text className="text-xs font-bold text-gray-900">REVIEW ({reviews.length})</Text>
+                    <Text className="text-xs font-bold text-gray-900">{t("account.rent_contract.review")} ({reviews.length})</Text>
                     {reviews.map((review, index) => (
                         <Review
                             key={review.id}
                             review={review}
                         ></Review>
                     ))}
-                    <Text className="mt-4 text-xs text-blue-500">See more review</Text>
+                    {/* <Text className="mt-4 text-xs text-blue-500">See more review</Text> */}
                 </View>
             </ScrollView>
 
             {/* Footer Section */}
             <View className="flex-row items-center justify-between p-4 border-t border-gray-200">
-                <Text className="text-lg font-bold text-semiPrimary">{formatPrice(car.daily_rate)} VNĐ / day</Text>
-                <Button title="Rent car" type='solid' onPress={() => {
+                <Text className="text-lg font-bold text-semiPrimary">{formatPrice(car.daily_rate)} VNĐ / {t("common.day")}</Text>
+                <Button title={t("common.rentNow")} type='solid' onPress={() => {
                     navigation.navigate('RENT_CAR_SCREEN', { carId: car.id })
                 }} />
             </View>

@@ -51,11 +51,11 @@ const ProfileCard = ({ me, balance }: {
                 <View>
                     <Text className="font-bold text-white">{me?.display_name}</Text>
                     <Text className="text-white">{me?.phone_number}</Text>
-                    <Text className='text-white'>Balance: {Number(balance).toFixed(2)}</Text>
+                    <Text className='text-white'>{t("common.balance")}: {Number(balance).toFixed(2)}</Text>
                 </View>
                 <Button
                     type='outline'
-                    title={`Deposit`}
+                    title={t("common.deposit")}
                     buttonStyle={{
                         paddingVertical: 12,
                         backgroundColor: '#FFF',

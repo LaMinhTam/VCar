@@ -41,13 +41,13 @@ const CarCard = ({ car, isFullWidth = false, isAdmin = false, onDelete }: { car:
             <View style={{ padding: 10 }}>
                 <Flex align='center' justify={isAdmin ? 'between' : 'start'}>
                     <View>
-                        <Text style={{ fontWeight: 'bold' }} className='w-full h-5 line-clamp-2'>{car.name}</Text>
+                        <Text style={{ fontWeight: 'bold', maxWidth: 180 }} className='w-full h-5 line-clamp-2'>{car.name}</Text>
                         <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 5 }}>
                             <Icon name="star" size={16} color="#FFD700" />
-                            <Text style={{ marginLeft: 5 }}>{car.average_rating} (124 review)</Text>
+                            <Text style={{ marginLeft: 5 }}>{car.average_rating}</Text>
                         </View>
                         <Text style={{ marginTop: 5, fontWeight: 'bold' }}>
-                            <Text className='font-bold text-semiPrimary'>{formatPrice(car.daily_rate)} VNĐ</Text> / day
+                            <Text className='font-bold text-semiPrimary'>{formatPrice(car.daily_rate)} VNĐ</Text> / {t('common.day')}
                         </Text>
                     </View>
                     {isAdmin && (<Flex align='center' justify='center' style={{ gap: 10 }}>

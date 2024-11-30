@@ -12,6 +12,7 @@ import { AxiosResponse } from "axios";
 // import { generateToken } from "../../config/firebaseConfig";
 import { IMetaData } from "../rental/types";
 import { saveTokens } from "../../utils/auth";
+import { firebase } from "@react-native-firebase/messaging";
 
 interface IRegisterResponse {
   code: number;
@@ -111,15 +112,15 @@ async function verifyEmail(email: string, code: string) {
   }
 }
 
-// async function subscribeDevice() {
-//   const token = await generateToken();
-//   if (token) {
-//     const response = await axiosInstance.post(
-//       ENDPOINTS.SUBSCRIBE_DEVICE(token)
-//     );
-//     return response.data;
-//   }
-// }
+async function subscribeDevice() {
+  const token = await firebase.messaging().getToken();
+  if (token) {
+    const response = await axiosInstance.post(
+      ENDPOINTS.SUBSCRIBE_DEVICE(token)
+    );
+    return response.data;
+  }
+}
 
 async function getListNotifications(payload: INotificationParams) {
   try {
@@ -216,7 +217,7 @@ async function handleResetPassword(
 
 export {
   login,
-  // subscribeDevice,
+  subscribeDevice,
   getListNotifications,
   handleMakeNotificationAsRead,
   register,

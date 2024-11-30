@@ -2,8 +2,10 @@ import { View, Text, ScrollView, Image, TouchableOpacity, Pressable } from 'reac
 import React, { useState } from 'react';
 import { Card } from 'react-native-elements';
 import ImageViewing from 'react-native-image-viewing';
+import { useTranslation } from 'react-i18next';
 
 const Gallery = ({ carImages }: { carImages: string[] }) => {
+    const { t } = useTranslation();
     const [isVisible, setIsVisible] = useState(false);
     const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
@@ -22,7 +24,7 @@ const Gallery = ({ carImages }: { carImages: string[] }) => {
 
     return (
         <View className="flex-1 p-4 bg-white">
-            <Text className="text-xs font-bold text-text8">GALLERY</Text>
+            <Text className="text-xs font-bold text-text8">{t("common.carImage")}</Text>
             <ScrollView className="mb-4" horizontal showsHorizontalScrollIndicator={false}>
                 {carImages.map((image, index) => (
                     <Pressable key={index} onPress={() => handleImageClick(index)}>

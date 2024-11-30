@@ -4,28 +4,47 @@ import LayoutMain from '../layouts/LayoutMain';
 import { Button, Icon } from 'react-native-elements';
 import FilterPopup from '../modules/car/FilterPopup';
 import { QuerySearchCar } from '../store/car/models';
-import { useDispatch, useSelector } from 'react-redux';
-import { GET_CARS } from '../store/car/action';
 import { debounce } from 'lodash';
 import CarCard from '../modules/car/CarCard';
-import { ICar } from '../store/car/types';
+import { ICar, IQuerySearchCar } from '../store/car/types';
 import CardSkeleton from '../components/common/CardSkeleton';
-import { RootState } from '../store/configureStore';
+import { useTranslation } from 'react-i18next';
+import { searchCarHomePage } from '../store/car/handlers';
+import { Toast } from '@ant-design/react-native';
+import { convertDateToTimestamp } from '../utils';
+import { IMetaData } from '../store/rental/types';
 
 const CarScreen = () => {
+    const { t } = useTranslation();
     const [search, setSearch] = React.useState('');
     const [filterVisible, setFilterVisible] = React.useState(false);
-    const [searchParams, setSearchParams] = React.useState({ ...QuerySearchCar });
-    const { cars, loading } = useSelector((state: RootState) => state.car);
-    const dispatch = useDispatch();
-
+    const [searchParams, setSearchParams] = React.useState<IQuerySearchCar>({
+        ...QuerySearchCar,
+        rentalStartDate: convertDateToTimestamp(new Date().toDateString()),
+        rentalEndDate: convertDateToTimestamp(new Date(new Date().setDate(new Date().getDate() + 2)).toDateString()),
+    });
+    const [cars, setCars] = React.useState<ICar[]>([]);
+    const [meta, setMeta] = React.useState<IMetaData>({} as IMetaData)
+    const [loading, setLoading] = React.useState(true);
     const searchKeyWordDebounce = debounce(() => {
         setSearchParams((prevParams) => ({ ...prevParams, query: search }));
     }, 500);
 
     useEffect(() => {
-        dispatch({ type: GET_CARS, payload: searchParams });
-    }, [searchParams, dispatch]);
+        async function fetchData() {
+            setLoading(true);
+            const response = await searchCarHomePage(searchParams);
+            if (response?.success) {
+                setCars(response.data);
+                setMeta(response.meta);
+                setLoading(false);
+            } else {
+                Toast.fail(t("msg.SYSTEM_MAINTENANCE"))
+                setLoading(false);
+            }
+        }
+        fetchData();
+    }, [searchParams]);
 
     useEffect(() => {
         searchKeyWordDebounce();
@@ -47,7 +66,7 @@ const CarScreen = () => {
                     />
                     <TextInput
                         className="flex-1 w-full h-10 ml-2 text-text2"
-                        placeholder="Search car..."
+                        placeholder={t("common.searchCar")}
                         value={search}
                         onChangeText={setSearch}
                     />
@@ -68,7 +87,7 @@ const CarScreen = () => {
                 />
             </View>
             <View className="flex flex-wrap p-4">
-                {!loading && cars.length === 0 && <Text>No Car Result</Text>}
+                {!loading && cars.length === 0 && <Text>{t("common.empty")}</Text>}
                 {!loading && cars.length > 0 && cars.map((car: ICar) => (
                     <CarCard key={car.id} car={car} isFullWidth />
                 ))}
@@ -80,9 +99,10 @@ const CarScreen = () => {
                 ))}
             </View>
             {!loading && cars.length > 0 && (<Button
-                title="Load More"
+                title={t("common.viewMore")}
                 buttonStyle={{ backgroundColor: '#3B82F6', borderRadius: 10, margin: 10 }}
-                onPress={() => setSearchParams({ ...searchParams, size: searchParams.size + 10 })}
+                disabled={!meta?.has_next_page}
+                onPress={() => setSearchParams({ ...searchParams, size: searchParams?.size ?? 0 + 10 })}
             />)}
 
             <FilterPopup isVisible={filterVisible} toggleDialog={() => setFilterVisible(!filterVisible)} searchParams={searchParams} setSearchParams={setSearchParams} />
