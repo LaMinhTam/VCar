@@ -478,6 +478,10 @@
     "msg.POST_HANDOVER_ISSUE": "We will contact you in 24h!",
     "msg.POST_HANDOVER_NOT_ISSUE": "Confirmed return of car without problem!",
     "msg.REPORT_ISSUE_FAIL": "Failed to report issue, please try again later!",
-    "msg.RECOGNIZE_FAIL": "Recognize failure, Please try again later!"
+    "msg.RECOGNIZE_FAIL": "Recognize failure, Please try again later!",
+
+    "seo.HOME_PAGE_TITLE": "ViviuOto - Transparent and convenient online car rental based on blockchain technology",
+    "seo.HOME_PAGE_DESCRIPTION": "ViviuOto is a platform that connects car owners and renters, providing a transparent and convenient online car rental service based on blockchain technology.",
+    "seo.HOME_PAGE_KEYWORD": "Car rental, blockchain, car rental platform, car rental service, car rental online"
   }
 }

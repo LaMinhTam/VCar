@@ -14,6 +14,7 @@ import CarCardSkeleton from '../components/common/CarCardSkeleton';
 import { convertTimestampToDayjs, handleGenerateViewAllCarsLink } from '../utils/helper';
 import { useAuth } from '../contexts/auth-context';
 import { toast } from 'react-toastify';
+import NotFoundPage from './NotFoundPage';
 
 const CarDetailPage = () => {
     const navigate = useNavigate();
@@ -22,7 +23,6 @@ const CarDetailPage = () => {
     const dispatch = useDispatch<AppDispatch>();
     const { carDetail, loading } = useSelector((state: RootState) => state.car);
     const { isLogged } = useAuth()
-    const { car, related_cars, reviews } = carDetail;
     useMemo(() => {
         dispatch({ type: GET_CAR_BY_ID, payload: id });
     }, [dispatch, id])
@@ -34,6 +34,8 @@ const CarDetailPage = () => {
             toast.warning(t("msg.REQUIRE_AUTHENTICATION_FEATURE"))
         }
     }
+    if (!id || !carDetail?.car || !carDetail?.related_cars || !carDetail?.reviews) return <NotFoundPage />;
+    const { car, related_cars, reviews } = carDetail;
     return (
         <div>
             {!loading && car?.id && <>

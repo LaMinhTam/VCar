@@ -485,6 +485,10 @@
     "msg.POST_HANDOVER_ISSUE": "We will contact you within 24 hours!",
     "msg.POST_HANDOVER_NOT_ISSUE": "Đã xác nhận trả xe không có vấn đề!",
     "msg.REPORT_ISSUE_FAIL": "Báo cáo vấn đề thất bại, Vui lòng thử lại sau!",
-    "msg.RECOGNIZE_FAIL": "Nhận diện thất bại vui lòng thử lại sau!"
+    "msg.RECOGNIZE_FAIL": "Nhận diện thất bại vui lòng thử lại sau!",
+
+    "seo.HOME_PAGE_TITLE": "VivuOto - Thuê xe ô tô trực tuyến minh bạch, tiện lợi dựa trên công nghệ blockchain",
+    "seo.HOME_PAGE_DESCRIPTION": "VivuOto là nền tảng thuê xe ô tô trực tuyến minh bạch, tiện lợi dựa trên công nghệ blockchain. Đăng ký ngay để trải nghiệm!",
+    "seo.HOME_PAGE_KEYWORD": "VivuOto, thuê xe ô tô, thuê xe ô tô trực tuyến, thuê xe ô tô minh bạch, thuê xe ô tô tiện lợi, thuê xe ô tô blockchain"
   }
 }

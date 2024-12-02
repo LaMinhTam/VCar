@@ -69,10 +69,10 @@ export const replaceSpacesWithUnderscores = (str: string): string => {
 };
 
 export const convertTimestampToDayjs = (timestamp: number | null): dayjs.Dayjs | null => {
-    if (timestamp === null) {
+    if (timestamp === null || !timestamp) {
       return null;
     }
-    const seconds = timestamp.toString().length === 13 ? Math.floor(timestamp / 1000) : timestamp;
+    const seconds = timestamp?.toString()?.length === 13 ? Math.floor(timestamp / 1000) : timestamp;
     return dayjs.unix(seconds);
 };
 
