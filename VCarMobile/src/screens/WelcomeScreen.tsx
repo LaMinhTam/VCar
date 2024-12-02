@@ -10,7 +10,7 @@ const WelcomeScreen = () => {
                     <Icon name='globe-outline' size={30} color='black' />
                 </Pressable>
             </View>
-            <Text className='text-text8'>Welcome to VCar</Text>
+            <Text className='text-text8'>Welcome to VivuOto</Text>
         </View>
     )
 }

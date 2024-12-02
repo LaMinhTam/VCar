@@ -153,7 +153,7 @@ const FilterPopup = ({ isVisible, toggleDialog, searchParams, setSearchParams }:
                     </View>
 
                     {/* Apply Button */}
-                    <Button title="Apply Filter" buttonStyle={{ backgroundColor: '#3B82F6', borderRadius: 10, marginTop: 20 }} onPress={handleAcceptFilter} />
+                    <Button title={t("common.applyFilters")} buttonStyle={{ backgroundColor: '#3B82F6', borderRadius: 10, marginTop: 20 }} onPress={handleAcceptFilter} />
                 </View>
             </ScrollView>
         </Dialog>
