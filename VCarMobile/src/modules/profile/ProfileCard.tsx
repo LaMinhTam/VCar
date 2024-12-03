@@ -1,13 +1,7 @@
 import { View, Text } from 'react-native';
 import React from 'react';
 import { Image } from 'react-native';
-import { Button } from 'react-native-elements';
-import { Flex, Toast } from '@ant-design/react-native';
-import { DEFAULT_AVATAR } from '../../constants';
-import { useWalletConnectModal } from '@walletconnect/modal-react-native';
-import { buyToken } from '../../store/profile/handlers';
-import { ParamListBase, useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { Flex } from '@ant-design/react-native';
 import { useTranslation } from 'react-i18next';
 import { IUser } from '../../store/auth/types';
 
@@ -16,31 +10,6 @@ const ProfileCard = ({ me, balance }: {
     balance: number
 }) => {
     const { t } = useTranslation();
-    const { open, isConnected } = useWalletConnectModal();
-    const navigation = useNavigation<NativeStackNavigationProp<ParamListBase>>();
-    const handleDepositTokens = async () => {
-        const key = Toast.loading({
-            content: t('common.processing'),
-            duration: 0,
-            mask: true
-        });
-        if (!isConnected) {
-            Toast.remove(key);
-            await open();
-        } else {
-            const response = await buyToken();
-            if (response?.success) {
-                const vnpayUrl = response?.data
-                if (vnpayUrl) {
-                    Toast.remove(key);
-                    navigation.navigate('PAYMENT_VNPAY', { url: vnpayUrl });
-                }
-            } else {
-                Toast.remove(key);
-                Toast.fail('Deposit token failed');
-            }
-        }
-    }
     return (
         <View className="flex-row items-center p-4 mb-6 bg-blue-500 rounded-xl">
             <Flex direction='row'>
@@ -53,21 +22,6 @@ const ProfileCard = ({ me, balance }: {
                     <Text className="text-white">{me?.phone_number}</Text>
                     <Text className='text-white'>{t("common.balance")}: {Number(balance).toFixed(2)}</Text>
                 </View>
-                <Button
-                    type='outline'
-                    title={t("common.deposit")}
-                    buttonStyle={{
-                        paddingVertical: 12,
-                        backgroundColor: '#FFF',
-                        borderRadius: 30,
-                        marginLeft: 100,
-                    }}
-                    titleStyle={{
-                        color: '#103F74',
-                        fontWeight: 'bold',
-                    }}
-                    onPress={handleDepositTokens}
-                />
             </Flex>
         </View>
     )

@@ -8,14 +8,17 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../../store/configureStore';
 import { Divider, Paragraph } from 'react-native-paper';
 import { handleRecognizeCitizenIdentification, handleRecognizeLicensePlate, handleUploadFile } from '../../../utils';
-import { updateCitizenLicense, updateLicense, updateMetamaskAddress, updateProfile } from '../../../store/profile/handlers';
+import { buyToken, updateCitizenLicense, updateLicense, updateMetamaskAddress, updateProfile } from '../../../store/profile/handlers';
 import LanguageDialog from '../../../components/dialog/LanguageDialog';
 import i18n from '../../../locales';
 import { GET_ME } from '../../../store/profile/action';
 import { isEmpty } from 'lodash';
 import { useWalletConnectModal } from '@walletconnect/modal-react-native';
+import { ParamListBase, useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 const AccountSettings = () => {
+    const navigation = useNavigation<NativeStackNavigationProp<ParamListBase>>();
     const { t } = useTranslation();
     const { me } = useSelector((state: RootState) => state.profile);
     const dispatch = useDispatch();
@@ -240,6 +243,31 @@ const AccountSettings = () => {
         }
     }
 
+
+    const handleDepositTokens = async () => {
+        const key = Toast.loading({
+            content: t('common.processing'),
+            duration: 0,
+            mask: true
+        });
+        if (!isConnected) {
+            Toast.remove(key);
+            await open();
+        } else {
+            const response = await buyToken();
+            if (response?.success) {
+                const vnpayUrl = response?.data
+                if (vnpayUrl) {
+                    Toast.remove(key);
+                    navigation.navigate('PAYMENT_VNPAY', { url: vnpayUrl });
+                }
+            } else {
+                Toast.remove(key);
+                Toast.fail('Deposit token failed');
+            }
+        }
+    }
+
     return (
         <SafeAreaView style={{ flex: 1 }}>
             <ScrollView contentContainerStyle={{
@@ -286,6 +314,11 @@ const AccountSettings = () => {
                             }
                         >
                             {t("account.settings.sync_wallet")}
+                        </List.Item>
+                        <List.Item
+                            onPress={handleDepositTokens}
+                        >
+                            {t("common.deposit")}
                         </List.Item>
                         <Button
                             type="primary"
