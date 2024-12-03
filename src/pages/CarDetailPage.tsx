@@ -14,7 +14,7 @@ import CarCardSkeleton from '../components/common/CarCardSkeleton';
 import { convertTimestampToDayjs, handleGenerateViewAllCarsLink } from '../utils/helper';
 import { useAuth } from '../contexts/auth-context';
 import { toast } from 'react-toastify';
-import NotFoundPage from './NotFoundPage';
+import { Helmet } from 'react-helmet';
 
 const CarDetailPage = () => {
     const navigate = useNavigate();
@@ -34,11 +34,62 @@ const CarDetailPage = () => {
             toast.warning(t("msg.REQUIRE_AUTHENTICATION_FEATURE"))
         }
     }
-    if (!id || !carDetail?.car || !carDetail?.related_cars || !carDetail?.reviews) return <NotFoundPage />;
+    if (!id || !carDetail?.car || !carDetail?.related_cars || !carDetail?.reviews) return null;
     const { car, related_cars, reviews } = carDetail;
+    const structuredData = {
+        "@context": "https://schema.org",
+        "@type": "Car",
+        "name": car?.name,
+        "description": car?.description?.replace(/<[^>]*>?/gm, ''),
+        "brand": car?.brand,
+        "manufacturer": car?.brand,
+        "model": car?.name,
+        "vehicleTransmission": car?.transmission,
+        "numberOfDoors": car?.seat,
+        "fuelConsumption": `${car?.fuel_consumption}L/100km`,
+        "offers": {
+            "@type": "Offer",
+            "price": car?.daily_rate,
+            "priceCurrency": "VND",
+            "availability": "https://schema.org/InStock"
+        }
+    };
     return (
         <div>
             {!loading && car?.id && <>
+                <Helmet>
+                    <title>{`${car?.name} - ${car?.brand} | Thuê xe tự lái VivuOto`}</title>
+                    <meta
+                        name="description"
+                        content={`Thuê xe ${car?.name} ${car?.brand} với hộp số ${car?.transmission === "MANUAL" ? "số sàn" : "tự động"}, ${car?.seat} chỗ ngồi, mức tiêu thụ nhiên liệu ${car?.fuel_consumption}L/100km. Đặt xe ngay hôm nay!`}
+                    />
+                    <meta
+                        name="keywords"
+                        content={`thuê xe ${car?.name}, thuê xe ${car?.brand}, thuê xe ô tô, thuê xe tự lái, thuê xe có tài xế`}
+                    />
+
+                    {/* Open Graph / Facebook */}
+                    <meta property="og:locale" content="vi_VN" />
+                    <meta property="og:type" content="website" />
+                    <meta property="og:url" content={`https://vivuoto-rental.vercel.app/cars/${car?.id}`} />
+                    <meta property="og:title" content={`${car?.name} - ${car?.brand} | Thuê xe tự lái VivuOto`} />
+                    <meta
+                        property="og:description"
+                        content={`Thuê xe ${car?.name} ${car?.brand} với hộp số ${car?.transmission === "MANUAL" ? "số sàn" : "tự động"}, ${car?.seat} chỗ ngồi, mức tiêu thụ nhiên liệu ${car?.fuel_consumption}L/100km. Đặt xe ngay hôm nay!`}
+                    />
+                    <meta property="og:image" content={car?.image_url[0]} />
+
+                    {/* Additional Meta Tags */}
+                    <meta name="robots" content="index, follow" />
+                    <meta name="language" content="Vietnamese" />
+                    <meta name="revisit-after" content="1 days" />
+                    <meta name="author" content="VivuOto" />
+
+                    {/* Structured Data */}
+                    <script type="application/ld+json">
+                        {JSON.stringify(structuredData)}
+                    </script>
+                </Helmet>
                 <Row gutter={[32, 0]} justify={"center"} align={"stretch"}>
                     <Col span={12}>
                         <Carousel draggable autoplay autoplaySpeed={5000} arrows className='w-full h-[448px] rounded-lg'>
