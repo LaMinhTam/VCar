@@ -52,8 +52,12 @@ const NotificationScreen = () => {
         }
     };
     const handleNavigateRentalDetail = (item: INotification) => {
-        const data = handleFormatLink(item.message, item.target_id)
-        navigation.navigate('RENTAL_DETAIL', { requestId: data.id, type: data.type })
+        // const data = handleFormatLink(item.message, item.target_id)
+        if (item.message === 'NEW_RENTAL_REQUEST') {
+            navigation.navigate('RENTAL_DETAIL', { requestId: item.target_id, type: 'LESSOR' })
+        } else {
+            navigation.navigate('RENTAL_DETAIL', { requestId: item.target_id, type: 'LESSEE' })
+        }
     }
 
     const vivuOtoLogo = require('../../public/VivuOto_logo.png');

@@ -267,31 +267,32 @@ export const handleRecognizeCitizenIdentification = async (
 };
 
 export const handleFormatLink = (msg: string, id: string) => {
-  let data = {
-    type: '',
-    id: '',
-  }
+  let requestId = "";
+  let type = "";
   switch (msg) {
     case "LESSEE_SIGNED_CONTRACT":
-      data.type === 'LESSOR'
-      data.id = id;
+      type === 'LESSOR'
+      requestId = id;
       break;
     case "NEW_RENTAL_REQUEST":
-      data.type === 'LESSOR'
-      data.id = id;
+      type === 'LESSOR'
+      requestId = id;
       break;
     case "RENTAL_REQUEST_APPROVED":
-      data.type === 'LESSEE'
-      data.id = id;
+      type === 'LESSEE'
+      requestId = id;
       break;
     case "RENTAL_REQUEST_REJECTED":
-      data.type === 'LESSEE'
-      data.id = id;
+      type === 'LESSEE'
+      requestId = id;
       break;
     default:
       break;
   }
-  return data;
+  return {
+    requestId,
+    type,
+  };
 };
 
 export const convertTimestampToDayjs = (timestamp: number | null): dayjs.Dayjs | null => {

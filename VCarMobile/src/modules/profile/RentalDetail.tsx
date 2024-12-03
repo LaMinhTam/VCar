@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { View, Text, ScrollView, Image, StyleSheet, NativeEventEmitter } from 'react-native';
+import { View, Text, ScrollView, Image, StyleSheet, NativeEventEmitter, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ParamListBase, useNavigation, useRoute } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
@@ -18,6 +18,7 @@ import ReturnVehicleHandover from '../../components/dialog/ReturnVehicleHandover
 import { useTranslation } from 'react-i18next';
 import CreateVehicleHandover from '../../components/dialog/CreateVehicleHandover';
 import CreateReviewDialog from '../../components/dialog/CreateReviewDialog';
+import RenderHTML from 'react-native-render-html';
 
 
 const RentalDetail = () => {
@@ -26,6 +27,7 @@ const RentalDetail = () => {
     const [triggerRefetch, setTriggerRefetch] = useState(false);
     const [handoverIssue, setHandoverIssue] = useState('');
     const { requestId, type } = route.params as { requestId: string, type: string };
+    const { width } = useWindowDimensions();
     const [record, setRecord] = useState<IRentalData>({} as IRentalData);
     const [contract, setContract] = useState<IContractData>({} as IContractData);
     const [vehicleHandover, setVehicleHandover] = useState<IVehicleHandoverResponseData>({} as IVehicleHandoverResponseData);
@@ -90,6 +92,7 @@ const RentalDetail = () => {
         if (response?.success) {
             Toast.remove(key);
             Toast.success(t("msg.REQUEST_REJECTED"), 1);
+            setTriggerRefetch(!triggerRefetch);
         } else {
             Toast.remove(key);
             Toast.fail(t("msg.REJECT_REQUEST_FAILED"), 1);
@@ -324,7 +327,8 @@ const RentalDetail = () => {
                 </View>
                 <View className="p-4">
                     <Text className="text-lg font-bold text-text8">{car?.name}</Text>
-                    <Text className="mt-2 text-sm text-text3">{car?.description}</Text>
+                    {/* <Text className="mt-2 text-sm text-text3">{car?.description}</Text> */}
+                    <RenderHTML contentWidth={width} source={{ html: car?.description }} />
                 </View>
                 <Divider />
                 <View style={{ marginBottom: 8 }} className="p-4">
