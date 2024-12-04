@@ -6,6 +6,7 @@ import { useAuth } from "../contexts/auth-context";
 import ContractIcon from "../components/icons/ContractIcon";
 import { useTranslation } from "react-i18next";
 import RequiredAuthLayout from "../layouts/RequireAuthLayout";
+import { Helmet } from "react-helmet";
 
 const AccountPage = () => {
     const { t } = useTranslation();
@@ -72,6 +73,21 @@ const AccountPage = () => {
 
     return (
         <RequiredAuthLayout>
+            <Helmet>
+                <title>Quản lý tài khoản | ViVuOto - Nền tảng cho thuê xe tự lái</title>
+                <meta name="description" content="Quản lý tài khoản ViVuOto - Xem lịch sử thuê xe, quản lý xe cho thuê, cập nhật thông tin cá nhân và theo dõi các hợp đồng thuê xe của bạn." />
+                <meta name="keywords" content="quản lý tài khoản vivuoto, lịch sử thuê xe, quản lý xe cho thuê, hợp đồng thuê xe, thông tin cá nhân vivuoto" />
+
+                {/* Open Graph tags */}
+                <meta property="og:title" content="Quản lý tài khoản | ViVuOto - Nền tảng cho thuê xe tự lái" />
+                <meta property="og:description" content="Quản lý tài khoản ViVuOto - Xem lịch sử thuê xe, quản lý xe cho thuê, cập nhật thông tin cá nhân và theo dõi các hợp đồng thuê xe của bạn." />
+                <meta property="og:type" content="website" />
+                <meta property="og:url" content="https://vivuoto-rental.vercel.app/VivuOto_logo.png" />
+                <meta property="og:image" content="https://vivuoto-rental.vercel.app/VivuOto_logo.png" />
+
+                {/* Canonical URL */}
+                <link rel="canonical" href="https://vivuoto-rental.vercel.app/account" />
+            </Helmet>
             <Row gutter={[24, 0]}>
                 <Col span={6}>
                     <Row>

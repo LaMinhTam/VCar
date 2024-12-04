@@ -7,11 +7,12 @@ import { IContractData, IContractParams } from "../../store/rental/types";
 import { TablePaginationConfig } from "antd/es/table";
 import { formatPrice } from "../../utils";
 import LesseeContractModal from "../../components/modals/LesseeContractModal";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { getContractById } from "../../store/rental/handlers";
 import { useTranslation } from "react-i18next";
 
 const LesseeContract = () => {
+    const navigate = useNavigate();
     const { t } = useTranslation();
     const dispatch = useDispatch();
     const { lesseeListContract, loading } = useSelector((state: RootState) => state.rental);
@@ -124,6 +125,7 @@ const LesseeContract = () => {
     };
 
     const handleCancel = () => {
+        navigate('/account/lessee-contract', { replace: true });
         setParams({ ...params })
         setIsModalOpen(false);
     };
