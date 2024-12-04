@@ -89,12 +89,12 @@ const CarScreen = () => {
             <View className="flex flex-wrap p-4">
                 {!loading && cars.length === 0 && <Text>{t("common.empty")}</Text>}
                 {!loading && cars.length > 0 && cars.map((car: ICar) => (
-                    <CarCard key={car.id} car={car} isFullWidth />
+                    <CarCard key={car.id} car={car} isFullWidth={false} />
                 ))}
                 {loading && Array.from({ length: 10 }).map((_, index) => (
                     <CardSkeleton
                         key={index}
-                        isFullWidth
+                        isFullWidth={false}
                     ></CardSkeleton>
                 ))}
             </View>

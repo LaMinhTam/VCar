@@ -300,6 +300,7 @@ const RentalDetail = () => {
             if (isApproved) {
                 Toast.remove(key);
                 Toast.success(t("msg.POST_HANDOVER_ISSUE"), 1);
+                setTriggerRefetch(!triggerRefetch);
                 setHandoverIssue(approveCode)
             } else {
                 Toast.remove(key);
