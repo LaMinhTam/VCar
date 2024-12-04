@@ -8,6 +8,7 @@ import { formatDateToDDMM, formatDateToDDMMYYYY, getDateRange } from '../../../u
 import CustomDualAxes from '../../../components/charts/CustomDualAxes';
 import { DownloadOutlined } from '@ant-design/icons';
 import * as XLSX from 'xlsx-js-style';
+import { getUserInfoFromCookie } from '../../../utils';
 
 const { RangePicker } = DatePicker;
 
@@ -16,6 +17,7 @@ const StatisticCard = ({ params, setParams, type }: {
     setParams: (params: ContractParamsType) => void
     type: string
 }) => {
+    const userInfo = getUserInfoFromCookie();
     const { t } = useTranslation();
     const [loading, setLoading] = useState(false);
     const [rentalContractSummary, setRentalContractSummary] = useState<IRentalContractSummary[]>([] as IRentalContractSummary[]);
@@ -68,28 +70,50 @@ const StatisticCard = ({ params, setParams, type }: {
             total_amount: t('excel.totalAmount'),
         };
 
-        // Translate sheet title
+        // Get sheet title based on type
         const sheetTitle = t(`excel.${type === 'LESSOR' ? 'lessorRentalContractSummary' : 'lesseeRentalContractSummary'}`);
 
-        // Create worksheet with data (without headers)
-        const worksheet = XLSX.utils.json_to_sheet(rentalContractSummary);
+        // Create empty worksheet first
+        const worksheet = XLSX.utils.aoa_to_sheet([]);
 
-        // Add title row
-        XLSX.utils.sheet_add_aoa(worksheet, [[sheetTitle]], { origin: "A1" });
+        // Add main table title and headers
+        XLSX.utils.sheet_add_aoa(worksheet, [
+            [sheetTitle],
+            Object.values(headers)
+        ], { origin: "A1" });
 
-        // Add headers row
-        XLSX.utils.sheet_add_aoa(worksheet, [Object.values(headers)], { origin: "A2" });
+        // Add data starting from row 3
+        XLSX.utils.sheet_add_json(worksheet, rentalContractSummary, {
+            origin: "A3",
+            skipHeader: true
+        });
 
-        // Merge cells for the title
-        worksheet["!merges"] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: Object.keys(headers).length - 1 } }];
+        const exportTime = new Date();
 
-        // Set column widths
-        const maxWidth = Math.max(...Object.values(headers).map(h => h.length), 15);
-        const colWidth = Array(Object.keys(headers).length).fill({ wch: maxWidth });
-        worksheet["!cols"] = colWidth;
+        // Export info table data
+        const exportInfo = [
+            [t('excel.exportInfo')], // Title
+            [t('excel.exportedBy'), userInfo?.display_name || 'N/A'],
+            [t('excel.exportTime'), formatDateToDDMMYYYY(exportTime) + ' ' + exportTime.toLocaleTimeString()]
+        ];
 
-        // Style for title and header
-        const titleHeaderStyle = {
+        // Calculate export info position
+        const mainTableLastCol = Object.keys(headers).length - 1;
+        const exportInfoStartCol = mainTableLastCol + 2;
+
+        // Add export info to worksheet
+        XLSX.utils.sheet_add_aoa(worksheet, exportInfo, {
+            origin: XLSX.utils.encode_cell({ r: 0, c: exportInfoStartCol })
+        });
+
+        // Merge cells for titles
+        worksheet["!merges"] = [
+            { s: { r: 0, c: 0 }, e: { r: 0, c: mainTableLastCol } },
+            { s: { r: 0, c: exportInfoStartCol }, e: { r: 0, c: exportInfoStartCol + 1 } }
+        ];
+
+        // Define styles
+        const titleStyle = {
             font: { bold: true, color: { rgb: "FFFFFF" } },
             fill: { fgColor: { rgb: "4472C4" } },
             alignment: { horizontal: "center", vertical: "center" },
@@ -101,25 +125,6 @@ const StatisticCard = ({ params, setParams, type }: {
             }
         };
 
-        // Apply style to title
-        const titleRange = XLSX.utils.decode_range(`A1:${XLSX.utils.encode_col(Object.keys(headers).length - 1)}1`);
-        for (let C = titleRange.s.c; C <= titleRange.e.c; ++C) {
-            const cellAddress = XLSX.utils.encode_cell({ r: titleRange.s.r, c: C });
-            worksheet[cellAddress] = worksheet[cellAddress] || { v: "", t: "s" };
-            worksheet[cellAddress].s = titleHeaderStyle;
-        }
-
-        // Apply style to header
-        const headerRange = XLSX.utils.decode_range(`A2:${XLSX.utils.encode_col(Object.keys(headers).length - 1)}2`);
-        for (let C = headerRange.s.c; C <= headerRange.e.c; ++C) {
-            const cellAddress = XLSX.utils.encode_cell({ r: headerRange.s.r, c: C });
-            worksheet[cellAddress].s = titleHeaderStyle;
-        }
-
-        // Set row height for title and header
-        worksheet['!rows'] = [{ hpt: 30 }, { hpt: 25 }];
-
-        // Apply borders and center alignment to all data cells
         const dataStyle = {
             alignment: { horizontal: "center", vertical: "center" },
             border: {
@@ -130,21 +135,64 @@ const StatisticCard = ({ params, setParams, type }: {
             }
         };
 
-        const dataRange = XLSX.utils.decode_range(worksheet['!ref']!);
+        const exportInfoStyle = {
+            ...dataStyle,
+            alignment: { horizontal: "left", vertical: "center" }
+        };
 
-        for (let R = 2; R <= dataRange.e.r; ++R) {
-            for (let C = dataRange.s.c; C <= dataRange.e.c; ++C) {
-                const cellAddress = XLSX.utils.encode_cell({ r: R, c: C });
-                if (worksheet[cellAddress]) {
-                    worksheet[cellAddress].s = dataStyle;
-                }
+        // Helper function to safely set cell style
+        const setCellStyle = (cell: string, style: any) => {
+            if (!worksheet[cell]) {
+                worksheet[cell] = { v: "", t: "s" };
+            }
+            worksheet[cell].s = style;
+        };
+
+        // Apply styles to main table title
+        for (let C = 0; C <= mainTableLastCol; C++) {
+            setCellStyle(XLSX.utils.encode_cell({ r: 0, c: C }), titleStyle);
+        }
+
+        // Apply styles to headers
+        for (let C = 0; C <= mainTableLastCol; C++) {
+            setCellStyle(XLSX.utils.encode_cell({ r: 1, c: C }), titleStyle);
+        }
+
+        // Apply styles to data cells
+        const dataRange = XLSX.utils.decode_range(worksheet['!ref']!);
+        for (let R = 2; R <= dataRange.e.r; R++) {
+            for (let C = 0; C <= mainTableLastCol; C++) {
+                setCellStyle(XLSX.utils.encode_cell({ r: R, c: C }), dataStyle);
             }
         }
 
+        // Apply styles to export info
+        setCellStyle(XLSX.utils.encode_cell({ r: 0, c: exportInfoStartCol }), titleStyle);
+        setCellStyle(XLSX.utils.encode_cell({ r: 0, c: exportInfoStartCol + 1 }), titleStyle);
+
+        for (let R = 1; R <= 2; R++) {
+            for (let C = exportInfoStartCol; C <= exportInfoStartCol + 1; C++) {
+                setCellStyle(XLSX.utils.encode_cell({ r: R, c: C }), exportInfoStyle);
+            }
+        }
+
+        // Set column widths
+        const mainTableColWidth = Math.max(...Object.values(headers).map(h => h.length), 15);
+        const exportInfoColWidth = 25;
+        worksheet["!cols"] = [
+            ...Array(mainTableLastCol + 1).fill({ wch: mainTableColWidth }),
+            { wch: 5 },
+            { wch: exportInfoColWidth },
+            { wch: exportInfoColWidth }
+        ];
+
+        // Set row heights
+        worksheet['!rows'] = [{ hpt: 30 }, { hpt: 25 }];
+
+        // Create and save workbook
         const workbook = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(workbook, worksheet, sheetTitle);
 
-        // Generate Excel file
         const fileName = `${t('excel.rentalContractSummaryFile')}_${t(`common.${type.toLowerCase()}`)}_${formatDateToDDMMYYYY(new Date())}.xlsx`;
         XLSX.writeFile(workbook, fileName);
     };

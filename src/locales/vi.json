@@ -417,6 +417,9 @@
     "excel.total_income": "Tổng doanh thu",
     "excel.rentalVolumeTitle": "Tổng lượng cho thuê",
     "excel.rentalVolumeFile": "Tong_ket_luong_cho_thue",
+    "excel.exportedBy": "Người xuất file",
+    "excel.exportTime": "Thời gian xuất file",
+    "excel.exportInfo": "Thông tin xuất file",
 
     "msg.LESSEE_SIGNED_CONTRACT": "Người thuê đã ký hợp đồng",
     "msg.NEW_RENTAL_REQUEST": "Yêu cầu thuê xe mới",

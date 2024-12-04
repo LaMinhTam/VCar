@@ -4,7 +4,7 @@ import { Skeleton } from "antd";
 const CarCardSkeleton: React.FC = () => {
     return (
         <div className="overflow-hidden bg-white rounded-lg shadow-md">
-            <Skeleton.Image className="w-full h-64" active />
+            <Skeleton.Image style={{ height: 256, width: 296 }} active />
             <div className="p-4">
                 <Skeleton active paragraph={{ rows: 2 }} />
                 <div className="flex items-center justify-between mb-2 gap-x-2">

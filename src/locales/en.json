@@ -408,6 +408,9 @@
     "excel.total_income": "Total income",
     "excel.rentalVolumeTitle": "Rental Volume Summary",
     "excel.rentalVolumeFile": "rental_volume_summary",
+    "excel.exportedBy": "Exported by",
+    "excel.exportTime": "Export time",
+    "excel.exportInfo": "Export information",
 
     "msg.LESSEE_SIGNED_CONTRACT": "Lessee signed contract",
     "msg.NEW_RENTAL_REQUEST": "New rental request",
