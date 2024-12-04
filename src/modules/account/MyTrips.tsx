@@ -6,13 +6,14 @@ import { GET_LESSEE_REQUESTS } from "../../store/rental/action";
 import { Table, Typography, Tag, Modal, Flex, Radio } from "antd";
 import { ColumnsType, TablePaginationConfig } from "antd/es/table";
 import TripDetailDialog from "../../components/modals/TripDetailDialog";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { getRentRequestById } from "../../store/rental/handlers";
 import { CheckboxChangeEvent } from "antd/es/checkbox";
 import { RENT_REQUEST_OPTIONS } from "../../constants";
 import { useTranslation } from "react-i18next";
 
 const MyTrips = () => {
+    const navigate = useNavigate();
     const { t } = useTranslation();
     const { lesseeListRequest, loading } = useSelector((state: RootState) => state.rental);
     const [modalRecord, setModalRecord] = useState<IRentalData>({} as IRentalData);
@@ -120,6 +121,7 @@ const MyTrips = () => {
     };
 
     const handleCancel = () => {
+        navigate('/account/my-trips', { replace: true });
         setParams({ ...params })
         setIsModalOpen(false);
     };

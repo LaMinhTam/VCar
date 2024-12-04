@@ -12,6 +12,7 @@ import { axiosPrivate } from "../apis/axios";
 import { useAuth } from "../contexts/auth-context";
 import { ENDPOINTS } from "../store/profile/models";
 import ForgotPasswordModal from "../components/modals/ForgotPasswordModal";
+import { Helmet } from "react-helmet";
 type FieldType = {
   email: string;
   password: string;
@@ -66,6 +67,21 @@ const LoginPage = () => {
 
   return (
     <LayoutAuthentication>
+      <Helmet>
+        <title>Đăng nhập | ViVuOto - Nền tảng cho thuê xe tự lái</title>
+        <meta name="description" content="Đăng nhập vào ViVuOto để trải nghiệm dịch vụ thuê xe tự lái với thủ tục đơn giản, nhanh chóng và an toàn." />
+        <meta name="keywords" content="đăng nhập vivuoto, thuê xe tự lái, cho thuê xe, vivuoto login" />
+
+        {/* Open Graph tags */}
+        <meta property="og:title" content="Đăng nhập | ViVuOto - Nền tảng cho thuê xe tự lái" />
+        <meta property="og:description" content="Đăng nhập vào ViVuOto để trải nghiệm dịch vụ thuê xe tự lái với thủ tục đơn giản, nhanh chóng và an toàn." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://vivuoto-rental.vercel.app/signin" />
+        <meta property="og:image" content="https://vivuoto-rental.vercel.app/bg-authen.jpg" />
+
+        {/* Canonical URL */}
+        <link rel="canonical" href="https://vivuoto-rental.vercel.app/signin" />
+      </Helmet>
       <Row className="h-full">
         <Col xs={24} md={12} lg={18} xl={18} className="h-full">
           <img

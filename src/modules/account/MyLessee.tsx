@@ -6,13 +6,14 @@ import { Table, Typography, Tag, Modal, Flex, Radio } from "antd";
 import { ColumnsType } from "antd/es/table";
 import { GET_LESSOR_REQUESTS } from "../../store/rental/action";
 import LesseeDetailDialog from "../../components/modals/LesseeDetailDialog";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { getRentRequestById } from "../../store/rental/handlers";
 import { RENT_REQUEST_OPTIONS } from "../../constants";
 import { CheckboxChangeEvent } from "antd/es/checkbox";
 import { useTranslation } from "react-i18next";
 
 const MyLessee = () => {
+    const navigate = useNavigate();
     const { t } = useTranslation();
     const { lessorListRequest, loading } = useSelector((state: RootState) => state.rental);
     const dispatch = useDispatch();
@@ -119,6 +120,7 @@ const MyLessee = () => {
     };
 
     const handleCancel = () => {
+        navigate('/account/my-car-lessee', { replace: true });
         setParams({ ...params })
         setIsModalOpen(false);
     };

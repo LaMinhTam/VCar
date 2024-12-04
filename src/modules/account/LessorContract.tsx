@@ -6,13 +6,14 @@ import { GET_LESSOR_CONTRACTS } from "../../store/rental/action";
 import { Flex, Modal, Radio, Table, TablePaginationConfig, Tag, Typography } from "antd";
 import { formatPrice } from "../../utils";
 import LessorContractModal from "../../components/modals/LessorContractModal";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { getContractById } from "../../store/rental/handlers";
 import { RENT_REQUEST_OPTIONS } from "../../constants";
 import { CheckboxChangeEvent } from "antd/es/checkbox";
 import { useTranslation } from "react-i18next";
 
 const LessorContract = () => {
+    const navigate = useNavigate();
     const { t } = useTranslation();
     const dispatch = useDispatch();
     const { lessorListContract, loading } = useSelector((state: RootState) => state.rental);
@@ -128,6 +129,7 @@ const LessorContract = () => {
     };
 
     const handleCancel = () => {
+        navigate('/account/lessor-contract', { replace: true });
         setParams({ ...params })
         setIsModalOpen(false);
     };

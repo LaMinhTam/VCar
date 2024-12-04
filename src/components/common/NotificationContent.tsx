@@ -86,7 +86,7 @@ const NotificationContent = () => {
                 <div className={`flex items-center justify-between px-4 py-2 ${item?.read ? '' : 'bg-text7 bg-opacity-20'}`} key={item.id}>
                     <Link to={`account/${handleFormatLink(item?.message, item.target_id)}`} onClick={() => handleMakeMessageAsRead(item.id)}>
                         <Flex align="start" gap={8}>
-                            <Avatar src={"./VivuOto_logo.png"} alt="avatar" className="w-[56px] h-[56px] object-cover"></Avatar>
+                            <Avatar src={"/VivuOto_logo.png"} alt="avatar" className="w-[56px] h-[56px] object-cover"></Avatar>
                             <div className="flex flex-col">
                                 <Typography.Title level={5} style={{ marginBottom: 4 }}>VivuOto</Typography.Title>
                                 <Typography.Text>{t(`msg.${item.message}`)}</Typography.Text>

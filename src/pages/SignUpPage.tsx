@@ -12,6 +12,7 @@ import { ENDPOINTS } from "../store/profile/models";
 import { axiosPrivate } from "../apis/axios";
 import { saveUserInfoToCookie } from "../utils";
 import { useAuth } from "../contexts/auth-context";
+import { Helmet } from "react-helmet";
 
 type FieldType = {
   name: string;
@@ -76,6 +77,21 @@ const SignUpPage = () => {
 
   return (
     <LayoutAuthentication>
+      <Helmet>
+        <title>Đăng ký tài khoản | ViVuOto - Nền tảng cho thuê xe tự lái</title>
+        <meta name="description" content="Đăng ký tài khoản ViVuOto để trải nghiệm dịch vụ thuê xe tự lái. Thủ tục đơn giản, xác thực nhanh chóng và bảo mật thông tin." />
+        <meta name="keywords" content="đăng ký vivuoto, tạo tài khoản thuê xe, đăng ký thuê xe tự lái, vivuoto signup, cho thuê xe tự lái" />
+
+        {/* Open Graph tags */}
+        <meta property="og:title" content="Đăng ký tài khoản | ViVuOto - Nền tảng cho thuê xe tự lái" />
+        <meta property="og:description" content="Đăng ký tài khoản ViVuOto để trải nghiệm dịch vụ thuê xe tự lái. Thủ tục đơn giản, xác thực nhanh chóng và bảo mật thông tin." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://vivuoto-rental.vercel.app/signup" />
+        <meta property="og:image" content="https://vivuoto-rental.vercel.app/bg-authen.jpg" />
+
+        {/* Canonical URL */}
+        <link rel="canonical" href="https://vivuoto-rental.vercel.app/signup" />
+      </Helmet>
       <Row className="h-full">
         <Col xs={24} md={12} lg={6} xl={6}>
           <Flex align="center" justify="center" vertical className="w-full h-full">
