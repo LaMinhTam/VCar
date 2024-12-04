@@ -141,7 +141,7 @@ const StatisticCard = ({ params, setParams, type }: {
         };
 
         // Helper function to safely set cell style
-        const setCellStyle = (cell: string, style) => {
+        const setCellStyle = (cell: string, style: any) => {
             if (!worksheet[cell]) {
                 worksheet[cell] = { v: "", t: "s" };
             }
