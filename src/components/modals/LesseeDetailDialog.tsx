@@ -6,7 +6,6 @@ import { calculateDays, getUserInfoFromCookie, handleMetaMaskSignature, handleUp
 import { useDispatch, useSelector } from "react-redux";
 import { GET_CAR_BY_ID } from "../../store/car/action";
 import { RootState } from "../../store/store";
-import { DEFAULT_AVATAR } from "../../config/apiConfig";
 import { MailOutlined, PhoneOutlined } from "@ant-design/icons";
 import { IUser } from "../../store/auth/types";
 import { axiosPrivate } from "../../apis/axios";
@@ -117,7 +116,7 @@ const LesseeDetailDialog = ({ record, setIsModalOpen, params, setParams }: {
                             <Typography.Title level={4}>{t("account.my_lessee")}</Typography.Title>
                             <Divider></Divider>
                             <div className='flex items-start gap-x-2'>
-                                <Avatar size={"large"} src={DEFAULT_AVATAR} className='cursor-pointer' alt='Avatar'></Avatar>
+                                <Avatar size={"large"} src={user?.image_url} className='cursor-pointer' alt='Avatar'></Avatar>
                                 <div>
                                     <Typography.Title level={5} className='cursor-pointer'>{user?.display_name}</Typography.Title>
                                     <div className='flex flex-col gap-y-2'>
