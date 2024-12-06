@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, ScrollView, TouchableOpacity, Image, SafeAreaView, Pressable } from 'react-native';
+import { View, ScrollView, TouchableOpacity, Image, SafeAreaView, Pressable, Text } from 'react-native';
 import { Button, Flex, InputItem, List, Toast } from '@ant-design/react-native';
 import { useTranslation } from 'react-i18next';
 import Icon from 'react-native-vector-icons/AntDesign';
@@ -14,11 +14,13 @@ import i18n from '../../../locales';
 import { GET_ME } from '../../../store/profile/action';
 import { isEmpty } from 'lodash';
 import { useWalletConnectModal } from '@walletconnect/modal-react-native';
-import { ParamListBase, useNavigation } from '@react-navigation/native';
+import { ParamListBase, useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 const AccountSettings = () => {
     const navigation = useNavigation<NativeStackNavigationProp<ParamListBase>>();
+    const route = useRoute();
+    const { balance } = route.params as { balance: number };
     const { t } = useTranslation();
     const { me } = useSelector((state: RootState) => state.profile);
     const dispatch = useDispatch();
@@ -317,8 +319,11 @@ const AccountSettings = () => {
                         </List.Item>
                         <List.Item
                             onPress={handleDepositTokens}
+                            extra={
+                                <Pressable>{t("common.deposit")}</Pressable>
+                            }
                         >
-                            {t("common.deposit")}
+                            <Text>{t("common.balance")}: {Number(balance).toFixed(2)}</Text>
                         </List.Item>
                         <Button
                             type="primary"

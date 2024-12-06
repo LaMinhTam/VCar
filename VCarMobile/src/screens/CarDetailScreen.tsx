@@ -93,6 +93,8 @@ export default function CarDetailScreen() {
                         <Avatar rounded source={{ uri: car?.owner?.image_url ?? 'https://randomuser.me/api/portraits/men/85.jpg' }} size="medium" />
                         <View className="ml-4">
                             <Text className="text-sm font-bold text-gray-900">{car?.owner?.display_name}</Text>
+                            <Text className="text-xs text-gray-600">Email: {car?.owner?.email}</Text>
+                            <Text className="text-xs text-gray-600">{t("account.settings.phoneNumber")}: {car?.owner?.phone_number}</Text>
                             <Text className="text-xs text-gray-600">Ho Chi Minh, Viet Nam</Text>
                         </View>
                         {/* <View className="ml-auto">

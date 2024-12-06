@@ -19,6 +19,8 @@ import { useTranslation } from 'react-i18next';
 import CreateVehicleHandover from '../../components/dialog/CreateVehicleHandover';
 import CreateReviewDialog from '../../components/dialog/CreateReviewDialog';
 import RenderHTML from 'react-native-render-html';
+import { axiosPrivate } from '../../apis/axios';
+import { IUser } from '../../store/auth/types';
 
 
 const RentalDetail = () => {
@@ -40,6 +42,7 @@ const RentalDetail = () => {
     const [visibleCreateVehicleHandoverModal, setVisibleCreateVehicleHandoverModal] = useState(false);
     const [visibleReviewModal, setVisibleReviewModal] = useState(false);
     const { open, isConnected, address, provider } = useWalletConnectModal();
+    const [user, setUser] = useState<IUser>({} as IUser);
 
     useEffect(() => {
         fetchRentalRequestById();
@@ -60,6 +63,20 @@ const RentalDetail = () => {
             return;
         }
     }
+
+    useEffect(() => {
+        async function fetchUser() {
+            try {
+                const response = await axiosPrivate.get(`/users/${record?.lessee_id}`);
+                if (response.data.code === 200) {
+                    setUser(response.data.data);
+                }
+            } catch (error) {
+                console.error(error);
+            }
+        }
+        fetchUser();
+    }, [record?.lessee_id]);
 
     useEffect(() => {
         fetchRentalContractById(record?.id);
@@ -301,10 +318,12 @@ const RentalDetail = () => {
                 Toast.remove(key);
                 Toast.success(t("msg.POST_HANDOVER_ISSUE"), 1);
                 setTriggerRefetch(!triggerRefetch);
-                setHandoverIssue(approveCode)
+                setHandoverIssue(approveCode);
             } else {
                 Toast.remove(key);
                 Toast.success(t("msg.POST_HANDOVER_NOT_ISSUE"), 1);
+                setTriggerRefetch(!triggerRefetch);
+                setHandoverIssue(approveCode);
             }
         } else {
             Toast.remove(key);
@@ -389,15 +408,17 @@ const RentalDetail = () => {
                 <Divider />
                 {/* Host Detail */}
                 <View className="p-4">
-                    <Text className="text-xs font-bold text-gray-900">{t("common.carOwner")}</Text>
+                    <Text className="text-xs font-bold text-gray-900">{t(`${type === 'LESSOR' ? 'account.my_lessee' : 'common.carOwner'}`)}</Text>
                     <View className="flex-row items-center mt-2">
                         <Avatar
                             rounded
-                            source={{ uri: car?.owner?.image_url ?? 'https://randomuser.me/api/portraits/men/85.jpg' }}
+                            source={{ uri: type === 'LESSOR' ? user?.image_url : car?.owner?.image_url }}
                             size="medium"
                         />
                         <View className="ml-4">
-                            <Text className="text-sm font-bold text-gray-900">{car?.owner?.display_name}</Text>
+                            <Text className="text-sm font-bold text-gray-900">{type === 'LESSOR' ? user?.display_name : car?.owner?.display_name}</Text>
+                            <Text className="text-xs text-gray-600">Email: {type === 'LESSOR' ? user?.email : car?.owner?.email}</Text>
+                            <Text className="text-xs text-gray-600">{t("account.settings.phoneNumber")}: {type === 'LESSOR' ? user?.phone_number : car?.owner?.phone_number}</Text>
                             <Text className="text-xs text-gray-600">Ho Chi Minh, Viet Nam</Text>
                         </View>
                         {/* <View className="ml-auto">

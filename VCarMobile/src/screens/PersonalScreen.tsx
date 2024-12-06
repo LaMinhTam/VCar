@@ -67,7 +67,7 @@ const PersonalScreen = () => {
 
             {/* Danh sách chức năng */}
             <View className="space-y-4">
-                <TouchableOpacity className="flex-row items-center py-2 border-b border-gray-200" onPress={() => navigation.navigate("ACCOUNT_SETTINGS_SCREEN")}>
+                <TouchableOpacity className="flex-row items-center py-2 border-b border-gray-200" onPress={() => navigation.navigate("ACCOUNT_SETTINGS_SCREEN", { balance })}>
                     <Icon name="account-circle" type="material" color="#000" size={24} />
                     <Text className="ml-4 text-base font-medium uppercase text-text8">{t("account.settings")}</Text>
                 </TouchableOpacity>
