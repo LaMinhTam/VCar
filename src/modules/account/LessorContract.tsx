@@ -3,13 +3,11 @@ import { RootState } from "../../store/store";
 import { useEffect, useMemo, useState } from "react";
 import { IContractData, IContractParams } from "../../store/rental/types";
 import { GET_LESSOR_CONTRACTS } from "../../store/rental/action";
-import { Flex, Modal, Radio, Table, TablePaginationConfig, Tag, Typography } from "antd";
+import { Modal, Table, TablePaginationConfig, Tag, Typography } from "antd";
 import { formatPrice } from "../../utils";
 import LessorContractModal from "../../components/modals/LessorContractModal";
 import { useNavigate, useParams } from "react-router-dom";
 import { getContractById } from "../../store/rental/handlers";
-import { RENT_REQUEST_OPTIONS } from "../../constants";
-import { CheckboxChangeEvent } from "antd/es/checkbox";
 import { useTranslation } from "react-i18next";
 
 const LessorContract = () => {
@@ -27,10 +25,6 @@ const LessorContract = () => {
         size: "10",
         status: "",
     });
-
-    const handleChangeStatus = (e: CheckboxChangeEvent) => {
-        setParams({ ...params, status: e.target.value });
-    }
 
     useEffect(() => {
         if (id) {
@@ -138,9 +132,6 @@ const LessorContract = () => {
     return (
         <div className="p-4">
             <Typography.Title level={3}>{t("account.rental_contract.list")}</Typography.Title>
-            <Flex justify="flex-end" className="mb-5">
-                <Radio.Group buttonStyle="solid" options={RENT_REQUEST_OPTIONS.map((item) => ({ label: t(item.label), value: item.value }))} value={params?.status} optionType="button" onChange={handleChangeStatus} />
-            </Flex>
             <Table
                 className="w-full"
                 columns={columns}

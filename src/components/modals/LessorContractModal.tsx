@@ -6,7 +6,6 @@ import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { GET_CAR_BY_ID } from "../../store/car/action";
 import { RootState } from "../../store/store";
-import { DEFAULT_AVATAR } from "../../config/apiConfig";
 import { MailOutlined, PhoneOutlined } from "@ant-design/icons";
 import PizZip from 'pizzip';
 import Docxtemplater from 'docxtemplater';
@@ -35,6 +34,7 @@ const LessorContractModal = ({ record }: {
     const numberOfDays = calculateDays(record?.rental_start_date, record?.rental_end_date);
     const [isSignaturePadVisible, setIsSignaturePadVisible] = useState(false);
     const { carDetail } = useSelector((state: RootState) => state.car);
+    const [user, setUser] = useState<IUser>();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [handoverForm] = Form.useForm();
     const sigCanvas = useRef<SignatureCanvas>(null);
@@ -272,6 +272,20 @@ const LessorContractModal = ({ record }: {
     }, [dispatch, record?.car_id])
 
     useEffect(() => {
+        async function fetchUser() {
+            try {
+                const response = await axiosPrivate.get(`/users/${record?.lessee_id}`);
+                if (response.data.code === 200) {
+                    setUser(response.data.data);
+                }
+            } catch (error) {
+                console.error(error);
+            }
+        }
+        fetchUser();
+    }, [record?.lessee_id]);
+
+    useEffect(() => {
         async function fetchVehicleHandover() {
             const response = await getVehicleHandoverByContractId(record?.id);
             if (response?.success) {
@@ -308,15 +322,15 @@ const LessorContractModal = ({ record }: {
             <Row gutter={[12, 12]} justify={"start"}>
                 <Col span={12}>
                     <div className='w-full h-full p-4 rounded-lg shadow-md'>
-                        <Typography.Title level={4}>{t("common.carOwner")}</Typography.Title>
+                        <Typography.Title level={4}>{t("account.my_lessee")}</Typography.Title>
                         <Divider></Divider>
                         <div className='flex items-start gap-x-2'>
-                            <Avatar size={"large"} src={DEFAULT_AVATAR} className='cursor-pointer' alt='Avatar'></Avatar>
+                            <Avatar size={"large"} src={user?.image_url} className='cursor-pointer' alt='Avatar'></Avatar>
                             <div>
-                                <Typography.Title level={5} className='cursor-pointer'>{car?.owner?.display_name}</Typography.Title>
+                                <Typography.Title level={5} className='cursor-pointer'>{user?.display_name}</Typography.Title>
                                 <div className='flex flex-col gap-y-2'>
-                                    <Typography.Text><PhoneOutlined className='mr-2 text-xl' />{car?.owner?.phone_number}</Typography.Text>
-                                    <Typography.Text><MailOutlined className='mr-2 text-xl' />{car?.owner?.email}</Typography.Text>
+                                    <Typography.Text><PhoneOutlined className='mr-2 text-xl' />{user?.phone_number}</Typography.Text>
+                                    <Typography.Text><MailOutlined className='mr-2 text-xl' />{user?.email}</Typography.Text>
                                 </div>
                             </div>
                         </div>
