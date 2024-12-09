@@ -121,6 +121,8 @@
     "common.comment": "Comment",
     "common.normal": "Normal",
     "common.damage": "Damage",
+    "common.downloadApp": "Download the app",
+    "common.scanQRCode": "Scan QR code to download the app",
 
     "car.name": "Car Name",
     "car.name.required": "Car name is required",
