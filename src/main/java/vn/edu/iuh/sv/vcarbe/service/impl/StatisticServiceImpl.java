@@ -63,6 +63,15 @@ public class StatisticServiceImpl implements StatisticService {
     @Override
     public List<CarStatisticDto> getCarStatistics(Date startDate, Date endDate, ObjectId ownerId, String sortBy, String sortOrder) {
         List<Document> statistics = statisticRepository.getCarStatistics(startDate, endDate, ownerId, sortBy, sortOrder);
+        //check if the carName duplicate add [1], [2], [3]... to display name
+        for (int i = 0; i < statistics.size(); i++) {
+            int count = 2;
+            for (int j = i + 1; j < statistics.size(); j++) {
+                if (statistics.get(i).getString("carName").equals(statistics.get(j).getString("carName"))) {
+                    statistics.get(j).put("carName", statistics.get(j).getString("carName") + " [" + (count++) + "]");
+                }
+            }
+        }
         return statistics.stream()
                 .map(document -> new CarStatisticDto(
                         document.getObjectId("carId").toHexString(),
