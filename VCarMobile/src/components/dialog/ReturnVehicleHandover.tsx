@@ -139,13 +139,13 @@ const ReturnVehicleHandover = ({ visible, setVisible, userId, handoverId, setVeh
                 >
                     <Flex style={{ marginLeft: 10 }}>
                         <Chip
-                            title="NORMAL"
+                            title={t("common.NORMAL")}
                             type={selectedStatus === 'NORMAL' ? 'solid' : 'outline'}
                             onPress={() => handleStatusChange('NORMAL')}
                             buttonStyle={{ marginRight: 8 }}
                         />
                         <Chip
-                            title="DAMAGE"
+                            title={t("common.DAMAGE")}
                             type={selectedStatus === 'DAMAGE' ? 'solid' : 'outline'}
                             onPress={() => handleStatusChange('DAMAGE')}
                             buttonStyle={{ marginRight: 8 }}

@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { View, Text, ScrollView, Image, StyleSheet, NativeEventEmitter, useWindowDimensions } from 'react-native';
+import { View, Text, ScrollView, Image, StyleSheet, NativeEventEmitter, useWindowDimensions, Platform, Linking } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ParamListBase, useNavigation, useRoute } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
@@ -21,7 +21,12 @@ import CreateReviewDialog from '../../components/dialog/CreateReviewDialog';
 import RenderHTML from 'react-native-render-html';
 import { axiosPrivate } from '../../apis/axios';
 import { IUser } from '../../store/auth/types';
-
+import RNFetchBlob from 'rn-fetch-blob';
+import RNFS from 'react-native-fs';
+import FileViewer from 'react-native-file-viewer';
+import PizZip from 'pizzip';
+import Docxtemplater from 'docxtemplater';
+import { Buffer } from 'buffer';
 
 const RentalDetail = () => {
     const { t } = useTranslation();
@@ -43,6 +48,12 @@ const RentalDetail = () => {
     const [visibleReviewModal, setVisibleReviewModal] = useState(false);
     const { open, isConnected, address, provider } = useWalletConnectModal();
     const [user, setUser] = useState<IUser>({} as IUser);
+
+    useEffect(() => {
+        if (!isConnected) {
+            open();
+        }
+    }, [])
 
     useEffect(() => {
         fetchRentalRequestById();
@@ -331,6 +342,245 @@ const RentalDetail = () => {
         }
     }
 
+    const handleViewContract = async () => {
+        try {
+            const key = Toast.loading({
+                content: t('common.processing'),
+                duration: 0,
+                mask: true
+            });
+
+            // 1. Download template
+            const templateUrl = 'https://vivuoto-rental.vercel.app/template_contract.docx';
+            const downloadPath = `${RNFS.DocumentDirectoryPath}/template_contract.docx`;
+
+            await RNFetchBlob.config({
+                fileCache: true,
+                path: downloadPath
+            }).fetch('GET', templateUrl);
+
+            // 2. Read template
+            const content = await RNFS.readFile(downloadPath, 'base64');
+            const binaryContent = Buffer.from(content, 'base64');
+
+            // 3. Initialize template processor
+            const zip = new PizZip(binaryContent);
+            const doc = new Docxtemplater(zip, {
+                paragraphLoop: true,
+                linebreaks: true,
+            });
+
+            // 4. Process template with data
+            const data = {
+                Day: new Date(contract?.created_at).getDate(),
+                Month: new Date(contract?.created_at).getMonth() + 1,
+                Year: new Date(contract?.created_at).getFullYear(),
+                DiaDiem: contract?.vehicle_hand_over_location || '',
+                TenBenA: contract?.vehicle_owner_name || '',
+                CMNDBenA: contract?.lessor_identity_number || '',
+                A1_D: '01',
+                A1_M: '01',
+                A1_Y: '2020',
+                A1_Z: 'Hồ Chí Minh',
+                DiaChiBenA: contract?.lessor_contact_address,
+                DienThoaiBenA: contract?.lessor_phone_number,
+                TenBenB: user?.display_name || '',
+                DienThoaiBenB: user?.phone_number,
+                CMNDBenB: '987654321',
+                B1_D: '01',
+                B1_M: '01',
+                B1_Y: '2020',
+                B1_Z: 'Hà Nội',
+                PassportBenB: 'P123456',
+                B2_D: '01',
+                B2_M: '01',
+                B2_Y: '2020',
+                B2_Z: 'Hà Nội',
+                GPLXBenB: 'G123456',
+                B3_D: '01',
+                B3_M: '01',
+                B3_Y: '2020',
+                B3_Z: 'Hà Nội',
+                DiaChiBenB: '',
+                BienSoXe: contract?.vehicle_license_plate || '',
+                NhanHieu: carDetail?.car?.name,
+                NamSanXuat: contract?.vehicle_manufacturing_year?.toString() || '',
+                SoDKXe: contract?.vehicle_registration_number || '',
+                NgayCapGiayDK: contract?.vehicle_registration_date || '',
+                NoiCapGiayDK: contract?.vehicle_registration_location || '',
+                TenChuXe: contract?.vehicle_owner_name || '',
+                DonGiaThue: contract?.rental_price_per_day?.toString() || '',
+                GioiHanQuangDuong: contract?.mileage_limit_per_day?.toString() || '',
+                PhiVuotQuangDuong: contract?.extra_mileage_charge?.toString() || '',
+                GioBDThue: new Date(contract?.rental_start_date).getHours().toString() || '',
+                PhutBDThue: new Date(contract?.rental_start_date).getMinutes().toString() || '',
+                NgayBDThue: new Date(contract?.rental_start_date).toLocaleDateString() || '',
+                GioKTThue: new Date(contract?.rental_end_date).getHours().toString() || '',
+                PhutKTThue: new Date(contract?.rental_end_date).getMinutes().toString() || '',
+                NgayKTThue: new Date(contract?.rental_end_date).toLocaleDateString() || '',
+                PhiVuotTGThue: contract?.extra_hourly_charge?.toString() || '',
+                TongTienThue: contract?.total_rental_value?.toString() || '',
+                DiaDiemBanGiaoXe: contract?.vehicle_hand_over_location || ''
+            };
+
+            doc.render(data);
+
+            // 5. Generate output
+            const output = doc.getZip().generate({
+                type: 'base64'
+            });
+
+            // 6. Save processed file
+            const outputPath = `${RNFS.DocumentDirectoryPath}/contract_${Date.now()}.docx`;
+            await RNFS.writeFile(outputPath, output, 'base64');
+
+            // 7. Open file
+            Toast.remove(key);
+            await FileViewer.open(outputPath, {
+                showOpenWithDialog: true,
+                displayName: 'contract.docx',
+                // Use showAppsSuggestions for Android to show app picker
+                showAppsSuggestions: true
+            });
+        } catch (error) {
+            if (error?.message?.includes('No app associated')) {
+                Toast.fail(t('msg.NO_DOCX_VIEWER_INSTALLED'));
+
+                // Try to open app store with fallback
+                try {
+                    if (Platform.OS === 'android') {
+                        // Try Play Store app first
+                        const playStoreOpened = await Linking.canOpenURL('market://details?id=com.microsoft.office.word');
+                        if (playStoreOpened) {
+                            await Linking.openURL('market://details?id=com.microsoft.office.word');
+                        } else {
+                            // Fallback to web Play Store
+                            await Linking.openURL('https://play.google.com/store/apps/details?id=com.microsoft.office.word');
+                        }
+                    } else {
+                        // iOS App Store
+                        await Linking.openURL('https://apps.apple.com/app/microsoft-word/id586447913');
+                    }
+                } catch (storeError) {
+                    Toast.fail(t('msg.STORE_OPEN_FAILED'));
+                }
+            } else {
+                console.error('Error handling contract:', error);
+                Toast.fail(t('msg.ERROR_GENERATING_CONTRACT'));
+            }
+        }
+    };
+
+    const handleViewHandoverDocument = async () => {
+        try {
+            const key = Toast.loading({
+                content: t('common.processing'),
+                duration: 0,
+                mask: true
+            });
+
+            // 1. Download template
+            const templateUrl = 'https://vivuoto-rental.vercel.app/vehicle_handover_template.docx';
+            const downloadPath = `${RNFS.DocumentDirectoryPath}/vehicle_handover_template.docx`;
+
+            await RNFetchBlob.config({
+                fileCache: true,
+                path: downloadPath
+            }).fetch('GET', templateUrl);
+
+            // 2. Read template
+            const content = await RNFS.readFile(downloadPath, 'base64');
+            const binaryContent = Buffer.from(content, 'base64');
+
+            // 3. Initialize template processor with image module
+            const zip = new PizZip(binaryContent);
+
+            const doc = new Docxtemplater(zip, {
+                paragraphLoop: true,
+                linebreaks: true,
+            });
+
+            // 4. Process template with data
+            const data = {
+                D: new Date(vehicleHandover?.handover_date).getDate() || '',
+                M: new Date(vehicleHandover?.handover_date).getMonth() + 1 || '',
+                Y: new Date(vehicleHandover?.handover_date).getFullYear() || '',
+                Location: vehicleHandover?.location || '',
+                Lessor: vehicleHandover?.lessor_name || '',
+                Lessee: vehicleHandover?.lessee_name || '',
+                CarLabel: car?.name || '',
+                CarType: 'Sedan',
+                CarPaint: 'Black',
+                CarYearManufacture: vehicleHandover?.car_manufacturing_year || '',
+                CarLicensePlate: vehicleHandover?.car_license_plate || '',
+                CarSeat: vehicleHandover?.car_seat || '',
+                RHour: vehicleHandover?.handover_hour || '',
+                RDay: new Date(vehicleHandover?.handover_date).getDate() || '',
+                RMonth: new Date(vehicleHandover?.handover_date).getMonth() + 1 || '',
+                RYear: new Date(vehicleHandover?.handover_date).getFullYear() || '',
+                X: vehicleHandover?.initial_condition_normal ? 'X' : '',
+                Odo: vehicleHandover?.odometer_reading || '',
+                Fuel: vehicleHandover?.fuel_level || '',
+                PersonalItems: vehicleHandover?.personal_items || '',
+                // Signatures
+                LessorHandoverSign: vehicleHandover?.lessor_signature || '',
+                LesseeHandoverSign: vehicleHandover?.lessee_signature || '',
+                LessorReturnSign: vehicleHandover?.return_lessor_signature || '',
+                LesseeReturnSign: vehicleHandover?.return_lessee_signature || '',
+                // Return data
+                ReHour: vehicleHandover?.return_hour || '',
+                ReDay: new Date(vehicleHandover?.return_date).getDate() || '',
+                ReMonth: new Date(vehicleHandover?.return_date).getMonth() + 1 || '',
+                ReYear: new Date(vehicleHandover?.return_date).getFullYear() || '',
+                x3: vehicleHandover?.condition_matches_initial ? 'X' : '',
+                ReOdo: vehicleHandover?.return_odometer_reading || '',
+                ReFuel: vehicleHandover?.return_fuel_level || '',
+                RePersonalItem: vehicleHandover?.personal_items || '',
+            };
+
+            doc.render(data);
+
+            // 5. Generate output
+            const output = doc.getZip().generate({
+                type: 'base64'
+            });
+
+            // 6. Save processed file
+            const outputPath = `${RNFS.DocumentDirectoryPath}/handover_${Date.now()}.docx`;
+            await RNFS.writeFile(outputPath, output, 'base64');
+
+            // 7. Open file
+            Toast.remove(key);
+            await FileViewer.open(outputPath, {
+                showOpenWithDialog: true,
+                displayName: 'vehicle_handover.docx',
+                showAppsSuggestions: true
+            });
+
+        } catch (error) {
+            if (error?.message?.includes('No app associated')) {
+                Toast.fail(t('msg.NO_DOCX_VIEWER_INSTALLED'));
+                try {
+                    if (Platform.OS === 'android') {
+                        const playStoreOpened = await Linking.canOpenURL('market://details?id=com.microsoft.office.word');
+                        if (playStoreOpened) {
+                            await Linking.openURL('market://details?id=com.microsoft.office.word');
+                        } else {
+                            await Linking.openURL('https://play.google.com/store/apps/details?id=com.microsoft.office.word');
+                        }
+                    } else {
+                        await Linking.openURL('https://apps.apple.com/app/microsoft-word/id586447913');
+                    }
+                } catch (storeError) {
+                    Toast.fail(t('msg.STORE_OPEN_FAILED'));
+                }
+            } else {
+                console.error('Error handling handover document:', error);
+                Toast.fail(t('msg.ERROR_GENERATING_HANDOVER'));
+            }
+        }
+    };
+
     if (!carDetail?.car || !record) return <Text>{t("common.empty")}</Text>
     const { car } = carDetail;
 
@@ -357,7 +607,7 @@ const RentalDetail = () => {
                         <Text style={{ fontWeight: '500' }}>{formatDate(record.created_at)}</Text>
                     </View>
                     <View style={{ flexDirection: 'row', marginBottom: 4 }}>
-                        <Text style={{ color: '#888' }}>Rental start date: </Text>
+                        <Text style={{ color: '#888' }}>{t("account.my_lessee.rental_start_date")}: </Text>
                         <Text style={{ fontWeight: '500' }}>{formatDate(record.rental_start_date)}</Text>
                     </View>
                     <View style={{ flexDirection: 'row', marginBottom: 4 }}>
@@ -433,8 +683,8 @@ const RentalDetail = () => {
                     gap: 10
                 }}>
                     {/* BOTH */}
-                    {contract?.rental_status === 'SIGNED' && vehicleHandover?.id && <Button type="warning">{t("account.rent_contract.view_handover")}</Button>}
-                    {contract?.id && <Button type="warning">{t("account.rent_contract.view_contract")}</Button>}
+                    {contract?.rental_status === 'SIGNED' && vehicleHandover?.id && <Button type="warning" onPress={handleViewHandoverDocument}>{t("account.rent_contract.view_handover")}</Button>}
+                    {contract?.id && <Button type="warning" onPress={handleViewContract}>{t("account.rent_contract.view_contract")}</Button>}
 
                     {/* LESSEE */}
                     {type === 'LESSEE' && contract?.rental_status === 'SIGNED' && vehicleHandover?.status === 'CREATED' && <Button type="primary" onPress={handleApproveVehicleHandover}>{t("account.rent_contract.approve_handover")}</Button>}

@@ -121,6 +121,8 @@
     "common.deposit": "Nạp token",
     "common.balance": "Số dư",
     "common.createReview": "Tạo đánh giá",
+    "common.NORMAL": "Bình thường",
+    "common.DAMAGE": "Hư hỏng",
 
     "auth.login.title": "Chào mừng bạn đến với VivuOto!",
     "auth.login.desc": "Nhập tài khoản VivuOto của bạn để tiếp tục.",
@@ -419,6 +421,10 @@
     "msg.REPORT_ISSUE_FAIL": "Báo cáo vấn đề thất bại, Vui lòng thử lại sau!",
     "msg.RECOGNIZE_FAIL": "Nhận diện thất bại vui lòng thử lại sau!",
     "msg.CREATE_REVIEW_SUCCESS": "Tạo đánh giá thành công!",
-    "msg.CREATE_REVIEW_FAILED": "Tạo đánh giá thất bại!"
+    "msg.CREATE_REVIEW_FAILED": "Tạo đánh giá thất bại!",
+    "msg.ERROR_GENERATING_CONTRACT": "Lỗi khi tạo hợp đồng, vui lòng thử lại sau!",
+    "msg.NO_DOCX_VIEWER_INSTALLED": "Không có ứng dụng xem tài liệu nào được cài đặt trên thiết bị của bạn!",
+    "msg.STORE_OPEN_FAILED": "Mở cửa hàng thất bại!",
+    "msg.ERROR_GENERATING_HANDOVER": "Lỗi khi tạo biên bản bàn giao, vui lòng thử lại sau!"
   }
 }

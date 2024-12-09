@@ -121,6 +121,8 @@
     "common.deposit": "Deposit token",
     "common.balance": "Balance",
     "common.createReview": "Create Review",
+    "common.NORMAL": "NORMAL",
+    "common.DAMAGE": "DAMAGE",
 
     "auth.login.title": "Welcome to VivuOto!",
     "auth.login.desc": "Enter your VivuOto account to continue.",
@@ -414,6 +416,10 @@
     "msg.REPORT_ISSUE_FAIL": "Failed to report issue, please try again later!",
     "msg.RECOGNIZE_FAIL": "Recognize failure, Please try again later!",
     "msg.CREATE_REVIEW_SUCCESS": "Create review successfully!",
-    "msg.CREATE_REVIEW_FAILED": "Create review failed!"
+    "msg.CREATE_REVIEW_FAILED": "Create review failed!",
+    "msg.ERROR_GENERATING_CONTRACT": "Error generating contract!",
+    "msg.NO_DOCX_VIEWER_INSTALLED": "No docx viewer installed!",
+    "msg.STORE_OPEN_FAILED": "Open store failed!",
+    "msg.ERROR_GENERATING_HANDOVER": "Error in generating vehicle handover!"
   }
 }
