@@ -1,4 +1,4 @@
-import { Avatar, Badge, Button, Popover, Typography } from "antd";
+import { Avatar, Badge, Button, Modal, Popover, QRCode, Typography } from "antd";
 import { Header } from "antd/es/layout/layout";
 import { useAuth } from "../../contexts/auth-context";
 import LanguageSelector from "../../components/LanguageSelector";
@@ -7,12 +7,14 @@ import { useTranslation } from "react-i18next";
 import { Link, useNavigate } from "react-router-dom";
 import NotificationContent from "../../components/common/NotificationContent";
 import { getUserInfoFromCookie } from "../../utils";
+import { useState } from "react";
 
 const DashboardHeader = () => {
     const navigate = useNavigate();
     const { t } = useTranslation();
     const { isLogged } = useAuth();
     const userInfo = getUserInfoFromCookie();
+    const [visible, setVisible] = useState(false);
     return (
         <Header className="fixed left-0 right-0 z-50 flex items-center justify-between shadow-md bg-lite">
             <div className="flex items-center justify-center gap-x-5">
@@ -23,6 +25,7 @@ const DashboardHeader = () => {
                 </Link>
             </div>
             <div className="flex items-center justify-center gap-x-2">
+                <Button type="primary" onClick={() => setVisible(true)}>{t("common.downloadApp")}</Button>
                 <LanguageSelector></LanguageSelector>
                 {isLogged ? <div className="flex items-center justify-center gap-x-5">
 
@@ -43,6 +46,22 @@ const DashboardHeader = () => {
                     <Button type="primary" href="/signup">{t("register")}</Button>
                 </div>}
             </div>
+            <Modal
+                title={t("common.scanQRCode")}
+                open={visible}
+                onCancel={() => setVisible(false)}
+                footer={false}
+                width={300}
+            >
+                <QRCode
+                    value="https://drive.google.com/file/d/1DdFJtSCzzyMnV50Zo4i4Ygtcfre3z7pu/view?usp=drive_link"
+                    size={256}
+                    bgColor="#ffffff"
+                    fgColor="#000000"
+                    level="L"
+                    includeMargin={false}
+                />
+            </Modal>
         </Header >
     );
 };

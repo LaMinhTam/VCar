@@ -122,6 +122,8 @@
     "common.comment": "Bình luận",
     "common.normal": "Bình thường",
     "common.damage": "Hư hỏng",
+    "common.downloadApp": "Tải ứng dụng",
+    "common.scanQRCode": "Quét mã QR để tải ứng dụng",
 
     "car.name": "Tên xe",
     "car.name.required": "Yêu cầu nhập tên xe",
