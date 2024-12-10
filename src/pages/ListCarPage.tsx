@@ -40,13 +40,13 @@ const ListCarPage = () => {
     const handlePageChange = (page: number, pageSize?: number) => {
         setParams({
             ...params,
-            page: page,
+            page: page - 1,
             size: pageSize || 10,
         });
     };
 
     const [params, setParams] = useState<IQuerySearchCar>({
-        page: 1,
+        page: 0,
         size: 10
     });
     const [filterData, setFilterData] = useState<ICarListForm>({
@@ -73,7 +73,7 @@ const ListCarPage = () => {
     let onChangeCarName = (e: ChangeEvent<HTMLInputElement>) => {
         setParams({ ...params, query: e.target.value });
     }
-    onChangeCarName = debounce(onChangeCarName, 500);
+    onChangeCarName = debounce(onChangeCarName, 600);
     const handleApplyFilters = () => {
         const newParams = { ...params };
         if (filterData.minConsumption) newParams.minConsumption = filterData.minConsumption;
@@ -268,7 +268,7 @@ const ListCarPage = () => {
                                         </Row>
                                         <Row justify="end" className="mt-4">
                                             <Pagination
-                                                current={meta.page}
+                                                current={meta.page + 1}
                                                 pageSize={meta.page_size}
                                                 total={meta.item_count}
                                                 onChange={handlePageChange}
