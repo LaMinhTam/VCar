@@ -123,6 +123,7 @@
     "common.createReview": "Tạo đánh giá",
     "common.NORMAL": "Bình thường",
     "common.DAMAGE": "Hư hỏng",
+    "common.profile": "Hồ sơ",
 
     "auth.login.title": "Chào mừng bạn đến với VivuOto!",
     "auth.login.desc": "Nhập tài khoản VivuOto của bạn để tiếp tục.",

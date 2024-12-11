@@ -37,6 +37,11 @@ const TabNavigator = () => {
                     ),
                     tabBarLabel: '',
                 }}
+                listeners={({ navigation }) => ({
+                    tabPress: (e) => {
+                        navigation.navigate('HOME_SCREEN');
+                    },
+                })}
             />
             <Tab.Screen
                 name="CAR_TAB"
@@ -52,6 +57,11 @@ const TabNavigator = () => {
                     ),
                     tabBarLabel: '',
                 }}
+                listeners={({ navigation }) => ({
+                    tabPress: (e) => {
+                        navigation.navigate('CAR_SCREEN');
+                    },
+                })}
             />
             {/* <Tab.Screen
                 name="CONVERSATION_TAB"
@@ -84,6 +94,11 @@ const TabNavigator = () => {
                     ),
                     tabBarLabel: '',
                 }}
+                listeners={({ navigation }) => ({
+                    tabPress: (e) => {
+                        navigation.navigate('NOTIFICATION_SCREEN');
+                    },
+                })}
             />
             <Tab.Screen
                 name="PERSONAL_TAB"
@@ -99,6 +114,11 @@ const TabNavigator = () => {
                     ),
                     tabBarLabel: '',
                 }}
+                listeners={({ navigation }) => ({
+                    tabPress: (e) => {
+                        navigation.navigate('PERSONAL_SCREEN');
+                    },
+                })}
             />
         </Tab.Navigator>
     );

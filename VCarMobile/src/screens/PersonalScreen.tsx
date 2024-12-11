@@ -57,7 +57,7 @@ const PersonalScreen = () => {
     );
     return (
         <LayoutMain>
-            <Text className="mb-4 text-2xl font-bold text-text8">Profile</Text>
+            <Text className="mb-4 text-2xl font-bold text-text8">{t("common.profile")}</Text>
 
             {/* Thẻ Profile */}
             {loading ? <ProfileCardSkeleton /> : <ProfileCard

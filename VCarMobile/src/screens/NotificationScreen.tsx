@@ -1,25 +1,23 @@
-import React, { useState, useEffect } from 'react';
-import { View, FlatList, TouchableOpacity, Image } from 'react-native';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { View, FlatList, TouchableOpacity, Image, RefreshControl } from 'react-native';
 import { List, Toast } from '@ant-design/react-native';
 import { Text, ActivityIndicator, Menu, Divider, Avatar } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { getListNotifications, handleMakeNotificationAsRead } from '../store/auth/handlers';
 import { NotificationParams } from '../store/auth/models';
 import { INotificationParams, INotification } from '../store/auth/types';
-import { formatDate, handleFormatLink } from '../utils';
+import { formatDate } from '../utils';
 import { ParamListBase, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 const NotificationScreen = () => {
+    const [refreshing, setRefreshing] = useState(false);
     const [notifications, setNotifications] = useState<INotification[]>([]);
     const [loading, setLoading] = useState(false);
     const [params, setParams] = useState<INotificationParams>(NotificationParams);
     const { t } = useTranslation();
     const navigation = useNavigation<NativeStackNavigationProp<ParamListBase>>();
 
-    useEffect(() => {
-        fetchNotifications();
-    }, [params]);
 
     const fetchNotifications = async () => {
         setLoading(true);
@@ -32,6 +30,18 @@ const NotificationScreen = () => {
             setLoading(false);
         }
     };
+
+    const onRefresh = useCallback(async () => {
+        setRefreshing(true);
+        setNotifications([]);
+        // setParams(NotificationParams);
+        await fetchNotifications();
+        setRefreshing(false);
+    }, []);
+
+    useMemo(() => {
+        fetchNotifications();
+    }, [params]);
 
     const handleMakeMessageAsRead = async (id: string) => {
         const key = Toast.loading({
@@ -103,6 +113,14 @@ const NotificationScreen = () => {
     return (
         <View className="flex-1 bg-white">
             <FlatList
+                refreshControl={
+                    <RefreshControl
+                        refreshing={refreshing}
+                        onRefresh={onRefresh}
+                        colors={['#0000ff']} // Android
+                        tintColor="#0000ff" // iOS
+                    />
+                }
                 data={notifications}
                 renderItem={renderItem}
                 keyExtractor={item => item.id}

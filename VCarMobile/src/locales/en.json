@@ -123,6 +123,7 @@
     "common.createReview": "Create Review",
     "common.NORMAL": "NORMAL",
     "common.DAMAGE": "DAMAGE",
+    "common.profile": "Profile",
 
     "auth.login.title": "Welcome to VivuOto!",
     "auth.login.desc": "Enter your VivuOto account to continue.",
