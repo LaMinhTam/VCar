@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { View, Text, ScrollView, Image, StyleSheet, NativeEventEmitter, useWindowDimensions, Platform, Linking } from 'react-native';
+import { View, Text, ScrollView, Image, StyleSheet, NativeEventEmitter, useWindowDimensions, Platform, Linking, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ParamListBase, useNavigation, useRoute } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
@@ -33,6 +33,7 @@ const RentalDetail = () => {
     const route = useRoute();
     const [triggerRefetch, setTriggerRefetch] = useState(false);
     const [handoverIssue, setHandoverIssue] = useState('');
+    const [refreshing, setRefreshing] = useState(false);
     const { requestId, type } = route.params as { requestId: string, type: string };
     const { width } = useWindowDimensions();
     const [record, setRecord] = useState<IRentalData>({} as IRentalData);
@@ -240,23 +241,32 @@ const RentalDetail = () => {
         }
     }
 
-    useEffect(() => {
-        async function fetchVehicleHandover() {
-            const key = Toast.loading({
-                content: t('common.processing'),
-                duration: 0,
-                mask: true
-            });
-            const response = await getVehicleHandoverByContractId(contract?.id);
-            if (response?.success) {
-                Toast.remove(key);
-                setVehicleHandover(response?.data as IVehicleHandoverResponseData);
-            } else {
-                Toast.remove(key);
-            }
+    async function fetchVehicleHandover() {
+        const key = Toast.loading({
+            content: t('common.processing'),
+            duration: 0,
+            mask: true
+        });
+        const response = await getVehicleHandoverByContractId(contract?.id);
+        if (response?.success) {
+            Toast.remove(key);
+            setVehicleHandover(response?.data as IVehicleHandoverResponseData);
+        } else {
+            Toast.remove(key);
         }
+    }
+
+    useEffect(() => {
         fetchVehicleHandover();
     }, [contract?.id])
+
+    const onRefresh = async () => {
+        setRefreshing(true);
+        await fetchRentalRequestById();
+        await fetchRentalContractById(record?.id);
+        await fetchVehicleHandover();
+        setRefreshing(false);
+    }
 
     useEffect(() => {
         dispatch({ type: GET_CAR_BY_ID, payload: record?.car_id });
@@ -586,7 +596,12 @@ const RentalDetail = () => {
 
     return (
         <SafeAreaView className="flex-1 bg-white">
-            <ScrollView contentContainerStyle={{ paddingBottom: 64 }}>
+            <ScrollView contentContainerStyle={{ paddingBottom: 64 }} refreshControl={<RefreshControl
+                refreshing={refreshing}
+                onRefresh={onRefresh}
+                colors={['#0000ff']} // Android
+                tintColor="#0000ff" // iOS
+            />}>
                 {/* Car Card */}
                 <View>
                     <Image

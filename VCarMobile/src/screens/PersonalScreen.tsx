@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity, RefreshControl } from 'react-native';
 import { Button, Icon } from 'react-native-elements';
 import LayoutMain from '../layouts/LayoutMain';
 import { useDispatch, useSelector } from 'react-redux';
@@ -16,6 +16,7 @@ import { setIsReCheckToken } from '../store/auth/reducers';
 import { useTranslation } from 'react-i18next';
 
 const PersonalScreen = () => {
+    const [refreshing, setRefreshing] = useState(false);
     const { t } = useTranslation();
     const dispatch = useDispatch();
     const { me, loading } = useSelector((state: RootState) => state.profile);
@@ -55,8 +56,21 @@ const PersonalScreen = () => {
             fetchWalletBalance();
         }, [fetchWalletBalance])
     );
+
+    const onRefresh = useCallback(() => {
+        setRefreshing(true);
+        dispatch({ type: GET_ME });
+        fetchWalletBalance();
+        setRefreshing(false);
+    }, []);
+
     return (
-        <LayoutMain>
+        <LayoutMain refreshControl={<RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={['#0000ff']} // Android
+            tintColor="#0000ff" // iOS
+        />}>
             <Text className="mb-4 text-2xl font-bold text-text8">{t("common.profile")}</Text>
 
             {/* Thẻ Profile */}
